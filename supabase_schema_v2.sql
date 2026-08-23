@@ -43,6 +43,7 @@ CREATE TABLE inventory_items (
   
   is_opened BOOLEAN DEFAULT false,
   is_frozen BOOLEAN DEFAULT false,
+  health_score TEXT, -- Sano, Moderato, Poco Sano, Sconosciuto
   notes TEXT,
   
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -77,6 +78,16 @@ CREATE TABLE recipes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 6. CONSUMPTION LOGS (Storico consumi graduali)
+CREATE TABLE consumption_logs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  item_name TEXT NOT NULL,
+  quantity_consumed NUMERIC NOT NULL,
+  health_score TEXT,
+  consumed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- ROW LEVEL SECURITY (RLS)
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inventory_items ENABLE ROW LEVEL SECURITY;
@@ -104,3 +115,8 @@ CREATE POLICY "Users delete own shopping list" ON shopping_items FOR DELETE USIN
 CREATE POLICY "Users view own recipes" ON recipes FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users insert own recipes" ON recipes FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users delete own recipes" ON recipes FOR DELETE USING (auth.uid() = user_id);
+
+-- Consumption Logs: Users can only see and manage their own logs
+ALTER TABLE consumption_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users view own logs" ON consumption_logs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users insert own logs" ON consumption_logs FOR INSERT WITH CHECK (auth.uid() = user_id);

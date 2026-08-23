@@ -9,6 +9,7 @@ interface AddItemModalProps {
     location?: 'FRIDGE' | 'FREEZER' | 'PANTRY' | 'OTHER';
     days?: number;
     category?: string;
+    health_score?: string;
   } | null;
   onSave: (data: any) => void;
   onClose: () => void;
@@ -35,6 +36,7 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
       location: location,
       quantity: quantity,
       is_frozen: location === 'FREEZER',
+      health_score: initialData?.health_score || null
     });
   };
 
@@ -54,7 +56,7 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
         animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600 }}>
             {initialData?.barcode ? 'Conferma Prodotto' : 'Aggiungi Prodotto'}
           </h3>
@@ -64,8 +66,19 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
         </div>
 
         {initialData?.category && (
-          <div style={{ marginBottom: '16px', color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 500 }}>
-            Categoria AI: {initialData.category}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              {initialData.category}
+            </div>
+            {initialData.health_score && initialData.health_score !== 'Sconosciuto' && (
+              <div style={{ 
+                background: initialData.health_score === 'Sano' ? 'rgba(50, 215, 75, 0.15)' : (initialData.health_score === 'Moderato' ? 'rgba(255, 159, 10, 0.15)' : 'rgba(255, 69, 58, 0.15)'), 
+                color: initialData.health_score === 'Sano' ? '#32D74B' : (initialData.health_score === 'Moderato' ? '#FF9F0A' : '#FF453A'),
+                padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600 
+              }}>
+                {initialData.health_score}
+              </div>
+            )}
           </div>
         )}
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Settings, Plus, Trash2, Loader2, Info, Box } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
@@ -48,6 +48,7 @@ export default function Dashboard() {
       let days = 7;
       let category = "";
       let location: 'FRIDGE' | 'FREEZER' | 'PANTRY' = 'FRIDGE';
+      let healthScore = "Sconosciuto";
 
       try {
         const aiRes = await fetch('/api/analyzeProduct', {
@@ -62,6 +63,7 @@ export default function Dashboard() {
           days = aiData.default_shelf_life_days || 7;
           category = aiData.category || "";
           location = aiData.storage_type || 'FRIDGE';
+          healthScore = aiData.health_score || "Sconosciuto";
         }
       } catch (aiError) {
         console.error("Errore Gemini API:", aiError);
@@ -73,7 +75,8 @@ export default function Dashboard() {
         days: days,
         category: category,
         location: location,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        health_score: healthScore
       });
       setShowAddModal(true);
       
@@ -93,6 +96,7 @@ export default function Dashboard() {
       quantity: data.quantity,
       location: data.location,
       is_frozen: data.is_frozen,
+      health_score: data.health_score,
       image_url: aiProductData?.imageUrl || null
     });
     setAiProductData(null);
@@ -296,22 +300,6 @@ export default function Dashboard() {
           }}
         />
       )}
-
-      {/* Bottom Navigation */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(15, 15, 15, 0.9)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--border)', padding: '16px 20px', paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', display: 'flex', justifyContent: 'space-around', zIndex: 100 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--primary)' }}>
-          <Refrigerator size={24} />
-          <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Inventario</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-          <Search size={24} />
-          <span style={{ fontSize: '0.7rem' }}>Cerca</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-          <Settings size={24} />
-          <span style={{ fontSize: '0.7rem' }}>Profilo</span>
-        </div>
-      </div>
 
       <style>{`
         @keyframes pulseRed {

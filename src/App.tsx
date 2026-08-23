@@ -1,9 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import ShoppingList from './pages/ShoppingList';
+import AiRecipes from './pages/AiRecipes';
+import Profile from './pages/Profile';
+import BottomNavigation, { type TabType } from './components/BottomNavigation';
+
+// Contenitore Principale (SPA Fluida)
+const AppContainer = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('INVENTORY');
+
+  return (
+    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        {activeTab === 'INVENTORY' && <Dashboard />}
+        {activeTab === 'SHOPPING' && <ShoppingList />}
+        {activeTab === 'RECIPES' && <AiRecipes />}
+        {activeTab === 'PROFILE' && <Profile />}
+      </div>
+      <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
+    </div>
+  );
+};
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -28,7 +49,7 @@ function App() {
           path="/" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <AppContainer />
             </ProtectedRoute>
           } 
         />

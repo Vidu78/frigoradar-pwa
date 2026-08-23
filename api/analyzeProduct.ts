@@ -35,25 +35,26 @@ export default async function handler(req: any, res: any) {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
-AGISCI COME: Database Architect e Data Normalization Master specializzato in ambito GDO e Retail Alimentare (FMCG).
-COMPITO: Devi analizzare una stringa di input grezza (derivata da API scanner o OCR) e restituire i metadati canonici di un prodotto alimentare.
+AGISCI COME: Database Architect e Data Normalization Master specializzato in nutrizione, GDO e Retail Alimentare.
+COMPITO: Analizza una stringa grezza (da scanner o OCR) e restituisci i metadati canonici di un prodotto alimentare.
 
-REGOLE ANTI-ALLUCINAZIONE (CRITICAL STRICT MODE):
-1. NON INVENTARE NOMI: Se la stringa in input è palesemente falsa, vuota o è un codice a barre numerico puro senza contesto testuale, restituisci name = "Prodotto Sconosciuto" e brand = null. Non allucinare prodotti inesistenti.
-2. NORMALIZZAZIONE: Estrai il nome pulito del prodotto eliminando codici sporchi, grammature (es. 500g, 1L) e refusi dal campo "name".
-3. CONSERVAZIONE: Usa ESCLUSIVAMENTE i valori esatti dell'enum: "FRIDGE", "FREEZER", "PANTRY", "OTHER". (I surgelati sono FREEZER, i prodotti secchi PANTRY, il fresco FRIDGE).
-4. DATI INCERTI: Se non sei certo al 99% della marca (brand), imposta il valore a null. Non provare a indovinare.
-5. NO MARKDOWN: La tua risposta DEVE essere solo l'oggetto JSON puro. Nessun backtick, nessuna spiegazione.
+REGOLE ANTI-ALLUCINAZIONE E SALUTE:
+1. NON INVENTARE NOMI: Se la stringa è vuota o incomprensibile, name = "Prodotto Sconosciuto".
+2. NORMALIZZAZIONE: Nome pulito senza codici o pesi.
+3. CONSERVAZIONE: Solo "FRIDGE", "FREEZER", "PANTRY", "OTHER".
+4. HEALTH SCORE: Valuta l'impatto sulla salute in base alla tipologia di prodotto. Valori ammessi: "Sano", "Moderato", "Poco Sano", "Sconosciuto".
+5. NO MARKDOWN: Solo JSON puro.
 
-INPUT REALE DA ANALIZZARE: "${query || barcode}"
+INPUT REALE: "${query || barcode}"
 
 SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 {
-  "name": "Nome canonico pulito (es. Latte Parzialmente Scremato) o 'Prodotto Sconosciuto'",
-  "brand": "Marca estratta se presente e certa, altrimenti null",
-  "category": "Macro categoria semantica (es. Latticini, Surgelati, Dispensa)",
+  "name": "Nome canonico pulito",
+  "brand": "Marca se certa, altrimenti null",
+  "category": "Macro categoria semantica",
   "storage_type": "FRIDGE | FREEZER | PANTRY | OTHER",
-  "default_shelf_life_days": numero intero stimato di giorni di durata tipica (es. 180 per surgelati, 5 per fresco)
+  "default_shelf_life_days": 5,
+  "health_score": "Sano | Moderato | Poco Sano | Sconosciuto"
 }
 `;
 
@@ -61,7 +62,6 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
     const response = await result.response;
     let text = response.text().trim();
     
-    // Pulisco eventuali backticks markdown residui per evitare crash di parse
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
 
     const parsedData = JSON.parse(text);
@@ -69,6 +69,6 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 
   } catch (error: any) {
     console.error('Gemini Error:', error);
-    return res.status(500).json({ error: 'Errore durante l\'analisi AI', details: error.message });
+    return res.status(500).json({ error: 'Errore AI', details: error.message });
   }
 }

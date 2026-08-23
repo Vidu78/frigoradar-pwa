@@ -11,7 +11,8 @@ export interface InventoryItem {
   location: 'FRIDGE' | 'FREEZER' | 'PANTRY' | 'OTHER';
   expiration_date: string | null;
   is_frozen: boolean;
-  image_url?: string | null; // Gestito temporaneamente qui se non c'è il prodotto
+  health_score?: string | null;
+  image_url?: string | null;
   created_at: string;
 }
 
