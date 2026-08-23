@@ -1,23 +1,26 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
-export interface FridgeItem {
+export interface InventoryItem {
   id: string;
   user_id: string;
-  name: string;
-  barcode: string | null;
-  expiry_date: string | null;
+  product_id: string | null;
+  custom_name: string | null;
   quantity: number;
-  image_url: string | null;
+  unit: string | null;
+  location: 'FRIDGE' | 'FREEZER' | 'PANTRY' | 'OTHER';
+  expiration_date: string | null;
+  is_frozen: boolean;
+  image_url?: string | null; // Gestito temporaneamente qui se non c'è il prodotto
   created_at: string;
 }
 
 interface InventoryState {
-  items: FridgeItem[];
+  items: InventoryItem[];
   loading: boolean;
   error: string | null;
   fetchItems: () => Promise<void>;
-  addItem: (item: Partial<FridgeItem>) => Promise<void>;
+  addItem: (item: Partial<InventoryItem>) => Promise<void>;
   updateItemQuantity: (id: string, quantity: number) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
@@ -31,13 +34,13 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const { data, error } = await supabase
-        .from('fridge_items')
+        .from('inventory_items')
         .select('*')
-        .order('expiry_date', { ascending: true });
+        .order('expiration_date', { ascending: true });
         
       if (error) throw error;
       
-      set({ items: data as FridgeItem[] });
+      set({ items: data as InventoryItem[] });
     } catch (err: any) {
       set({ error: err.message });
     } finally {
@@ -57,16 +60,17 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       };
 
       const { data, error } = await supabase
-        .from('fridge_items')
+        .from('inventory_items')
         .insert([newItem])
         .select()
         .single();
 
       if (error) throw error;
 
-      set({ items: [...get().items, data as FridgeItem] });
+      set({ items: [...get().items, data as InventoryItem] });
     } catch (err: any) {
       set({ error: err.message });
+      throw err;
     } finally {
       set({ loading: false });
     }
@@ -75,7 +79,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   updateItemQuantity: async (id, quantity) => {
     try {
       const { error } = await supabase
-        .from('fridge_items')
+        .from('inventory_items')
         .update({ quantity })
         .eq('id', id);
 
@@ -92,7 +96,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   deleteItem: async (id) => {
     try {
       const { error } = await supabase
-        .from('fridge_items')
+        .from('inventory_items')
         .delete()
         .eq('id', id);
 

@@ -1,0 +1,192 @@
+[
+  {
+    "canonicalName": "Latte Fresco Intero",
+    "aliases": ["latte intero", "latte fresco", "latte fresco pastorizzato", "latte"],
+    "category": "Latticini",
+    "subcategory": "Latte e bevande refrigerate",
+    "storageType": "FRIDGE",
+    "commonUnits": ["L", "ml"],
+    "typicalExpirationRange": 6,
+    "semanticTags": ["latte", "intero", "fresco", "colazione", "lattosio"]
+  },
+  {
+    "canonicalName": "Latte Parzialmente Scremato",
+    "aliases": ["latte ps", "latte parz screm", "latte parzialmente scremato"],
+    "category": "Latticini",
+    "subcategory": "Latte e bevande refrigerate",
+    "storageType": "FRIDGE",
+    "commonUnits": ["L", "ml"],
+    "typicalExpirationRange": 6,
+    "semanticTags": ["latte", "scremato", "colazione", "lattosio", "leggero"]
+  },
+  {
+    "canonicalName": "Mozzarella Fiordilatte",
+    "aliases": ["mozzarella", "fiordilatte", "mozzarella vaccina", "treccia"],
+    "category": "Latticini",
+    "subcategory": "Formaggi",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "pezzi"],
+    "typicalExpirationRange": 5,
+    "semanticTags": ["formaggio", "fresco", "pizza", "lattosio"]
+  },
+  {
+    "canonicalName": "Mozzarella di Bufala",
+    "aliases": ["bufala", "mozzarella bufala", "treccia bufala", "bocconcini bufala"],
+    "category": "Latticini",
+    "subcategory": "Formaggi",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "pezzi"],
+    "typicalExpirationRange": 4,
+    "semanticTags": ["formaggio", "fresco", "bufala", "lattosio", "premium"]
+  },
+  {
+    "canonicalName": "Uova Fresche",
+    "aliases": ["uova", "uovo", "uova gallina"],
+    "category": "Latticini",
+    "subcategory": "Uova e prodotti a base di uova",
+    "storageType": "FRIDGE",
+    "commonUnits": ["pz"],
+    "typicalExpirationRange": 21,
+    "semanticTags": ["uova", "proteine", "cottura", "colazione"]
+  },
+  {
+    "canonicalName": "Burro",
+    "aliases": ["burro", "panetto burro", "burro fresco"],
+    "category": "Latticini",
+    "subcategory": "Formaggi",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g"],
+    "typicalExpirationRange": 60,
+    "semanticTags": ["grassi", "cottura", "dolci", "lattosio"]
+  },
+  {
+    "canonicalName": "Yogurt Bianco Naturale",
+    "aliases": ["yogurt bianco", "yogurt naturale", "yogurt intero", "yogurt"],
+    "category": "Latticini",
+    "subcategory": "Yogurt e dessert",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "pz"],
+    "typicalExpirationRange": 14,
+    "semanticTags": ["yogurt", "fermenti", "colazione", "snack", "lattosio"]
+  },
+  {
+    "canonicalName": "Petto di Pollo Fresco",
+    "aliases": ["pollo", "petto pollo", "fettine pollo", "pollo fresco"],
+    "category": "Carne fresca",
+    "subcategory": "Pollo",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "kg"],
+    "typicalExpirationRange": 3,
+    "semanticTags": ["carne", "bianca", "proteine", "pollo"]
+  },
+  {
+    "canonicalName": "Macinato di Bovino",
+    "aliases": ["macinato", "trita", "carne trita", "macinato manzo", "macinato bovino"],
+    "category": "Carne fresca",
+    "subcategory": "Manzo",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "kg"],
+    "typicalExpirationRange": 2,
+    "semanticTags": ["carne", "rossa", "ragu", "macinato"]
+  },
+  {
+    "canonicalName": "Salmone Affumicato",
+    "aliases": ["salmone", "salmone affumicato", "busta salmone"],
+    "category": "Pesce confezionato",
+    "subcategory": "Pesce affumicato",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g"],
+    "typicalExpirationRange": 15,
+    "semanticTags": ["pesce", "affumicato", "omega3", "antipasto"]
+  },
+  {
+    "canonicalName": "Prosciutto Crudo",
+    "aliases": ["crudo", "prosciutto", "prosciutto crudo", "fette crudo"],
+    "category": "Salumi",
+    "subcategory": "Salumi affettati",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "vaschetta"],
+    "typicalExpirationRange": 7,
+    "semanticTags": ["maiale", "salume", "affettato", "panino"]
+  },
+  {
+    "canonicalName": "Minestrone Surgelato",
+    "aliases": ["minestrone", "minestrone verdure", "zuppa surgelata"],
+    "category": "Verdure surgelate",
+    "subcategory": "Minestroni surgelati",
+    "storageType": "FREEZER",
+    "commonUnits": ["g", "kg"],
+    "typicalExpirationRange": 365,
+    "semanticTags": ["verdure", "surgelato", "minestra", "zuppa"]
+  },
+  {
+    "canonicalName": "Pizza Margherita Surgelata",
+    "aliases": ["pizza", "margherita", "pizza surgelata", "pizza margherita"],
+    "category": "Pizze e focacce surgelate",
+    "subcategory": "Pizze surgelate",
+    "storageType": "FREEZER",
+    "commonUnits": ["pz"],
+    "typicalExpirationRange": 270,
+    "semanticTags": ["pizza", "surgelato", "pronto", "pomodoro", "mozzarella"]
+  },
+  {
+    "canonicalName": "Piselli Surgelati",
+    "aliases": ["piselli", "pisellini", "piselli fini"],
+    "category": "Verdure surgelate",
+    "subcategory": "Verdure singole",
+    "storageType": "FREEZER",
+    "commonUnits": ["g", "kg"],
+    "typicalExpirationRange": 365,
+    "semanticTags": ["verdura", "surgelato", "legumi", "contorno"]
+  },
+  {
+    "canonicalName": "Bastoncini di Pesce",
+    "aliases": ["bastoncini", "bastoncini pesce", "capitan findus", "bastoncini impanati"],
+    "category": "Pesce surgelato",
+    "subcategory": "Pesce impanato",
+    "storageType": "FREEZER",
+    "commonUnits": ["pz", "g"],
+    "typicalExpirationRange": 365,
+    "semanticTags": ["pesce", "surgelato", "impanato", "bambini"]
+  },
+  {
+    "canonicalName": "Gelato Vaschetta",
+    "aliases": ["gelato", "vaschetta gelato", "barattolo gelato"],
+    "category": "Gelati e dessert surgelati",
+    "subcategory": "Gelati",
+    "storageType": "FREEZER",
+    "commonUnits": ["g", "ml"],
+    "typicalExpirationRange": 365,
+    "semanticTags": ["dolce", "surgelato", "estate", "dessert"]
+  },
+  {
+    "canonicalName": "Insalata Mista in Busta",
+    "aliases": ["insalata", "insalata mista", "insalata busta", "misticanza"],
+    "category": "Verdure fresche",
+    "subcategory": "Insalate confezionate",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g"],
+    "typicalExpirationRange": 5,
+    "semanticTags": ["verdura", "fresco", "foglie", "contorno"]
+  },
+  {
+    "canonicalName": "Pasta Fresca Ripiena",
+    "aliases": ["tortellini", "ravioli", "agnolotti", "pasta ripiena", "pasta fresca"],
+    "category": "Pasta fresca",
+    "subcategory": "Pasta ripiena",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g"],
+    "typicalExpirationRange": 21,
+    "semanticTags": ["pasta", "fresco", "ripieno", "primo"]
+  },
+  {
+    "canonicalName": "Pesto alla Genovese Fresco",
+    "aliases": ["pesto", "pesto genovese", "pesto fresco", "salsa pesto"],
+    "category": "Salse e condimenti refrigerati",
+    "subcategory": "Pesto",
+    "storageType": "FRIDGE",
+    "commonUnits": ["g", "vasetto"],
+    "typicalExpirationRange": 14,
+    "semanticTags": ["salsa", "condimento", "basilico", "pasta"]
+  }
+]
