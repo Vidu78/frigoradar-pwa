@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [aiProductData, setAiProductData] = useState<any>(null);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER'>('FRIDGE');
+  const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
 
   useEffect(() => {
     fetchItems();
@@ -118,6 +118,7 @@ export default function Dashboard() {
   const counts = {
     FRIDGE: items.filter(i => i.location === 'FRIDGE').length,
     FREEZER: items.filter(i => i.location === 'FREEZER').length,
+    PANTRY: items.filter(i => i.location === 'PANTRY').length,
   };
 
   return (
@@ -150,7 +151,7 @@ export default function Dashboard() {
         <div 
           className="glass-panel" 
           onClick={() => {
-            setAiProductData(null); // Pulisce dati AI passati
+            setAiProductData(null);
             setShowAddModal(true);
           }}
           style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
@@ -188,38 +189,54 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* TABS Frigo / Freezer */}
+      {/* TABS Frigo / Freezer / Dispensa */}
       <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '4px', borderRadius: '12px', marginBottom: '20px' }}>
         <button 
           onClick={() => setActiveTab('FRIDGE')}
           style={{
-            flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
+            flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
             background: activeTab === 'FRIDGE' ? 'rgba(255,255,255,0.1)' : 'transparent',
             color: activeTab === 'FRIDGE' ? 'white' : 'var(--text-muted)',
             fontWeight: activeTab === 'FRIDGE' ? 600 : 400,
-            transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+            transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
           }}
         >
-          <Refrigerator size={18} />
-          Frigorifero
-          <span style={{ background: activeTab === 'FRIDGE' ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: activeTab === 'FRIDGE' ? 'black' : 'inherit', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+          <Refrigerator size={16} />
+          <span style={{ fontSize: '0.9rem' }}>Frigo</span>
+          <span style={{ background: activeTab === 'FRIDGE' ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: activeTab === 'FRIDGE' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
             {counts.FRIDGE}
           </span>
         </button>
         <button 
           onClick={() => setActiveTab('FREEZER')}
           style={{
-            flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
+            flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
             background: activeTab === 'FREEZER' ? 'rgba(100, 200, 255, 0.15)' : 'transparent',
             color: activeTab === 'FREEZER' ? '#64C8FF' : 'var(--text-muted)',
             fontWeight: activeTab === 'FREEZER' ? 600 : 400,
-            transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+            transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
           }}
         >
-          <Box size={18} />
-          Freezer
-          <span style={{ background: activeTab === 'FREEZER' ? '#64C8FF' : 'rgba(255,255,255,0.1)', color: activeTab === 'FREEZER' ? 'black' : 'inherit', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+          <Box size={16} />
+          <span style={{ fontSize: '0.9rem' }}>Freezer</span>
+          <span style={{ background: activeTab === 'FREEZER' ? '#64C8FF' : 'rgba(255,255,255,0.1)', color: activeTab === 'FREEZER' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
             {counts.FREEZER}
+          </span>
+        </button>
+        <button 
+          onClick={() => setActiveTab('PANTRY')}
+          style={{
+            flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
+            background: activeTab === 'PANTRY' ? 'rgba(255, 170, 0, 0.15)' : 'transparent',
+            color: activeTab === 'PANTRY' ? '#FFAA00' : 'var(--text-muted)',
+            fontWeight: activeTab === 'PANTRY' ? 600 : 400,
+            transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+          }}
+        >
+          <Box size={16} />
+          <span style={{ fontSize: '0.9rem' }}>Dispensa</span>
+          <span style={{ background: activeTab === 'PANTRY' ? '#FFAA00' : 'rgba(255,255,255,0.1)', color: activeTab === 'PANTRY' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
+            {counts.PANTRY}
           </span>
         </button>
       </div>
@@ -230,7 +247,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
         ) : filteredItems.length === 0 ? (
           <div className="glass-panel" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Nessun prodotto in {activeTab === 'FRIDGE' ? 'Frigo' : 'Freezer'}.
+            Nessun prodotto in {activeTab === 'FRIDGE' ? 'Frigo' : activeTab === 'FREEZER' ? 'Freezer' : 'Dispensa'}.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -252,7 +269,9 @@ export default function Dashboard() {
                     <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '50px', height: '50px', borderRadius: '12px', objectFit: 'cover', background: 'white' }} />
                   ) : (
                     <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {item.location === 'FREEZER' ? <Box size={24} color="#64C8FF" opacity={0.6} /> : <Refrigerator size={24} color="var(--primary)" opacity={0.6} />}
+                      {item.location === 'FREEZER' ? <Box size={24} color="#64C8FF" opacity={0.6} /> : 
+                       item.location === 'PANTRY' ? <Box size={24} color="#FFAA00" opacity={0.6} /> :
+                       <Refrigerator size={24} color="var(--primary)" opacity={0.6} />}
                     </div>
                   )}
                   

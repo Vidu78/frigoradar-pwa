@@ -24,7 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const prompt = `
 AGISCI COME: Uno Chef Stellato ed esperto di cucina anti-spreco.
-COMPITO: Ho i seguenti ingredienti nel frigo/freezer. Crea una ricetta deliziosa per ESATTAMENTE ${peopleCount || 2} persone per utilizzarne il più possibile, specialmente quelli vicini alla scadenza.
+COMPITO: Ho i seguenti ingredienti nel frigo, nel freezer o in dispensa (pasta, legumi, conserve, sale, ecc.). Crea una ricetta deliziosa per ESATTAMENTE ${peopleCount || 2} persone per utilizzarne il più possibile, specialmente quelli vicini alla scadenza.
 
 INGREDIENTI DISPONIBILI:
 ${items.map((i: any) => `- ${i.name} (Quantità: ${i.quantity}, Scadenza: ${i.expiration_date})`).join('\n')}
