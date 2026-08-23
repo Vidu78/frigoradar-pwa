@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useAuthStore } from '../store/authStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Settings } from 'lucide-react';
 
