@@ -3,7 +3,7 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { Sparkles, Users, Clock, Flame, CheckCircle2, ChevronRight, Utensils } from 'lucide-react';
 
 export default function AiRecipes() {
-  const { items, consumeRecipeIngredients } = useInventoryStore();
+  const { items, setPendingRecipe } = useInventoryStore();
   
   const [peopleCount, setPeopleCount] = useState(2);
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,6 @@ export default function AiRecipes() {
     setCooked(false);
 
     try {
-      // Pass the items to AI
       const payload = items.map(i => ({
         original_id: i.id,
         name: i.custom_name || 'Prodotto',
@@ -41,9 +40,9 @@ export default function AiRecipes() {
     }
   };
 
-  const handleCookNow = async () => {
+  const handleCookNow = () => {
     if (!recipe || !recipe.ingredients_used) return;
-    await consumeRecipeIngredients(recipe.ingredients_used);
+    setPendingRecipe(recipe);
     setCooked(true);
   };
 
@@ -171,8 +170,8 @@ export default function AiRecipes() {
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(50, 215, 75, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CheckCircle2 size={48} color="#32D74B" />
           </div>
-          <h2 style={{ margin: 0 }}>Buon Appetito!</h2>
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Gli ingredienti sono stati scalati automaticamente dal tuo inventario e registrati nello storico consumi.</p>
+          <h2 style={{ margin: 0 }}>Divertiti ai fornelli!</h2>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>La ricetta è stata salvata in sospeso. Quando riaprirai l'app ti chiederemo di confermare gli ingredienti esatti per decurtarli dal frigo.</p>
           <button 
             onClick={() => { setRecipe(null); setCooked(false); }}
             style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}

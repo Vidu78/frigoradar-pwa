@@ -17,8 +17,14 @@ export interface InventoryItem {
   created_at: string;
 }
 
+export interface PendingRecipe {
+  title: string;
+  ingredients_used: { original_id: string; name: string; quantity_deducted: number; unit?: string; health_score?: string }[];
+}
+
 interface InventoryState {
   items: InventoryItem[];
+  pendingRecipe: PendingRecipe | null;
   loading: boolean;
   error: string | null;
   fetchItems: () => Promise<void>;
@@ -26,12 +32,19 @@ interface InventoryState {
   updateItemQuantity: (id: string, quantity: number) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
   consumeRecipeIngredients: (ingredients: {original_id: string, name: string, quantity_deducted: number, health_score?: string}[]) => Promise<void>;
+  setPendingRecipe: (recipe: PendingRecipe | null) => void;
 }
 
-export const useInventoryStore = create<InventoryState>((set, get) => ({
-  items: [],
-  loading: false,
-  error: null,
+export const useInventoryStore = create<InventoryState>((set, get) => {
+  const initialPendingRecipe = localStorage.getItem('pendingRecipe') 
+    ? JSON.parse(localStorage.getItem('pendingRecipe') as string) 
+    : null;
+
+  return {
+    items: [],
+    pendingRecipe: initialPendingRecipe,
+    loading: false,
+    error: null,
 
   fetchItems: async () => {
     const { session } = useAuthStore.getState();
@@ -140,4 +153,14 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       set({ error: err.message });
     }
   },
-}));
+
+  setPendingRecipe: (recipe) => {
+    if (recipe) {
+      localStorage.setItem('pendingRecipe', JSON.stringify(recipe));
+    } else {
+      localStorage.removeItem('pendingRecipe');
+    }
+    set({ pendingRecipe: recipe });
+  }
+  };
+});
