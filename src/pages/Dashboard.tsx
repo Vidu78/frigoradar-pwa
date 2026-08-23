@@ -22,37 +22,61 @@ export default function Dashboard() {
     setIsProcessingBarcode(true);
     
     try {
-      // Chiamata ad OpenFoodFacts API
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
-      const data = await res.json();
-      
-      let productName = "Prodotto Sconosciuto";
+      // 1. Chiamata ad OpenFoodFacts API per un indizio iniziale
+      let rawName = `Codice ${decodedText}`;
       let imageUrl = null;
+
+      try {
+        const resOFF = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
+        const dataOFF = await resOFF.json();
+        if (dataOFF.status === 1 && dataOFF.product) {
+          rawName = dataOFF.product.product_name || dataOFF.product.generic_name || rawName;
+          imageUrl = dataOFF.product.image_front_url || dataOFF.product.image_url;
+        }
+      } catch (e) {
+        console.warn("OpenFoodFacts offline", e);
+      }
       
-      if (data.status === 1 && data.product) {
-        productName = data.product.product_name || data.product.generic_name || "Prodotto senza nome";
-        imageUrl = data.product.image_front_url || data.product.image_url;
-      } else {
-        // Se non lo trova, prova a chiedere all'utente o metti un default
-        productName = prompt("Prodotto non trovato nel database. Inserisci il nome:") || "Prodotto Sconosciuto";
+      // 2. Inviamo a Gemini AI tramite il nostro Vercel Endpoint
+      let finalName = rawName;
+      let days = 7;
+      let categoryInfo = "";
+
+      try {
+        const aiRes = await fetch('/api/analyzeProduct', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ barcode: decodedText, query: rawName })
+        });
+        
+        if (aiRes.ok) {
+          const aiData = await aiRes.json();
+          finalName = aiData.name || rawName;
+          days = aiData.default_shelf_life_days || 7;
+          categoryInfo = aiData.category ? `[${aiData.category}] ` : "";
+        }
+      } catch (aiError) {
+        console.error("Errore Gemini API:", aiError);
+        // Fallback gracefully on OpenFoodFacts data if AI fails
       }
 
-      // Impostiamo una data di scadenza di default (es. tra 7 giorni)
-      const defaultExpiry = addDays(new Date(), 7).toISOString().split('T')[0];
+      // 3. Calcolo scadenza dinamica e salvataggio
+      const defaultExpiry = addDays(new Date(), days).toISOString().split('T')[0];
       
-      // Chiediamo all'utente la data di scadenza
-      const expiryInput = prompt(`Inserisci la data di scadenza per ${productName} (Formato: YYYY-MM-DD)`, defaultExpiry);
+      const expiryInput = prompt(`Trovato: ${categoryInfo}${finalName}\\nScadenza stimata (${days} giorni). Confermi?`, defaultExpiry);
       
-      await addItem({
-        name: productName,
-        barcode: decodedText,
-        expiry_date: expiryInput || defaultExpiry,
-        quantity: 1,
-        image_url: imageUrl
-      });
+      if (expiryInput) {
+        await addItem({
+          name: finalName,
+          barcode: decodedText,
+          expiry_date: expiryInput,
+          quantity: 1,
+          image_url: imageUrl
+        });
+      }
       
     } catch (error) {
-      console.error("Errore durante il recupero del prodotto:", error);
+      console.error("Errore generale durante la scansione:", error);
       alert("Si è verificato un errore durante la scansione.");
     } finally {
       setIsProcessingBarcode(false);

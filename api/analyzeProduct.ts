@@ -35,19 +35,25 @@ export default async function handler(req: any, res: any) {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
-Sei il motore semantico di "FrigoRadar", un'app avanzata per l'inventario domestico (frigo e freezer).
-L'utente o lo scanner barcode ha appena rilevato questo input: "${query || barcode}"
+AGISCI COME: Database Architect e Data Normalization Master specializzato in ambito GDO e Retail Alimentare (FMCG).
+COMPITO: Devi analizzare una stringa di input grezza (derivata da API scanner o OCR) e restituire i metadati canonici di un prodotto alimentare.
 
-Il tuo compito è dedurre i dettagli tecnici di questo prodotto alimentare (normalizzando nomi, correggendo ortografia e deducendo marca/scadenze).
-Restituisci ESCLUSIVAMENTE un oggetto JSON valido, senza alcuna spiegazione, markdown, o blocchi di codice (nessun backtick).
+REGOLE ANTI-ALLUCINAZIONE (CRITICAL STRICT MODE):
+1. NON INVENTARE NOMI: Se la stringa in input è palesemente falsa, vuota o è un codice a barre numerico puro senza contesto testuale, restituisci name = "Prodotto Sconosciuto" e brand = null. Non allucinare prodotti inesistenti.
+2. NORMALIZZAZIONE: Estrai il nome pulito del prodotto eliminando codici sporchi, grammature (es. 500g, 1L) e refusi dal campo "name".
+3. CONSERVAZIONE: Usa ESCLUSIVAMENTE i valori esatti dell'enum: "FRIDGE", "FREEZER", "PANTRY", "OTHER". (I surgelati sono FREEZER, i prodotti secchi PANTRY, il fresco FRIDGE).
+4. DATI INCERTI: Se non sei certo al 99% della marca (brand), imposta il valore a null. Non provare a indovinare.
+5. NO MARKDOWN: La tua risposta DEVE essere solo l'oggetto JSON puro. Nessun backtick, nessuna spiegazione.
 
-Il JSON deve avere questi esatti campi:
+INPUT REALE DA ANALIZZARE: "${query || barcode}"
+
+SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 {
-  "name": "Nome pulito e standardizzato (es. Latte Parzialmente Scremato)",
-  "brand": "Marca (solo se deducibile dall'input, altrimenti null)",
-  "category": "Una tra: Latticini, Carne, Pesce, Verdura, Frutta, Bevande, Condimenti, Surgelati, Dispensa",
-  "storage_type": "SOLO uno tra: FRIDGE, FREEZER, PANTRY, OTHER (Usa FREEZER per i surgelati)",
-  "default_shelf_life_days": Stima numerica dei giorni di durata media (es. 5 per latte aperto, 180 per surgelati)
+  "name": "Nome canonico pulito (es. Latte Parzialmente Scremato) o 'Prodotto Sconosciuto'",
+  "brand": "Marca estratta se presente e certa, altrimenti null",
+  "category": "Macro categoria semantica (es. Latticini, Surgelati, Dispensa)",
+  "storage_type": "FRIDGE | FREEZER | PANTRY | OTHER",
+  "default_shelf_life_days": numero intero stimato di giorni di durata tipica (es. 180 per surgelati, 5 per fresco)
 }
 `;
 
