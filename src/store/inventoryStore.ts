@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from './authStore';
 
 export interface InventoryItem {
   id: string;
@@ -24,6 +25,7 @@ interface InventoryState {
   addItem: (item: Partial<InventoryItem>) => Promise<void>;
   updateItemQuantity: (id: string, quantity: number) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
+  consumeRecipeIngredients: (ingredients: {original_id: string, name: string, quantity_deducted: number, health_score?: string}[]) => Promise<void>;
 }
 
 export const useInventoryStore = create<InventoryState>((set, get) => ({
@@ -32,12 +34,15 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   error: null,
 
   fetchItems: async () => {
+    const { session } = useAuthStore.getState();
+    if (!session) return;
+
     set({ loading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('inventory_items')
         .select('*')
-        .order('expiration_date', { ascending: true });
+        .order('expiration_date', { ascending: true, nullsFirst: false });
         
       if (error) throw error;
       
@@ -47,6 +52,33 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
+  },
+
+  consumeRecipeIngredients: async (ingredients) => {
+    const { session } = useAuthStore.getState();
+    if (!session) return;
+
+    for (const ing of ingredients) {
+      if (ing.original_id) {
+        const item = get().items.find(i => i.id === ing.original_id);
+        if (item) {
+          const newQty = item.quantity - ing.quantity_deducted;
+          if (newQty <= 0) {
+            await get().deleteItem(item.id);
+          } else {
+            await supabase.from('inventory_items').update({ quantity: newQty }).eq('id', item.id);
+          }
+
+          await supabase.from('consumption_logs').insert([{
+            user_id: session.user.id,
+            item_name: ing.name,
+            quantity_consumed: ing.quantity_deducted,
+            health_score: item.health_score || ing.health_score || 'Sconosciuto'
+          }]);
+        }
+      }
+    }
+    await get().fetchItems();
   },
 
   addItem: async (item) => {
