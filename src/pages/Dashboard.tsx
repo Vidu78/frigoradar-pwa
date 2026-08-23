@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Settings, Plus, Trash2, Loader2, Info } from 'lucide-react';
-import { formatDistanceToNow, addDays } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { addDays } from 'date-fns';
 import BarcodeScanner from '../components/BarcodeScanner';
 
 export default function Dashboard() {

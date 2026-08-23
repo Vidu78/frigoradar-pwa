@@ -25,7 +25,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         }
         onScan(decodedText);
       },
-      (error) => {
+      () => {
         // Ignoriamo gli errori di scansione continui (sono normali quando non trova subito il codice)
       }
     );
