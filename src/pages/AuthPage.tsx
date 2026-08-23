@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ScanFace, Mail, Lock, Loader2, ArrowRight, Download } from 'lucide-react';
+import { ScanFace, Mail, Lock, User, Loader2, ArrowRight, Download } from 'lucide-react';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -47,7 +48,10 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
-          options: { emailRedirectTo: window.location.origin }
+          options: { 
+            data: { display_name: name || 'Frigorifero Famiglia' },
+            emailRedirectTo: window.location.origin 
+          }
         });
         if (error) throw error;
         setMessage({ text: 'Controlla la tua email per confermare la registrazione!', type: 'success' });
@@ -149,6 +153,16 @@ export default function AuthPage() {
         )}
 
         <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {!isLogin && (
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label className="input-label">Nome Frigorifero / Famiglia</label>
+              <div style={{ position: 'relative' }}>
+                <User size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input-field" placeholder="es. Famiglia Rossi" style={{ width: '100%', paddingLeft: '42px' }} />
+              </div>
+            </div>
+          )}
           <div className="input-group" style={{ marginBottom: 0 }}>
             <label className="input-label">Email</label>
             <div style={{ position: 'relative' }}>

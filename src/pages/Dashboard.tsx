@@ -128,7 +128,9 @@ export default function Dashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>Bentornato,</p>
-          <h2 style={{ fontWeight: 600, margin: 0 }}>{session?.user?.email?.split('@')[0]}</h2>
+          <h2 style={{ fontWeight: 600, margin: 0 }}>
+            {session?.user?.user_metadata?.display_name || session?.user?.email?.split('@')[0]}
+          </h2>
         </div>
         <button onClick={signOut} className="btn-secondary" style={{ padding: '10px' }}>
           <LogOut size={20} />
