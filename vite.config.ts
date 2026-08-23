@@ -11,26 +11,20 @@ export default defineConfig({
       manifest: {
         name: 'FrigoRadar',
         short_name: 'FrigoRadar',
-        description: 'Gestisci il tuo frigorifero ed evita gli sprechi',
-        theme_color: '#0B3D3B',
+        description: 'Gestisci il tuo frigorifero in modo intelligente.',
+        theme_color: '#051A18',
         background_color: '#051A18',
         display: 'standalone',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: '/icon-512x512.jpg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/jpeg'
           },
           {
-            src: 'pwa-512x512.png',
+            src: '/icon-512x512.jpg',
             sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/jpeg'
           }
         ]
       }
