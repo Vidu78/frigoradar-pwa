@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #051A18;
+  --bg-panel: rgba(11, 61, 59, 0.6);
+  --bg-panel-solid: #0B3D3B;
+  --primary: #2ECC71;
+  --primary-glow: rgba(46, 204, 113, 0.3);
+  --accent: #FF6B5B;
+  --text-main: #F8F9FA;
+  --text-muted: #A0AAB2;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(46, 204, 113, 0.05), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(11, 61, 59, 0.2), transparent 25%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ==== PREMIUM SMART FRIDGE DESIGN ==== */
+
+/* ==== PREMIUM SMART FRIDGE DESIGN ==== */
+
+.fridge-panel {
+  /* Finitura in metallo nero spazzolato opaco (Matte Black Stainless Steel) */
+  background: #111314; 
+  background-image: 
+    linear-gradient(105deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 25%, rgba(0,0,0,0.4) 100%),
+    linear-gradient(to right, #181b1c, #202425, #0a0b0c);
+  border-radius: 16px; /* Design moderno, spigoli vivi ma smussati */
+  box-shadow: 
+    0 20px 80px rgba(0,0,0,0.9), /* Ombra profonda nell'ambiente */
+    0 0 var(--led-glow) calc(var(--led-glow) / 2.5) var(--led-color-transparent), /* Glow ambientale controllato */
+    inset 2px 2px 4px rgba(255,255,255,0.1), /* Riflesso speculare alto a sinistra */
+    inset -3px -3px 10px rgba(0,0,0,0.6); /* Ombra d'occlusione in basso a destra */
+  position: relative;
+  border: 1px solid #2a2e30;
+  display: flex;
+  justify-content: center; /* Centriamo orizzontalmente rispetto all'intero frigo */
+  padding: 60px 50px; /* Padding simmetrico (50px sx e 50px dx) per un asse centrale perfetto */
+}
+
+/* Strip LED Perimetrale (Gira tutto intorno al frigorifero) */
+.fridge-led-strip {
+  position: absolute;
+  top: -2px; 
+  bottom: -2px; 
+  left: -2px; 
+  right: -2px; 
+  border: 3px solid var(--led-color);
+  border-radius: 18px; /* Appena più largo del frigo (16px) */
+  box-shadow: 
+    0 0 15px 3px var(--led-color),
+    0 0 35px 10px var(--led-color),
+    inset 0 0 10px 2px var(--led-color),
+    inset 0 0 3px #fff; /* Riflesso bianco interno del neon */
+  opacity: var(--led-intensity-val);
+  transition: all 0.3s ease;
+  pointer-events: none; /* Evita che blocchi i click sui campi sottostanti */
+  z-index: 5;
+}
+
+/* Faretto Underglow (Illuminazione a terra stile supercar / frigo luxury) */
+.fridge-underglow {
+  position: absolute;
+  bottom: -30px; 
+  left: 20%; 
+  right: 20%; 
+  height: 30px;
+  background: var(--led-color);
+  filter: blur(30px);
+  opacity: calc(var(--led-intensity-val) * 1.5);
+  transition: all 0.3s ease;
+  z-index: -1; /* Sta dietro al frigo */
+}
+
+/* Maniglia in Alluminio Spazzolato (Brushed Aluminum) */
+.fridge-handle {
+  position: absolute;
+  left: 24px;
+  top: 15%;
+  bottom: 15%;
+  width: 14px;
+  background: linear-gradient(to right, #545454, #cfcfcf 25%, #f5f5f5 40%, #909090 70%, #303030);
+  border-radius: 20px;
+  box-shadow: 
+    10px 0px 20px rgba(0,0,0,0.9), /* L'ombra che la maniglia proietta sul frigo */
+    inset 1px 0px 2px rgba(255,255,255,0.9), /* Luce di taglio sul bordo metallico */
+    inset -2px 0px 3px rgba(0,0,0,0.6); /* Ombra interna della maniglia */
+  z-index: 10;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Smart Display Integrato (Il form di login) */
+.smart-screen {
+  background: #051A18; /* Il display spento tende al nero profondo con un tono smeraldo */
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 100%;
+  border: 4px solid #0a0b0c; /* Cornice nera del display */
+  box-shadow: 
+    0 0 30px 2px var(--led-color-subtle), /* Alone luminoso dello schermo che riprende il tema LED */
+    inset 0 0 40px rgba(0,0,0,0.9), /* Profondità dello schermo LCD */
+    inset 0px 2px 2px rgba(255,255,255,0.05); /* Riflesso del vetro superiore */
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Riflesso realistico sul vetro del display */
+.smart-screen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 45%;
+  background: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 100%);
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+}
+
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  color: #fff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--primary-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Inputs */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.input-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.input-field {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Typography Helpers */
+.title-gradient {
+  background: linear-gradient(135deg, #fff 0%, #a0aab2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==== RESPONSIVE DESIGN (Adaptive per tutti i device) ==== */
+@media (max-width: 480px) {
+  .fridge-panel {
+    /* Padding simmetrico per i telefoni, la maniglia è molto sottile quindi non si sovrappone */
+    padding: 40px 24px;
+    border-radius: 20px;
+  }
+
+  .smart-screen {
+    padding: 30px 20px;
+  }
+
+  .fridge-handle {
+    left: 14px; /* Avviciniamo la maniglia al bordo */
+    width: 10px;
+  }
+
+  /* Rimpiccioliamo leggermente i controlli LED sul termostato */
+  .smart-screen h1 {
+    font-size: 1.6rem !important;
+  }
+}
