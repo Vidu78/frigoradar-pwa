@@ -67,7 +67,7 @@ export default function BottomNavigation({ activeTab, onChange }: BottomNavigati
 
       {/* --- BOTTONI NAVIGAZIONE (FOREGROUND LAYER) --- */}
       <div style={{ position: 'relative', width: '100%', display: 'flex', zIndex: 1 }}>
-        {tabs.map((tab, index) => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           
