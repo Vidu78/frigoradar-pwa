@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { Fingerprint, Refrigerator, Sparkles, LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Refrigerator, Loader2, Lock, Fingerprint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 

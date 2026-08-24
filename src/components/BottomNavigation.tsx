@@ -1,4 +1,4 @@
-import { Refrigerator, ShoppingCart, Sparkles, User, ScanBarcode, ChefHat } from 'lucide-react';
+import { Refrigerator, User, ScanBarcode, ChefHat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export type TabType = 'fridge' | 'recipes' | 'profile';
@@ -11,12 +11,6 @@ interface BottomNavigationProps {
 
 export default function BottomNavigation({ activeTab, onTabChange, onScanClick }: BottomNavigationProps) {
   const { t } = useTranslation();
-
-  const tabs = [
-    { id: 'fridge', icon: Refrigerator, label: t('nav.fridge') },
-    { id: 'recipes', icon: ChefHat, label: t('nav.recipes'), highlight: true },
-    { id: 'profile', icon: User, label: t('nav.profile') },
-  ];
 
   return (
     <div style={{

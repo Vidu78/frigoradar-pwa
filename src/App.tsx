@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
-import ShoppingList from './pages/ShoppingList';
 import AiRecipes from './pages/AiRecipes';
 import Profile from './pages/Profile';
 import ProUpgradePage from './pages/ProUpgradePage';
@@ -15,7 +14,7 @@ import Toast from './components/Toast';
 import { Download, X } from 'lucide-react';
 
 const AppContainer = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('INVENTORY');
+  const [activeTab, setActiveTab] = useState<TabType>('fridge');
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -59,12 +58,11 @@ const AppContainer = () => {
 
       <PendingRecipeBanner />
       <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        {activeTab === 'INVENTORY' && <Dashboard />}
-        {activeTab === 'SHOPPING' && <ShoppingList />}
-        {activeTab === 'RECIPES' && <AiRecipes />}
-        {activeTab === 'PROFILE' && <Profile />}
+        {activeTab === 'fridge' && <Dashboard />}
+        {activeTab === 'recipes' && <AiRecipes />}
+        {activeTab === 'profile' && <Profile />}
       </div>
-      <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
+      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onScanClick={() => console.log('scan')} />
     </div>
   );
 };
