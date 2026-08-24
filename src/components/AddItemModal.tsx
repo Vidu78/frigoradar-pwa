@@ -17,10 +17,23 @@ interface AddItemModalProps {
   onClose: () => void;
 }
 
+const CATEGORIES = [
+  'Carni e Salumi',
+  'Verdure e Frutta',
+  'Latticini e Uova',
+  'Pesce e Frutti di Mare',
+  'Pane e Pasta',
+  'Conserve e Sughi',
+  'Dolci e Snack',
+  'Bevande',
+  'Altro'
+];
+
 export default function AddItemModal({ initialData, onSave, onClose }: AddItemModalProps) {
   const { showToast } = useToastStore();
   const [inputMode, setInputMode] = useState<'manual' | 'photo'>('manual');
   const [name, setName] = useState(initialData?.name || '');
+  const [category, setCategory] = useState(initialData?.category || 'Altro');
   
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
   const defaultExp = initialData?.expiration_date 
@@ -62,6 +75,21 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
           if (aiData.storage_type) {
             setLocation(aiData.storage_type);
           }
+          if (aiData.category) {
+            // Cerca se corrisponde ad una delle categorie in italiano
+            const normalized = aiData.category.toLowerCase();
+            let matchedCat = 'Altro';
+            if (normalized.includes('carn') || normalized.includes('meat')) matchedCat = 'Carni e Salumi';
+            else if (normalized.includes('verdur') || normalized.includes('frutt') || normalized.includes('veg')) matchedCat = 'Verdure e Frutta';
+            else if (normalized.includes('latt') || normalized.includes('uov') || normalized.includes('egg') || normalized.includes('dair')) matchedCat = 'Latticini e Uova';
+            else if (normalized.includes('pesc') || normalized.includes('fish') || normalized.includes('sea')) matchedCat = 'Pesce e Frutti di Mare';
+            else if (normalized.includes('pan') || normalized.includes('past') || normalized.includes('grain') || normalized.includes('cere')) matchedCat = 'Pane e Pasta';
+            else if (normalized.includes('conserv') || normalized.includes('sug') || normalized.includes('sauce') || normalized.includes('can')) matchedCat = 'Conserve e Sughi';
+            else if (normalized.includes('dolc') || normalized.includes('snack') || normalized.includes('sweet')) matchedCat = 'Dolci e Snack';
+            else if (normalized.includes('bev') || normalized.includes('drink')) matchedCat = 'Bevande';
+            
+            setCategory(matchedCat);
+          }
         } else {
           showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
         }
@@ -87,7 +115,8 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
       location: location,
       quantity: quantity,
       is_frozen: location === 'FREEZER',
-      health_score: initialData?.health_score || null
+      health_score: initialData?.health_score || null,
+      category: category
     });
   };
 
@@ -209,6 +238,20 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
               autoFocus
               required
             />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Categoria</label>
+            <select 
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="input-field"
+              style={{ background: 'var(--bg-panel)', color: 'white', border: '1px solid var(--border)', width: '100%', height: '45px', borderRadius: '12px', padding: '0 12px' }}
+            >
+              {CATEGORIES.map(cat => (
+                <option key={cat} value={cat} style={{ background: '#1c1c1e', color: 'white' }}>{cat}</option>
+              ))}
+            </select>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>

@@ -56,6 +56,7 @@ CREATE TABLE inventory_items (
   is_opened BOOLEAN DEFAULT false,
   is_frozen BOOLEAN DEFAULT false,
   health_score TEXT,
+  category TEXT DEFAULT 'Altro',
   image_url TEXT, -- Inserito direttamente qui
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,

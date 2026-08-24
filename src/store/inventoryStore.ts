@@ -14,6 +14,7 @@ export interface InventoryItem {
   is_frozen: boolean;
   health_score?: string | null;
   image_url?: string | null;
+  category?: string | null;
   created_at: string;
 }
 

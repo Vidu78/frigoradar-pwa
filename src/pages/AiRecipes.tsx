@@ -6,6 +6,8 @@ export default function AiRecipes() {
   const { items, setPendingRecipe } = useInventoryStore();
   
   const [peopleCount, setPeopleCount] = useState(2);
+  const [difficulty, setDifficulty] = useState<'FACILE' | 'MEDIO' | 'STELLATO'>('FACILE');
+  const [priority, setPriority] = useState<'TUTTI' | 'IN_SCADENZA'>('IN_SCADENZA');
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<any>(null);
   const [cooked, setCooked] = useState(false);
@@ -26,7 +28,7 @@ export default function AiRecipes() {
       const res = await fetch('/api/generateRecipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: payload, peopleCount })
+        body: JSON.stringify({ items: payload, peopleCount, difficulty, priority })
       });
 
       if (res.ok) {
@@ -67,7 +69,7 @@ export default function AiRecipes() {
         <div style={{ background: 'var(--bg-panel)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Impostazioni</h3>
           
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
               <Users size={20} />
               <span>Persone</span>
@@ -76,6 +78,80 @@ export default function AiRecipes() {
               <button onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem' }}>-</button>
               <span style={{ fontSize: '1.5rem', fontWeight: 700, width: '20px', textAlign: 'center' }}>{peopleCount}</span>
               <button onClick={() => setPeopleCount(peopleCount + 1)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem' }}>+</button>
+            </div>
+          </div>
+
+          {/* Priorità ingredienti */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Priorità alimenti</label>
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <button 
+                type="button" 
+                onClick={() => setPriority('IN_SCADENZA')}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
+                  background: priority === 'IN_SCADENZA' ? 'rgba(255, 107, 91, 0.2)' : 'transparent',
+                  color: priority === 'IN_SCADENZA' ? 'var(--accent)' : 'white', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ⏰ In Scadenza
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setPriority('TUTTI')}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
+                  background: priority === 'TUTTI' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: 'white', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🥗 Tutti
+              </button>
+            </div>
+          </div>
+
+          {/* Livello Ricetta */}
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Livello Ricetta</label>
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <button 
+                type="button" 
+                onClick={() => setDifficulty('FACILE')}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  background: difficulty === 'FACILE' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🥗 Facile
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setDifficulty('MEDIO')}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  background: difficulty === 'MEDIO' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🍝 Medio
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setDifficulty('STELLATO')}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  background: difficulty === 'STELLATO' ? 'rgba(255, 215, 0, 0.2)' : 'transparent',
+                  color: difficulty === 'STELLATO' ? '#FFD700' : 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ⭐️ Stellato
+              </button>
             </div>
           </div>
 

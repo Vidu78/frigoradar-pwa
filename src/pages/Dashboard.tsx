@@ -7,6 +7,18 @@ import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 
+const categoryEmojis: Record<string, string> = {
+  'Carni e Salumi': '🥩',
+  'Verdure e Frutta': '🥦',
+  'Latticini e Uova': '🥛',
+  'Pesce e Frutti di Mare': '🐟',
+  'Pane e Pasta': '🍞',
+  'Conserve e Sughi': '🥫',
+  'Dolci e Snack': '🍪',
+  'Bevande': '🥤',
+  'Altro': '📦'
+};
+
 export default function Dashboard() {
   const { session, signOut } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
@@ -120,6 +132,7 @@ export default function Dashboard() {
         location: data.location,
         is_frozen: data.is_frozen,
         health_score: data.health_score,
+        category: data.category,
         image_url: aiProductData?.imageUrl || null
       });
     } catch (dbError) {
@@ -131,7 +144,8 @@ export default function Dashboard() {
           quantity: data.quantity,
           location: data.location,
           is_frozen: data.is_frozen,
-          health_score: data.health_score
+          health_score: data.health_score,
+          category: data.category
         });
       } catch (retryError: any) {
         console.error("Salvataggio fallito:", retryError);
@@ -147,6 +161,21 @@ export default function Dashboard() {
     const matchTab = item.location === activeTab;
     return matchSearch && matchTab;
   });
+
+  // Ordinamento per data di scadenza imminente (le date più vicine o già scadute in cima)
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    if (!a.expiration_date) return 1;
+    if (!b.expiration_date) return -1;
+    return new Date(a.expiration_date).getTime() - new Date(b.expiration_date).getTime();
+  });
+
+  // Raggruppamento per Categoria
+  const groupedItems = sortedItems.reduce((acc, item) => {
+    const cat = item.category || 'Altro';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {} as Record<string, typeof items>);
 
   // Calcolo Statistiche su tutti gli items
   const urgentCount = items.filter(item => {
@@ -291,50 +320,77 @@ export default function Dashboard() {
             Nessun prodotto in {activeTab === 'FRIDGE' ? 'Frigo' : activeTab === 'FREEZER' ? 'Freezer' : 'Dispensa'}.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {filteredItems.map(item => {
-              const expInfo = getExpirationStatus(item.expiration_date);
-              
-              // Animazione lampeggiante per i prodotti SCADUTI
-              const isExpired = expInfo.status === 'EXPIRED';
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {Object.keys(groupedItems).map(catName => {
+              const catItems = groupedItems[catName];
+              const emoji = categoryEmojis[catName] || '📦';
               
               return (
-                <div key={item.id} className="glass-panel" style={{ 
-                  padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', 
-                  borderLeft: `4px solid ${expInfo.color}`,
-                  background: isExpired ? 'rgba(255, 59, 48, 0.05)' : 'var(--bg-panel)',
-                  animation: isExpired ? 'pulseRed 2s infinite' : 'none'
-                }}>
-                  
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '50px', height: '50px', borderRadius: '12px', objectFit: 'cover', background: 'white' }} />
-                  ) : (
-                    <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {item.location === 'FREEZER' ? <Box size={24} color="#64C8FF" opacity={0.6} /> : 
-                       item.location === 'PANTRY' ? <Box size={24} color="#FFAA00" opacity={0.6} /> :
-                       <Refrigerator size={24} color="var(--primary)" opacity={0.6} />}
-                    </div>
-                  )}
-                  
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.custom_name}
-                    </h4>
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: expInfo.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: expInfo.color }}></span>
-                      {expInfo.text}
-                    </p>
+                <div key={catName} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Category Section Header */}
+                  <div style={{ 
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                    padding: '6px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)'
+                  }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>{emoji}</span> {catName}
+                    </span>
+                    <span style={{ 
+                      fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,255,255,0.1)', 
+                      padding: '2px 8px', borderRadius: '20px', color: 'white'
+                    }}>
+                      {catItems.length}
+                    </span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '4px 8px' }}>
-                      <button onClick={() => updateItemQuantity(item.id, Math.max(1, item.quantity - 1))} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>-</button>
-                      <span style={{ fontSize: '0.9rem', width: '20px', textAlign: 'center', fontWeight: 600 }}>{item.quantity}</span>
-                      <button onClick={() => updateItemQuantity(item.id, item.quantity + 1)} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>+</button>
-                    </div>
-                    <button onClick={() => deleteItem(item.id)} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
-                      <Trash2 size={18} />
-                    </button>
+                  {/* Category Items List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {catItems.map(item => {
+                      const expInfo = getExpirationStatus(item.expiration_date);
+                      const isExpired = expInfo.status === 'EXPIRED';
+                      
+                      return (
+                        <div key={item.id} className="glass-panel" style={{ 
+                          padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', 
+                          borderLeft: `4px solid ${expInfo.color}`,
+                          background: isExpired ? 'rgba(255, 59, 48, 0.05)' : 'var(--bg-panel)',
+                          animation: isExpired ? 'pulseRed 2s infinite' : 'none'
+                        }}>
+                          
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '50px', height: '50px', borderRadius: '12px', objectFit: 'cover', background: 'white' }} />
+                          ) : (
+                            <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {item.location === 'FREEZER' ? <Box size={24} color="#64C8FF" opacity={0.6} /> : 
+                               item.location === 'PANTRY' ? <Box size={24} color="#FFAA00" opacity={0.6} /> :
+                               <Refrigerator size={24} color="var(--primary)" opacity={0.6} />}
+                            </div>
+                          )}
+                          
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <h4 style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {item.custom_name}
+                            </h4>
+                            <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: expInfo.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: expInfo.color }}></span>
+                              {expInfo.text}
+                            </p>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '4px 8px' }}>
+                              <button onClick={() => updateItemQuantity(item.id, Math.max(1, item.quantity - 1))} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>-</button>
+                              <span style={{ fontSize: '0.9rem', width: '20px', textAlign: 'center', fontWeight: 600 }}>{item.quantity}</span>
+                              <button onClick={() => updateItemQuantity(item.id, item.quantity + 1)} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>+</button>
+                            </div>
+                            <button onClick={() => deleteItem(item.id)} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
