@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import AiRecipes from './pages/AiRecipes';
+import ShoppingList from './pages/ShoppingList';
 import Profile from './pages/Profile';
 import ProUpgradePage from './pages/ProUpgradePage';
 import Onboarding from './pages/Onboarding';
@@ -59,6 +60,7 @@ const AppContainer = () => {
       <PendingRecipeBanner />
       <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {activeTab === 'fridge' && <Dashboard />}
+        {activeTab === 'shopping' && <ShoppingList />}
         {activeTab === 'recipes' && <AiRecipes />}
         {activeTab === 'profile' && <Profile />}
       </div>
