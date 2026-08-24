@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 
 export default function Profile() {
@@ -67,6 +67,58 @@ export default function Profile() {
       </div>
 
       <SavingsStats />
+
+      {/* MENU PERSONALE */}
+      <div className="glass-panel" style={{ padding: '8px', borderRadius: '24px', marginBottom: '24px' }}>
+        
+        {/* Notifiche */}
+        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(50, 215, 75, 0.1)', padding: '10px', borderRadius: '12px' }}><Bell size={20} color="#32D74B" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Notifiche Scadenza</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
+        {/* Condivisione Familiare */}
+        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(0, 255, 170, 0.1)', padding: '10px', borderRadius: '12px' }}><Users size={20} color="#00FFAA" /></div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '1.05rem', fontWeight: 500 }}>Frigo di Famiglia</div>
+              <div style={{ fontSize: '0.75rem', color: '#00FFAA', fontWeight: 600, letterSpacing: '0.5px' }}>PRO IN ARRIVO</div>
+            </div>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
+        {/* Preferenze */}
+        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '10px', borderRadius: '12px' }}><Palette size={20} color="#FFD700" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Le mie Preferenze</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
+        {/* Supporto */}
+        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(255, 69, 58, 0.1)', padding: '10px', borderRadius: '12px' }}><LifeBuoy size={20} color="#FF453A" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Aiuto e Supporto</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
+        {/* Impostazioni */}
+        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px', borderRadius: '12px' }}><Settings size={20} color="white" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Impostazioni App</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+      </div>
 
       <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Sicurezza Biometrica</h3>

@@ -8,6 +8,7 @@ import ShoppingList from './pages/ShoppingList';
 import AiRecipes from './pages/AiRecipes';
 import Profile from './pages/Profile';
 import ProUpgradePage from './pages/ProUpgradePage';
+import Onboarding from './pages/Onboarding';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
@@ -70,9 +71,26 @@ const AppContainer = () => {
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuthStore();
-  if (loading) return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" color="#2ECC71" size={40} /></div>;
-  if (!session) return <Navigate to="/auth" replace />;
+  const { session, loading, hasCompletedOnboarding } = useAuthStore();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 className="animate-spin" size={40} color="#00FFAA" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Navigate to="/auth" />;
+  }
+
+  // Se l'utente è loggato ma non ha finito l'onboarding e NON è già nella pagina onboarding
+  if (session && !hasCompletedOnboarding && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -87,6 +105,14 @@ function App() {
     <Router>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route 
+          path="/onboarding" 
+          element={
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          } 
+        />
         <Route 
           path="/" 
           element={
