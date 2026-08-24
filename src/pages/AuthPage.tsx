@@ -121,7 +121,7 @@ export default function AuthPage() {
       className="auth-container animate-fade-up" 
       style={{ 
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-        height: '100dvh', padding: '12px', gap: '20px', overflow: 'hidden',
+        minHeight: '100vh', padding: '16px', gap: '20px',
         // Variabili CSS passate dinamicamente al container padre per alimentare gli effetti LED
         '--led-color': ledColor,
         '--led-color-transparent': `${ledColor}40`,
