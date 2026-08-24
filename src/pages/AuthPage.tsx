@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { ScanFace, Mail, Lock, User, Loader2, ArrowRight, Download, Eye, EyeOff } from 'lucide-react';
+import { Fingerprint, Mail, Lock, User, Loader2, ArrowRight, Download, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -121,7 +121,7 @@ export default function AuthPage() {
       className="auth-container animate-fade-up" 
       style={{ 
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-        minHeight: '100vh', padding: '20px', gap: '30px',
+        height: '100dvh', padding: '12px', gap: '20px', overflow: 'hidden',
         // Variabili CSS passate dinamicamente al container padre per alimentare gli effetti LED
         '--led-color': ledColor,
         '--led-color-transparent': `${ledColor}40`,
@@ -144,27 +144,29 @@ export default function AuthPage() {
         <div className="fridge-handle"></div>
 
         {/* Pannello Digitale Termostato & Controlli LED integrato nell'acciaio */}
-        <div style={{ width: '100%', background: '#081414', border: '3px solid #000', borderRadius: '12px', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.6), inset 0px 1px 1px rgba(255,255,255,0.05)' }}>
+        <div style={{ width: '100%', background: '#081414', border: '3px solid #000', borderRadius: '12px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.6), inset 0px 1px 1px rgba(255,255,255,0.05)' }}>
           
-          {/* Temperature Display (Stile Digitale / Neon) */}
-          <div style={{ display: 'flex', gap: '12px', fontFamily: '"Courier New", Courier, monospace', fontWeight: 'bold', color: 'var(--primary)', fontSize: '1.2rem', textShadow: '0 0 10px var(--primary-glow)' }}>
-            <span>-18°C</span>
-            <span style={{ color: 'rgba(255,255,255,0.2)', textShadow: 'none' }}>|</span>
-            <span>+4°C</span>
+          {/* Logo FrigoRadar Premium LED */}
+          <div style={{ fontFamily: '"Outfit", sans-serif', fontWeight: 800, fontSize: '1.25rem', color: ledColor, textShadow: `0 0 10px ${ledColor}, 0 0 20px ${ledColor}` }}>
+            FrigoRadar
           </div>
 
-          {/* LED Controls */}
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '22px', height: '22px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title="Colore MoodUP" />
-            <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '70px', accentColor: ledColor, height: '4px' }} title="Intensità LED" />
+          {/* Temperature & LED Controls */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', fontFamily: '"Courier New", Courier, monospace', fontWeight: 'bold', color: 'var(--primary)', fontSize: '0.9rem', textShadow: '0 0 8px var(--primary-glow)' }}>
+              <span>-18°</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)', textShadow: 'none' }}>|</span>
+              <span>+4°</span>
+            </div>
+            <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '20px', height: '20px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title="Colore MoodUP" />
+            <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '50px', accentColor: ledColor, height: '4px' }} title="Intensità LED" />
           </div>
 
         </div>
 
         {/* Lo Smart Display integrato nella porta */}
-        <div className="smart-screen">
-          <h1 className="title-gradient" style={{ fontSize: '2rem', marginBottom: '8px', textAlign: 'center' }}>FrigoRadar</h1>
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '24px' }}>
+        <div className="smart-screen" style={{ padding: '20px 20px' }}>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem' }}>
             {isLogin ? 'Bentornato! Accedi per continuare.' : 'Crea il tuo account gratuito.'}
           </p>
 
@@ -231,22 +233,22 @@ export default function AuthPage() {
 
         {isLogin && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0', color: 'var(--text-muted)' }}>
               <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
               <span style={{ padding: '0 12px', fontSize: '0.85rem' }}>OPPURE</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
 
-            <button type="button" onClick={handlePasskeyLogin} className="btn-secondary" disabled={loading} style={{ width: '100%' }}>
-              <ScanFace size={20} />
-              Accedi con Face-ID / Impronta
+            <button type="button" onClick={handlePasskeyLogin} className="btn-secondary" disabled={loading} style={{ width: '100%', padding: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
+              <Fingerprint size={28} style={{ color: ledColor, filter: `drop-shadow(0 0 6px ${ledColor}60)` }} />
+              <span style={{ fontWeight: 500 }}>Accedi con Impronta</span>
             </button>
           </>
         )}
 
-        <div style={{ marginTop: '32px', textAlign: 'center' }}>
-          <button type="button" onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 500 }}>
-            {isLogin ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'} <ArrowRight size={16} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <button type="button" onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}>
+            {isLogin ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'} <ArrowRight size={14} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
           </button>
         </div>
       </div>
