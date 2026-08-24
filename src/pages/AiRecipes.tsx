@@ -207,6 +207,21 @@ export default function AiRecipes() {
       {recipe && !loading && !cooked && (
         <div style={{ animation: 'slideUp 0.4s ease' }}>
           <div style={{ background: 'var(--bg-panel)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '24px' }}>
+            
+            {/* Immagine Generata del Piatto */}
+            <div style={{ width: '100%', height: '220px', position: 'relative', background: '#111' }}>
+              {/* Fallback animato durante il caricamento dell'immagine */}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                 <Sparkles size={24} className="animate-spin" />
+              </div>
+              <img 
+                src={`https://image.pollinations.ai/prompt/${encodeURIComponent(recipe.title + " professional food photography hyperrealistic restaurant plating 8k")}?width=800&height=500&nologo=true`} 
+                alt={recipe.title}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 2 }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            </div>
+
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', background: 'rgba(255, 215, 0, 0.05)' }}>
               <h2 style={{ margin: '0 0 16px 0', fontSize: '1.6rem', color: '#FFD700' }}>{recipe.title}</h2>
               <div style={{ display: 'flex', gap: '16px' }}>
