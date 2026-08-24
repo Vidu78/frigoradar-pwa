@@ -29,46 +29,69 @@ export default function Dashboard() {
     setShowScanner(false);
     setIsProcessingBarcode(true);
     
-    try {
-      let rawName = `Codice ${decodedText}`;
-      let imageUrl = null;
-
+    // Funzione helper per il timeout delle fetch
+    const fetchWithTimeout = async (url: string, options: any = {}, timeout = 4000) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
       try {
-        const resOFF = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (error) {
+        clearTimeout(id);
+        throw error;
+      }
+    };
+
+    let rawName = `Codice ${decodedText}`;
+    let imageUrl = null;
+    let finalName = rawName;
+    let days = 7;
+    let category = "Altro";
+    let location: 'FRIDGE' | 'FREEZER' | 'PANTRY' = 'FRIDGE';
+    let healthScore = "Sconosciuto";
+
+    try {
+      // 1. Chiamata a OpenFoodFacts con timeout di 3 secondi
+      try {
+        const resOFF = await fetchWithTimeout(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(decodedText)}.json`, {}, 3000);
         const dataOFF = await resOFF.json();
         if (dataOFF.status === 1 && dataOFF.product) {
           rawName = dataOFF.product.product_name || dataOFF.product.generic_name || rawName;
           imageUrl = dataOFF.product.image_front_url || dataOFF.product.image_url;
+          finalName = rawName;
         }
       } catch (e) {
-        console.warn("OpenFoodFacts offline", e);
+        console.warn("OpenFoodFacts offline o lento:", e);
       }
-      
-      let finalName = rawName;
-      let days = 7;
-      let category = "";
-      let location: 'FRIDGE' | 'FREEZER' | 'PANTRY' = 'FRIDGE';
-      let healthScore = "Sconosciuto";
 
+      // 2. Chiamata a Gemini API con timeout di 4 secondi
       try {
-        const aiRes = await fetch('/api/analyzeProduct', {
+        const aiRes = await fetchWithTimeout('/api/analyzeProduct', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ barcode: decodedText, query: rawName })
-        });
+        }, 4000);
         
         if (aiRes.ok) {
           const aiData = await aiRes.json();
           finalName = aiData.name || rawName;
           days = aiData.default_shelf_life_days || 7;
-          category = aiData.category || "";
-          location = aiData.storage_type || 'FRIDGE';
+          category = aiData.category || "Altro";
+          // Forza la location tra quelle disponibili nel menù
+          location = (aiData.storage_type === 'FREEZER' || aiData.storage_type === 'PANTRY') 
+            ? aiData.storage_type 
+            : 'FRIDGE';
           healthScore = aiData.health_score || "Sconosciuto";
         }
       } catch (aiError) {
-        console.error("Errore Gemini API:", aiError);
+        console.error("Errore Gemini API o timeout:", aiError);
       }
 
+    } catch (error) {
+      console.error("Errore generale durante la scansione:", error);
+    } finally {
+      // Garantiamo l'apertura della modale in ogni caso, anche se le API falliscono
       setAiProductData({
         name: finalName,
         barcode: decodedText,
@@ -78,13 +101,8 @@ export default function Dashboard() {
         imageUrl: imageUrl,
         health_score: healthScore
       });
-      setShowAddModal(true);
-      
-    } catch (error) {
-      console.error("Errore generale durante la scansione:", error);
-      alert("Si è verificato un errore durante la scansione.");
-    } finally {
       setIsProcessingBarcode(false);
+      setShowAddModal(true);
     }
   };
 

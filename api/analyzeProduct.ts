@@ -41,7 +41,7 @@ COMPITO: Analizza una stringa grezza (da scanner o OCR) e restituisci i metadati
 REGOLE ANTI-ALLUCINAZIONE E SALUTE:
 1. NON INVENTARE NOMI: Se la stringa è vuota o incomprensibile, name = "Prodotto Sconosciuto".
 2. NORMALIZZAZIONE: Nome pulito senza codici o pesi.
-3. CONSERVAZIONE: Solo "FRIDGE", "FREEZER", "PANTRY", "OTHER".
+3. CONSERVAZIONE: Solo "FRIDGE", "FREEZER", "PANTRY".
 4. HEALTH SCORE: Valuta l'impatto sulla salute in base alla tipologia di prodotto. Valori ammessi: "Sano", "Moderato", "Poco Sano", "Sconosciuto".
 5. NO MARKDOWN: Solo JSON puro.
 
@@ -52,7 +52,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
   "name": "Nome canonico pulito",
   "brand": "Marca se certa, altrimenti null",
   "category": "Macro categoria semantica",
-  "storage_type": "FRIDGE | FREEZER | PANTRY | OTHER",
+  "storage_type": "FRIDGE | FREEZER | PANTRY",
   "default_shelf_life_days": 5,
   "health_score": "Sano | Moderato | Poco Sano | Sconosciuto"
 }
