@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 import { ScanFace, Mail, Lock, User, Loader2, ArrowRight, Download, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
+  const navigate = useNavigate();
+  const { session } = useAuthStore();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +18,13 @@ export default function AuthPage() {
 
   const [ledColor, setLedColor] = useState('#2ECC71');
   const [ledIntensity, setLedIntensity] = useState(40);
+
+  // Reindirizzamento automatico se la sessione esiste
+  useEffect(() => {
+    if (session) {
+      navigate('/', { replace: true });
+    }
+  }, [session, navigate]);
 
   // Gestione installazione PWA
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
