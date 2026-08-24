@@ -45,7 +45,7 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signUp({ 
+        const { data, error } = await supabase.auth.signUp({ 
           email, 
           password,
           options: { 
@@ -54,7 +54,13 @@ export default function AuthPage() {
           }
         });
         if (error) throw error;
-        setMessage({ text: 'Controlla la tua email per confermare la registrazione!', type: 'success' });
+        
+        // Se Supabase non richiede la conferma email, restituisce subito la sessione
+        if (data.session) {
+          setMessage({ text: 'Registrazione completata! Accesso in corso...', type: 'success' });
+        } else {
+          setMessage({ text: 'Controlla la tua email per confermare la registrazione!', type: 'success' });
+        }
       }
     } catch (err: any) {
       setMessage({ text: err.message || 'Errore durante l\'autenticazione', type: 'error' });
