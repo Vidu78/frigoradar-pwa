@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { Fingerprint, Mail, Lock, User, Loader2, ArrowRight, Download, Eye, EyeOff } from 'lucide-react';
+import { Fingerprint, Mail, Lock, User, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
   const navigate = useNavigate();
