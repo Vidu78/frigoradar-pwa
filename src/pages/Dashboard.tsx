@@ -6,6 +6,7 @@ import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
+import { useTranslation } from 'react-i18next';
 
 const categoryEmojis: Record<string, string> = {
   'Carni e Salumi': '🥩',
@@ -20,6 +21,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { session, signOut, updateStats } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
   const { showToast } = useToastStore();
@@ -201,10 +203,10 @@ export default function Dashboard() {
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>Bentornato,</p>
-          <h2 style={{ fontWeight: 600, margin: 0 }}>
-            {session?.user?.user_metadata?.display_name || session?.user?.email?.split('@')[0]}
-          </h2>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>{t('dashboard.title')}</h1>
+          <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem' }}>
+            {session?.user?.email?.split('@')[0]}
+          </p>
         </div>
         <button onClick={signOut} className="btn-secondary" style={{ padding: '10px' }}>
           <LogOut size={20} />
@@ -268,14 +270,13 @@ export default function Dashboard() {
       {/* Search Bar */}
       <div className="input-group" style={{ marginBottom: '24px' }}>
         <div style={{ position: 'relative' }}>
-          <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <Search size={20} color="var(--text-muted)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
+            placeholder={t('dashboard.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field" 
-            placeholder="Cerca nel tuo inventario..." 
-            style={{ width: '100%', paddingLeft: '42px', background: 'var(--bg-panel)' }} 
+            style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 16px 16px 48px', color: 'white', outline: 'none' }}
           />
         </div>
       </div>
@@ -337,8 +338,12 @@ export default function Dashboard() {
         {loading && items.length === 0 ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
         ) : filteredItems.length === 0 ? (
-          <div className="glass-panel" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Nessun prodotto in {activeTab === 'FRIDGE' ? 'Frigo' : activeTab === 'FREEZER' ? 'Freezer' : 'Dispensa'}.
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+            <div style={{ width: '80px', height: '80px', background: 'rgba(0,255,170,0.05)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
+              <Box size={40} color="var(--text-muted)" />
+            </div>
+            <p style={{ fontSize: '1.1rem', margin: '0 0 8px 0' }}>{t('dashboard.empty')}</p>
+            <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Aggiungi il tuo primo prodotto!</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

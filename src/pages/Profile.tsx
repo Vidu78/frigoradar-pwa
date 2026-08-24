@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
+import { useTranslation } from 'react-i18next';
 
 export default function Profile() {
   const { session, signOut } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language.startsWith('it') ? 'en' : 'it';
+    i18n.changeLanguage(nextLang);
+  };
+
   const [name, setName] = useState(session?.user?.user_metadata?.display_name || '');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -52,8 +61,22 @@ export default function Profile() {
     }
   };
 
+  const handleLogout = async () => {
+    setLoading(true);
+    await signOut();
+    setLoading(false);
+  };
+
   return (
     <div style={{ padding: '20px', color: 'white', paddingBottom: '120px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '2.2rem', fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>{t('profile.title')}</h1>
+        <button onClick={toggleLanguage} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+          <Globe size={18} />
+          {i18n.language.toUpperCase()}
+        </button>
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
         <div style={{ background: 'var(--primary-glow)', padding: '10px', borderRadius: '14px', color: 'var(--primary)' }}>
           <User size={24} />
@@ -75,7 +98,7 @@ export default function Profile() {
         <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(50, 215, 75, 0.1)', padding: '10px', borderRadius: '12px' }}><Bell size={20} color="#32D74B" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Notifiche Scadenza</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.notifications')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -85,8 +108,8 @@ export default function Profile() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(0, 255, 170, 0.1)', padding: '10px', borderRadius: '12px' }}><Users size={20} color="#00FFAA" /></div>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.05rem', fontWeight: 500 }}>Frigo di Famiglia</div>
-              <div style={{ fontSize: '0.75rem', color: '#00FFAA', fontWeight: 600, letterSpacing: '0.5px' }}>PRO IN ARRIVO</div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.family')}</div>
+              <div style={{ fontSize: '0.75rem', color: '#00FFAA', fontWeight: 600, letterSpacing: '0.5px' }}>{t('profile.family_pro')}</div>
             </div>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
@@ -96,7 +119,7 @@ export default function Profile() {
         <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '10px', borderRadius: '12px' }}><Palette size={20} color="#FFD700" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Le mie Preferenze</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.preferences')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -105,7 +128,7 @@ export default function Profile() {
         <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 69, 58, 0.1)', padding: '10px', borderRadius: '12px' }}><LifeBuoy size={20} color="#FF453A" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Aiuto e Supporto</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.support')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -114,16 +137,16 @@ export default function Profile() {
         <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px', borderRadius: '12px' }}><Settings size={20} color="white" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Impostazioni App</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.settings')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
       </div>
 
       <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Sicurezza Biometrica</h3>
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>{t('profile.biometric')}</h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px', lineHeight: '1.4' }}>
-          Associa il tuo Face-ID o l'Impronta Digitale per accedere rapidamente e in sicurezza senza digitare la password.
+          {t('profile.biometric_desc')}
         </p>
 
         <button 
@@ -187,15 +210,19 @@ export default function Profile() {
       </div>
 
       <button 
-        onClick={signOut}
-        style={{
-          width: '100%', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255, 69, 58, 0.3)',
-          background: 'rgba(255, 69, 58, 0.1)', color: '#FF453A', fontSize: '1rem', fontWeight: 600,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-          cursor: 'pointer'
-        }}
-      >
-        <LogOut size={20} /> Disconnetti Account
+        onClick={handleLogout}
+        disabled={loading}
+        style={{ 
+          width: '100%', background: 'rgba(255, 69, 58, 0.1)', border: '1px solid rgba(255, 69, 58, 0.2)', 
+          color: '#FF453A', padding: '16px', borderRadius: '24px', fontSize: '1rem', fontWeight: 600, 
+          cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' 
+        }}>
+        {loading ? <Loader2 className="animate-spin" /> : (
+          <>
+            <LogOut size={20} />
+            {t('profile.logout')}
+          </>
+        )}
       </button>
 
     </div>
