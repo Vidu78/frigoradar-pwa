@@ -48,35 +48,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const today = new Date().toISOString().split('T')[0];
 
     const prompt = `
-AGISCI COME: Database Architect ed esperto di Visione Artificiale applicata al retail alimentare.
-COMPITO: Analizza la foto fornita (può essere la foto del prodotto o la data di scadenza stampata sulla confezione). Riconosci i dati del prodotto e, soprattutto, leggi visivamente la DATA DI SCADENZA.
+AGISCI COME: Esperto di Visione Artificiale e OCR applicato al retail alimentare.
+COMPITO: Analizza la foto fornita. Può essere la foto dell'intero prodotto o un dettaglio ravvicinato della data di scadenza. 
 
-REGOLE IMPORTANTI DI LETTURA:
-1. NOME PRODOTTO: Identifica il nome dell'alimento visibile nella foto. Se l'immagine mostra solo la data di scadenza e non si capisce il prodotto, usa "Prodotto da Foto".
-2. DATA DI SCADENZA (FONDAMENTALE): Cerca stringhe come "Scad.", "EXP", "Da consumarsi entro", o date stampate (es. "12/10/26", "24 LUG 25", ecc.).
-   - Se trovi una data stampata, convertila nel formato YYYY-MM-DD (es. "2026-10-12").
-   - Se la data ha solo l'anno a due cifre (es. '26'), convertila in anno a 4 cifre ('2026').
-   - Se NON c'è alcuna data visibile nella foto, stima una data di scadenza ragionevole basandoti sul tipo di prodotto, calcolandola a partire da OGGI (${today}) usando il campo default_shelf_life_days.
-3. CONSERVAZIONE: Determina dove va conservato tra: "FRIDGE" (Frigo), "FREEZER" (Freezer), "PANTRY" (Dispensa).
+REGOLE IMPORTANTI DI TOLLERANZA E LETTURA:
+1. DATA DI SCADENZA (TOLLERANZA MASSIMA):
+   - Cerca qualsiasi stringa riconducibile a una scadenza (es. "Scad", "EXP", "Consumare entro", "B.B.", "Da consumarsi", "Lotto", ecc.) o cifre stampate a getto d'inchiostro.
+   - Sii estremamente tollerante: se l'immagine è sfocata, riflessa, parzialmente tagliata, o di sbieco, fai del tuo meglio per intuire e ricostruire la data corretta.
+   - Se l'anno è espresso a due cifre (es. "25", "26"), convertilo a 4 cifre ("2025", "2026").
+   - Se la data è totalmente invisibile, illeggibile o assente, NON dare errore e NON scrivere null o "sconosciuto". Calcola invece una data stimata ragionevole basandoti sul tipo di prodotto identificato (es. Latticini: +7gg, Carne/Pesce freschi: +3gg, Pane: +5gg, Conserve/Scatolame: +365gg, Succhi: +30gg) a partire da OGGI (${today}).
+   - IL CAMPO "expiration_date" DEVE SEMPRE ED ESCLUSIVAMENTE CONTENERE UNA DATA VALIDA NEL FORMATO "YYYY-MM-DD". Non usare mai parole o formati alternativi.
+
+2. NOME PRODOTTO: Identifica il nome dell'alimento. Se la foto mostra solo la data su sfondo bianco/neutro e non è possibile capire il prodotto, usa il nome generico "Prodotto da Foto".
+
+3. CONSERVAZIONE: Determina la modalità di conservazione corretta tra: "FRIDGE" (Frigo), "FREEZER" (Freezer), "PANTRY" (Dispensa).
+
 4. HEALTH SCORE: Valuta la salubrità del cibo tra: "Sano", "Moderato", "Poco Sano", "Sconosciuto".
-5. OUTPUT: Restituisci esclusivamente l'oggetto JSON richiesto. NESSUN blocco markdown o testo esplicativo.
 
-SCHEMA DI OUTPUT JSON OBBLIGATORIO:
+SCHEMA DI OUTPUT JSON RICHIESTO:
 {
-  "name": "Nome pulito del prodotto",
-  "category": "Categoria alimentare",
+  "name": "Nome del prodotto",
+  "category": "Categoria dell'alimento",
   "storage_type": "FRIDGE | FREEZER | PANTRY",
-  "expiration_date": "YYYY-MM-DD (quella letta o quella stimata)",
+  "expiration_date": "YYYY-MM-DD (letta o stimata con tolleranza)",
   "default_shelf_life_days": 7,
   "health_score": "Sano | Moderato | Poco Sano | Sconosciuto"
 }
 `;
 
-    const result = await model.generateContent([prompt, imagePart]);
+    // Esegui la chiamata con configurazione per forzare output JSON nativo
+    const result = await model.generateContent({
+      contents: [prompt, imagePart],
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
+    
     const response = await result.response;
     let text = response.text().trim();
     
-    // Pulisce eventuale markdown inviato per errore
+    // Pulisce eventuale markdown residuo
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
 
     const parsedData = JSON.parse(text);
