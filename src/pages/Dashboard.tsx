@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box, Camera } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
@@ -31,6 +31,7 @@ export default function Dashboard() {
   // Modal State
   const [showAddModal, setShowAddModal] = useState(false);
   const [aiProductData, setAiProductData] = useState<any>(null);
+  const [initialInputMode, setInitialInputMode] = useState<'manual' | 'photo'>('manual');
 
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
@@ -118,6 +119,7 @@ export default function Dashboard() {
         health_score: healthScore
       });
       setIsProcessingBarcode(false);
+      setInitialInputMode('manual');
       setShowAddModal(true);
     }
   };
@@ -210,30 +212,46 @@ export default function Dashboard() {
       </div>
 
       {/* Main Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
         <div 
           className="glass-panel" 
           onClick={() => setShowScanner(true)}
-          style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+          style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s' }}
         >
-          <div style={{ background: 'var(--primary-glow)', padding: '16px', borderRadius: '50%' }}>
-            {isProcessingBarcode ? <Loader2 size={32} color="var(--primary)" className="animate-spin" /> : <ScanBarcode size={32} color="var(--primary)" />}
+          <div style={{ background: 'var(--primary-glow)', padding: '14px', borderRadius: '50%' }}>
+            {isProcessingBarcode ? <Loader2 size={28} color="var(--primary)" className="animate-spin" /> : <ScanBarcode size={28} color="var(--primary)" />}
           </div>
-          <span style={{ fontWeight: 500 }}>{isProcessingBarcode ? 'Cerco...' : 'Scansiona'}</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{isProcessingBarcode ? 'Cerco...' : 'Barcode'}</span>
         </div>
         
         <div 
           className="glass-panel" 
           onClick={() => {
             setAiProductData(null);
+            setInitialInputMode('photo');
             setShowAddModal(true);
           }}
-          style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+          style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s', border: '1px solid rgba(46, 204, 113, 0.3)', background: 'linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.02) 100%)' }}
         >
-          <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '16px', borderRadius: '50%' }}>
-            <Plus size={32} color="var(--accent)" />
+          <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '14px', borderRadius: '50%' }}>
+            <Camera size={28} color="#2ECC71" />
           </div>
-          <span style={{ fontWeight: 500 }}>Manuale</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#2ECC71' }}>Foto AI</span>
+        </div>
+        
+        <div 
+          className="glass-panel" 
+          onClick={() => {
+            setAiProductData(null);
+            setInitialInputMode('manual');
+            setShowAddModal(true);
+          }}
+          style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s' }}
+        >
+          <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '14px', borderRadius: '50%' }}>
+            <Plus size={28} color="var(--accent)" />
+          </div>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>Manuale</span>
         </div>
       </div>
 
@@ -372,38 +390,38 @@ export default function Dashboard() {
                             </div>
                           )}
                           
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <h4 style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
+                            <h4 style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem', lineHeight: '1.2', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                               {item.custom_name}
                             </h4>
-                            <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: expInfo.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: expInfo.color }}></span>
+                            <p style={{ margin: '6px 0 0 0', fontSize: '0.75rem', color: expInfo.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: expInfo.color }}></span>
                               {expInfo.text}
                             </p>
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '4px 8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 4px' }}>
                               <button 
                                 onClick={() => {
                                   const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
                                   const minVal = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
                                   updateItemQuantity(item.id, Math.max(minVal, parseFloat((item.quantity - step).toFixed(2))));
                                 }} 
-                                style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}
+                                style={{ background: 'none', border: 'none', color: 'white', padding: '4px 6px', cursor: 'pointer' }}
                               >
                                 -
                               </button>
-                              <span style={{ fontSize: '0.85rem', minWidth: '50px', textAlign: 'center', fontWeight: 600 }}>
+                              <span style={{ fontSize: '0.85rem', minWidth: '35px', textAlign: 'center', fontWeight: 700 }}>
                                 {item.unit === 'kg' || item.unit === 'l' ? Number(item.quantity).toFixed(1) : item.quantity}
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '2px' }}>{item.unit || 'pz'}</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '2px' }}>{item.unit || 'pz'}</span>
                               </span>
                               <button 
                                 onClick={() => {
                                   const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
                                   updateItemQuantity(item.id, parseFloat((item.quantity + step).toFixed(2)));
                                 }} 
-                                style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}
+                                style={{ background: 'none', border: 'none', color: 'white', padding: '4px 6px', cursor: 'pointer' }}
                               >
                                 +
                               </button>
@@ -433,6 +451,7 @@ export default function Dashboard() {
       {showAddModal && (
         <AddItemModal 
           initialData={aiProductData}
+          initialInputMode={initialInputMode}
           onSave={handleSaveItem}
           onClose={() => {
             setShowAddModal(false);

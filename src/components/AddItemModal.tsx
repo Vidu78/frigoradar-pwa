@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2 } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
+import { supabase } from '../lib/supabase';
 
 interface AddItemModalProps {
   initialData?: {
@@ -14,7 +15,9 @@ interface AddItemModalProps {
     expiration_date?: string;
     unit?: string;
     purchase_date?: string;
+    imageUrl?: string;
   } | null;
+  initialInputMode?: 'manual' | 'photo';
   onSave: (data: any) => void;
   onClose: () => void;
 }
@@ -31,11 +34,12 @@ const CATEGORIES = [
   'Altro'
 ];
 
-export default function AddItemModal({ initialData, onSave, onClose }: AddItemModalProps) {
+export default function AddItemModal({ initialData, initialInputMode, onSave, onClose }: AddItemModalProps) {
   const { showToast } = useToastStore();
-  const [inputMode, setInputMode] = useState<'manual' | 'photo'>('manual');
+  const [inputMode, setInputMode] = useState<'manual' | 'photo'>(initialInputMode || 'manual');
   const [name, setName] = useState(initialData?.name || '');
   const [category, setCategory] = useState(initialData?.category || 'Altro');
+  const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   const [unit, setUnit] = useState(initialData?.unit || 'pz');
@@ -128,6 +132,31 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
     try {
       showToast("Comprimo la foto...", "info");
       const base64String = await compressImage(file);
+      
+      // Funzione helper locale per Blob
+      const dataURLtoBlob = (dataurl: string) => {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)?.[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+      };
+
+      showToast("Salvataggio foto in cloud...", "info");
+      try {
+        const blob = dataURLtoBlob(base64String);
+        const fileName = `product_${Date.now()}.jpg`;
+        const { data: uploadData, error: uploadError } = await supabase.storage.from('product_images').upload(fileName, blob, { contentType: 'image/jpeg', cacheControl: '3600' });
+        
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage.from('product_images').getPublicUrl(fileName);
+          setScannedImageUrl(publicUrlData.publicUrl);
+        }
+      } catch (uploadEx) {
+        console.warn("Upload immagine fallito:", uploadEx);
+      }
+
       showToast("Analisi in corso...", "info");
       
       const res = await fetch('/api/analyzeImage', {
@@ -186,7 +215,8 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
       unit: unit,
       is_frozen: location === 'FREEZER',
       health_score: initialData?.health_score || null,
-      category: category
+      category: category,
+      image_url: scannedImageUrl || initialData?.imageUrl || null
     });
   };
 
