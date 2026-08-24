@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "Fridge",
+    "recipes": "AI Chef",
+    "scanner": "Scanner",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "My Fridge",
+    "empty": "Your fridge is empty!",
+    "add_item": "Add",
+    "scan_barcode": "Scan Barcode",
+    "search": "Search item...",
+    "expiring_soon": "Expiring Soon"
+  },
+  "profile": {
+    "title": "Profile",
+    "biometric": "Biometric Security",
+    "biometric_desc": "Use Touch ID or Face ID to sign in quickly and securely.",
+    "notifications": "Expiration Alerts",
+    "family": "Family Fridge",
+    "family_pro": "PRO COMING SOON",
+    "preferences": "My Preferences",
+    "support": "Help & Support",
+    "settings": "App Settings",
+    "language": "Language / Lingua",
+    "logout": "Sign Out",
+    "pro_badge": "PRO USER"
+  },
+  "stats": {
+    "title": "Money Saved",
+    "saved": "Saved",
+    "wasted": "Wasted",
+    "desc_saved": "value of consumed food",
+    "desc_wasted": "value of wasted food"
+  }
+}

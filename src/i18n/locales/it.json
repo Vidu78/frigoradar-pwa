@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "Frigo",
+    "recipes": "Chef AI",
+    "scanner": "Scanner",
+    "profile": "Profilo"
+  },
+  "dashboard": {
+    "title": "Il Mio Frigo",
+    "empty": "Il tuo frigo è vuoto!",
+    "add_item": "Aggiungi",
+    "scan_barcode": "Scansiona Codice",
+    "search": "Cerca prodotto...",
+    "expiring_soon": "In Scadenza"
+  },
+  "profile": {
+    "title": "Profilo",
+    "biometric": "Sicurezza Biometrica",
+    "biometric_desc": "Usa l'impronta digitale o il Face ID per accedere più rapidamente e in totale sicurezza.",
+    "notifications": "Notifiche Scadenza",
+    "family": "Frigo di Famiglia",
+    "family_pro": "PRO IN ARRIVO",
+    "preferences": "Le mie Preferenze",
+    "support": "Aiuto e Supporto",
+    "settings": "Impostazioni App",
+    "language": "Lingua / Language",
+    "logout": "Esci dall'Account",
+    "pro_badge": "UTENTE PRO"
+  },
+  "stats": {
+    "title": "Soldi Risparmiati",
+    "saved": "Salvati",
+    "wasted": "Sprecati",
+    "desc_saved": "valore dei cibi consumati",
+    "desc_wasted": "valore dei cibi buttati"
+  }
+}
