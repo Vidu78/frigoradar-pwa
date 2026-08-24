@@ -66,41 +66,43 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
       </div>
 
       {/* --- BOTTONI NAVIGAZIONE (FOREGROUND LAYER) --- */}
-      <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', zIndex: 1 }}>
-        {/* Left Tab: Fridge */}
-        <button
-          onClick={() => onTabChange('fridge')}
-          style={{
-            flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-            color: activeTab === 'fridge' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
-            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-            transform: activeTab === 'fridge' ? 'translateY(-2px)' : 'translateY(0)',
-          }}
-        >
-          <Refrigerator size={24} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
-          <span style={{ fontSize: '11px', fontWeight: activeTab === 'fridge' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-            {t('nav.fridge')}
-          </span>
-        </button>
+      <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
+        
+        {/* Left Side */}
+        <div style={{ flex: 1, display: 'flex' }}>
+          <button
+            onClick={() => onTabChange('fridge')}
+            style={{
+              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+              color: activeTab === 'fridge' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: activeTab === 'fridge' ? 'translateY(-2px)' : 'translateY(0)',
+            }}
+          >
+            <Refrigerator size={24} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'fridge' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+              {t('nav.fridge')}
+            </span>
+          </button>
 
-        {/* Shopping List Tab */}
-        <button
-          onClick={() => onTabChange('shopping')}
-          style={{
-            flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-            color: activeTab === 'shopping' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
-            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-            transform: activeTab === 'shopping' ? 'translateY(-2px)' : 'translateY(0)',
-          }}
-        >
-          <ShoppingCart size={24} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
-          <span style={{ fontSize: '11px', fontWeight: activeTab === 'shopping' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-            Spesa
-          </span>
-        </button>
+          <button
+            onClick={() => onTabChange('shopping')}
+            style={{
+              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+              color: activeTab === 'shopping' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: activeTab === 'shopping' ? 'translateY(-2px)' : 'translateY(0)',
+            }}
+          >
+            <ShoppingCart size={24} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'shopping' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+              Spesa
+            </span>
+          </button>
+        </div>
 
         {/* Center: SCANNER BUTTON */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }}>
           <button 
             onClick={onScanClick}
             style={{
@@ -114,7 +116,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
           </button>
         </div>
 
-        {/* Recipes & Profile side-by-side */}
+        {/* Right Side */}
         <div style={{ flex: 1, display: 'flex' }}>
           <button
             onClick={() => onTabChange('recipes')}
