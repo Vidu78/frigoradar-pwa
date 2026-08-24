@@ -1,22 +1,14 @@
 async function test() {
-  try {
-    const res = await fetch('https://frigoradar-pwa.vercel.app/api/generateRecipe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        items: [{name: 'Pomodoro', quantity: 2, expiration_date: '2026-10-10'}],
-        peopleCount: 2,
-        difficulty: 'FACILE',
-        priority: 'TUTTI'
-      })
-    });
-    const text = await res.text();
-    console.log('Status:', res.status);
-    console.log('Response:', text);
-  } catch (err) {
-    console.error(err);
+  const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.7-flash'];
+  for (const model of models) {
+    console.log(`Testing ${model}...`);
+    try {
+      const res = await fetch(`https://frigoradar-pwa.vercel.app/api/testBackend?model=${model}`);
+      const data = await res.json();
+      console.log(`${model} response:`, res.status, data);
+    } catch (err) {
+      console.error(`${model} error:`, err);
+    }
   }
 }
 test();
