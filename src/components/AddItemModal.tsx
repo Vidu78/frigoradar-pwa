@@ -19,6 +19,7 @@ interface AddItemModalProps {
 
 export default function AddItemModal({ initialData, onSave, onClose }: AddItemModalProps) {
   const { showToast } = useToastStore();
+  const [inputMode, setInputMode] = useState<'manual' | 'photo'>('manual');
   const [name, setName] = useState(initialData?.name || '');
   
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
@@ -51,9 +52,11 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
           const aiData = await res.json();
           if (aiData.expiration_date) {
             setExpiry(aiData.expiration_date);
-            showToast("Scadenza rilevata con successo!", "success");
+            showToast("Data di scadenza letta con successo dall'AI!", "success");
+          } else {
+            showToast("Scadenza non trovata in foto. Impostata scadenza stimata.", "info");
           }
-          if (aiData.name && !name.trim()) {
+          if (aiData.name) {
             setName(aiData.name);
           }
           if (aiData.storage_type) {
@@ -132,6 +135,69 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
+          {/* Doppia Opzione Manuale / Foto */}
+          <div>
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '12px' }}>
+              <button 
+                type="button" 
+                onClick={() => setInputMode('manual')}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  background: inputMode === 'manual' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ✍️ Manuale
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setInputMode('photo')}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  background: inputMode === 'photo' ? 'rgba(46, 204, 113, 0.2)' : 'transparent',
+                  color: inputMode === 'photo' ? '#2ECC71' : 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                📸 Foto Scadenza (AI)
+              </button>
+            </div>
+          </div>
+
+          {inputMode === 'photo' && (
+            <label 
+              htmlFor="modal-photo-input-big"
+              className="glass-panel"
+              style={{
+                padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                cursor: 'pointer', transition: 'all 0.3s',
+                background: 'linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.05) 100%)',
+                border: '1px solid rgba(46, 204, 113, 0.3)',
+                borderRadius: '16px',
+              }}
+            >
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                id="modal-photo-input-big" 
+                onChange={handlePhotoScanInModal}
+                style={{ display: 'none' }}
+                disabled={scanning}
+              />
+              <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '12px', borderRadius: '50%', color: '#2ECC71' }}>
+                {scanning ? <Loader2 size={24} className="animate-spin" /> : <Camera size={24} />}
+              </div>
+              <span style={{ fontWeight: 600, color: '#2ECC71', fontSize: '0.9rem' }}>
+                {scanning ? 'Lettura immagine in corso...' : 'Scatta Foto alla Scadenza'}
+              </span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center' }}>
+                L\'AI estrarrà automaticamente la scadenza e compilerà i dati.
+              </span>
+            </label>
+          )}
+
           <div>
             <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Nome Prodotto</label>
             <input 
