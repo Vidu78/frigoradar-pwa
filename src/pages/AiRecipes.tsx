@@ -37,7 +37,7 @@ export default function AiRecipes() {
       } else {
         const errData = await res.json().catch(() => null);
         console.error("API Error:", res.status, errData);
-        alert(`Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'}`);
+        alert(`Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'} Dettagli: ${errData?.details || ''}`);
       }
     } catch (error) {
       console.error("Fetch Error:", error);
