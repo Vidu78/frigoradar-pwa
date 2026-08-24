@@ -6,7 +6,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'No key' });
     
-    const modelName = (req.query.model as string) || 'gemini-1.5-flash';
+    const modelName = (req.query.model as string) || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
     
