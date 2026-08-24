@@ -57,6 +57,9 @@ export default function AuthPage() {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        
+        // Forziamo la navigazione immediata appena la chiamata ha successo
+        navigate('/', { replace: true });
       } else {
         const { data, error } = await supabase.auth.signUp({ 
           email, 
@@ -70,7 +73,7 @@ export default function AuthPage() {
         
         // Se Supabase non richiede la conferma email, restituisce subito la sessione
         if (data.session) {
-          setMessage({ text: 'Registrazione completata! Accesso in corso...', type: 'success' });
+          navigate('/', { replace: true });
         } else {
           setMessage({ text: 'Controlla la tua email per confermare la registrazione!', type: 'success' });
         }
