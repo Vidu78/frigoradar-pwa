@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Calendar, Refrigerator, Box } from 'lucide-react';
+import { X, Calendar, Refrigerator, Box, Camera, Loader2 } from 'lucide-react';
 import { addDays } from 'date-fns';
 
 interface AddItemModalProps {
@@ -28,6 +28,47 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
   
   const [location, setLocation] = useState<'FRIDGE'|'FREEZER'|'PANTRY'|'OTHER'>(initialData?.location || 'FRIDGE');
   const [quantity, setQuantity] = useState(1);
+  const [scanning, setScanning] = useState(false);
+
+  const handlePhotoScanInModal = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setScanning(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      try {
+        const res = await fetch('/api/analyzeImage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64String })
+        });
+        
+        if (res.ok) {
+          const aiData = await res.json();
+          if (aiData.expiration_date) {
+            setExpiry(aiData.expiration_date);
+          }
+          if (aiData.name && !name.trim()) {
+            setName(aiData.name);
+          }
+          if (aiData.storage_type) {
+            setLocation(aiData.storage_type);
+          }
+        } else {
+          alert("L'AI non è riuscita a leggere la data. Riprova con una foto più nitida.");
+        }
+      } catch (error) {
+        console.error("Errore analisi foto:", error);
+        alert("Errore durante l'analisi della foto.");
+      } finally {
+        setScanning(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,19 +142,48 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Scadenza</label>
-              <div style={{ position: 'relative' }}>
-                <Calendar size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input 
-                  type="date" 
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  className="input-field"
-                  style={{ paddingLeft: '40px' }}
-                  required
-                />
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <Calendar size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input 
+                    type="date" 
+                    value={expiry}
+                    onChange={(e) => setExpiry(e.target.value)}
+                    className="input-field"
+                    style={{ paddingLeft: '34px', fontSize: '0.85rem' }}
+                    required
+                  />
+                </div>
+                
+                {/* Pulsante Fotocamera per data AI */}
+                <label 
+                  htmlFor="modal-photo-input"
+                  style={{
+                    background: 'rgba(46, 204, 113, 0.15)',
+                    border: '1px solid rgba(46, 204, 113, 0.3)',
+                    color: '#2ECC71',
+                    borderRadius: '12px',
+                    width: '42px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    capture="environment" 
+                    id="modal-photo-input" 
+                    onChange={handlePhotoScanInModal}
+                    style={{ display: 'none' }}
+                    disabled={scanning}
+                  />
+                  {scanning ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                </label>
               </div>
             </div>
             

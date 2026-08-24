@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box, Camera } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
@@ -13,7 +13,6 @@ export default function Dashboard() {
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isProcessingBarcode, setIsProcessingBarcode] = useState(false);
-  const [isProcessingPhoto, setIsProcessingPhoto] = useState(false);
   
   // Modal State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -22,46 +21,7 @@ export default function Dashboard() {
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setIsProcessingPhoto(true);
-    
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64String = reader.result as string;
-      try {
-        const res = await fetch('/api/analyzeImage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64String })
-        });
-        
-        if (res.ok) {
-          const aiData = await res.json();
-          setAiProductData({
-            name: aiData.name || 'Prodotto da Foto',
-            days: aiData.default_shelf_life_days || 7,
-            category: aiData.category || 'Altro',
-            location: aiData.storage_type || 'FRIDGE',
-            health_score: aiData.health_score || 'Sconosciuto',
-            expiration_date: aiData.expiration_date
-          });
-          setShowAddModal(true);
-        } else {
-          alert("L'AI non è riuscita a leggere la foto. Prova con una foto più nitida.");
-        }
-      } catch (error) {
-        console.error("Errore analisi foto:", error);
-        alert("Errore durante l'analisi della foto.");
-      } finally {
-        setIsProcessingPhoto(false);
-        e.target.value = '';
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   useEffect(() => {
     fetchItems();
@@ -171,9 +131,9 @@ export default function Dashboard() {
           is_frozen: data.is_frozen,
           health_score: data.health_score
         });
-      } catch (retryError) {
+      } catch (retryError: any) {
         console.error("Salvataggio fallito:", retryError);
-        alert("Errore durante il salvataggio del prodotto nel database.");
+        alert(`Errore salvataggio Supabase: ${retryError.message || JSON.stringify(retryError)}`);
       }
     }
     setAiProductData(null);
@@ -215,65 +175,30 @@ export default function Dashboard() {
       </div>
 
       {/* Main Actions */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-        {/* Foto AI Expiration Scanner (Main Action) */}
-        <label 
-          htmlFor="photo-input"
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+        <div 
           className="glass-panel" 
-          style={{ 
-            padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', 
-            cursor: 'pointer', transition: 'all 0.3s',
-            background: 'linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.05) 100%)',
-            border: '1px solid rgba(46, 204, 113, 0.3)',
-            borderRadius: '20px'
-          }}
+          onClick={() => setShowScanner(true)}
+          style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
         >
-          <input 
-            type="file" 
-            accept="image/*" 
-            capture="environment" 
-            id="photo-input" 
-            onChange={handlePhotoUpload} 
-            style={{ display: 'none' }} 
-            disabled={isProcessingPhoto}
-          />
-          <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '16px', borderRadius: '50%', color: '#2ECC71' }}>
-            {isProcessingPhoto ? <Loader2 size={32} className="animate-spin" /> : <Camera size={32} />}
+          <div style={{ background: 'var(--primary-glow)', padding: '16px', borderRadius: '50%' }}>
+            {isProcessingBarcode ? <Loader2 size={32} color="var(--primary)" className="animate-spin" /> : <ScanBarcode size={32} color="var(--primary)" />}
           </div>
-          <span style={{ fontWeight: 700, color: '#2ECC71', fontSize: '1.1rem' }}>
-            {isProcessingPhoto ? 'Lettura Scadenza AI...' : 'Foto Scadenza / Prodotto'}
-          </span>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textAlign: 'center' }}>
-            L\'AI riconosce il cibo e legge la data di scadenza reale dalla confezione!
-          </span>
-        </label>
-
-        {/* Secondary Actions (Barcode & Manual) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div 
-            className="glass-panel" 
-            onClick={() => setShowScanner(true)}
-            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
-          >
-            <div style={{ background: 'var(--primary-glow)', padding: '12px', borderRadius: '50%' }}>
-              {isProcessingBarcode ? <Loader2 size={24} color="var(--primary)" className="animate-spin" /> : <ScanBarcode size={24} color="var(--primary)" />}
-            </div>
-            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{isProcessingBarcode ? 'Cerco...' : 'Barcode'}</span>
+          <span style={{ fontWeight: 500 }}>{isProcessingBarcode ? 'Cerco...' : 'Scansiona'}</span>
+        </div>
+        
+        <div 
+          className="glass-panel" 
+          onClick={() => {
+            setAiProductData(null);
+            setShowAddModal(true);
+          }}
+          style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+        >
+          <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '16px', borderRadius: '50%' }}>
+            <Plus size={32} color="var(--accent)" />
           </div>
-          
-          <div 
-            className="glass-panel" 
-            onClick={() => {
-              setAiProductData(null);
-              setShowAddModal(true);
-            }}
-            style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
-          >
-            <div style={{ background: 'rgba(255, 107, 91, 0.15)', padding: '12px', borderRadius: '50%' }}>
-              <Plus size={24} color="var(--accent)" />
-            </div>
-            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Manuale</span>
-          </div>
+          <span style={{ fontWeight: 500 }}>Manuale</span>
         </div>
       </div>
 
