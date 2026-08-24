@@ -10,6 +10,7 @@ interface AddItemModalProps {
     days?: number;
     category?: string;
     health_score?: string;
+    expiration_date?: string;
   } | null;
   onSave: (data: any) => void;
   onClose: () => void;
@@ -18,8 +19,11 @@ interface AddItemModalProps {
 export default function AddItemModal({ initialData, onSave, onClose }: AddItemModalProps) {
   const [name, setName] = useState(initialData?.name || '');
   
-  // Scadenza di default: Oggi + i giorni stimati (o 7 di base)
-  const defaultExp = addDays(new Date(), initialData?.days || 7).toISOString().split('T')[0];
+  // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
+  const defaultExp = initialData?.expiration_date 
+    ? initialData.expiration_date 
+    : addDays(new Date(), initialData?.days || 7).toISOString().split('T')[0];
+    
   const [expiry, setExpiry] = useState(defaultExp);
   
   const [location, setLocation] = useState<'FRIDGE'|'FREEZER'|'PANTRY'|'OTHER'>(initialData?.location || 'FRIDGE');
