@@ -9,6 +9,7 @@ import AiRecipes from './pages/AiRecipes';
 import Profile from './pages/Profile';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
+import Toast from './components/Toast';
 
 // Contenitore Principale (SPA Fluida)
 const AppContainer = () => {
@@ -16,6 +17,7 @@ const AppContainer = () => {
 
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
+      <Toast />
       <PendingRecipeBanner />
       <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {activeTab === 'INVENTORY' && <Dashboard />}

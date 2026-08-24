@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2 } from 'lucide-react';
 import { addDays } from 'date-fns';
+import { useToastStore } from '../store/toastStore';
 
 interface AddItemModalProps {
   initialData?: {
@@ -17,6 +18,7 @@ interface AddItemModalProps {
 }
 
 export default function AddItemModal({ initialData, onSave, onClose }: AddItemModalProps) {
+  const { showToast } = useToastStore();
   const [name, setName] = useState(initialData?.name || '');
   
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
@@ -49,6 +51,7 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
           const aiData = await res.json();
           if (aiData.expiration_date) {
             setExpiry(aiData.expiration_date);
+            showToast("Scadenza rilevata con successo!", "success");
           }
           if (aiData.name && !name.trim()) {
             setName(aiData.name);
@@ -57,11 +60,11 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
             setLocation(aiData.storage_type);
           }
         } else {
-          alert("L'AI non è riuscita a leggere la data. Riprova con una foto più nitida.");
+          showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
         }
       } catch (error) {
         console.error("Errore analisi foto:", error);
-        alert("Errore durante l'analisi della foto.");
+        showToast("Errore durante l'analisi della foto.", "error");
       } finally {
         setScanning(false);
         e.target.value = '';

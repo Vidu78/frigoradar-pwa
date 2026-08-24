@@ -5,10 +5,12 @@ import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info,
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
+import { useToastStore } from '../store/toastStore';
 
 export default function Dashboard() {
   const { session, signOut } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
+  const { showToast } = useToastStore();
   
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -133,7 +135,7 @@ export default function Dashboard() {
         });
       } catch (retryError: any) {
         console.error("Salvataggio fallito:", retryError);
-        alert(`Errore salvataggio Supabase: ${retryError.message || JSON.stringify(retryError)}`);
+        showToast(`Errore salvataggio Supabase: ${retryError.message || JSON.stringify(retryError)}`, 'error');
       }
     }
     setAiProductData(null);
