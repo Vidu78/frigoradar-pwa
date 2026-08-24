@@ -85,57 +85,91 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
     if (!file) return;
 
     setScanning(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64String = reader.result as string;
-      try {
-        const res = await fetch('/api/analyzeImage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64String })
-        });
-        
-        if (res.ok) {
-          const aiData = await res.json();
-          if (aiData.expiration_date) {
-            setExpiry(aiData.expiration_date);
-            showToast("Data di scadenza letta con successo dall'AI!", "success");
-          } else {
-            showToast("Scadenza non trovata in foto. Impostata scadenza stimata.", "info");
-          }
-          if (aiData.name) {
-            setName(aiData.name);
-          }
-          if (aiData.storage_type) {
-            setLocation(aiData.storage_type);
-          }
-          if (aiData.category) {
-            // Cerca se corrisponde ad una delle categorie in italiano
-            const normalized = aiData.category.toLowerCase();
-            let matchedCat = 'Altro';
-            if (normalized.includes('carn') || normalized.includes('meat')) matchedCat = 'Carni e Salumi';
-            else if (normalized.includes('verdur') || normalized.includes('frutt') || normalized.includes('veg')) matchedCat = 'Verdure e Frutta';
-            else if (normalized.includes('latt') || normalized.includes('uov') || normalized.includes('egg') || normalized.includes('dair')) matchedCat = 'Latticini e Uova';
-            else if (normalized.includes('pesc') || normalized.includes('fish') || normalized.includes('sea')) matchedCat = 'Pesce e Frutti di Mare';
-            else if (normalized.includes('pan') || normalized.includes('past') || normalized.includes('grain') || normalized.includes('cere')) matchedCat = 'Pane e Pasta';
-            else if (normalized.includes('conserv') || normalized.includes('sug') || normalized.includes('sauce') || normalized.includes('can')) matchedCat = 'Conserve e Sughi';
-            else if (normalized.includes('dolc') || normalized.includes('snack') || normalized.includes('sweet')) matchedCat = 'Dolci e Snack';
-            else if (normalized.includes('bev') || normalized.includes('drink')) matchedCat = 'Bevande';
-            
-            setCategory(matchedCat);
-          }
-        } else {
-          showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
-        }
-      } catch (error) {
-        console.error("Errore analisi foto:", error);
-        showToast("Errore durante l'analisi della foto.", "error");
-      } finally {
-        setScanning(false);
-        e.target.value = '';
-      }
+    
+    // Funzione per comprimere l'immagine lato client prima dell'upload
+    const compressImage = (fileToCompress: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(fileToCompress);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target?.result as string;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            // Comprime in JPEG con qualità 60% per un caricamento molto più veloce
+            resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+          };
+          img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+      });
     };
-    reader.readAsDataURL(file);
+
+    try {
+      showToast("Comprimo la foto...", "info");
+      const base64String = await compressImage(file);
+      showToast("Analisi in corso...", "info");
+      
+      const res = await fetch('/api/analyzeImage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64String })
+      });
+      
+      if (res.ok) {
+        const aiData = await res.json();
+        if (aiData.expiration_date) {
+          setExpiry(aiData.expiration_date);
+          showToast("Dati letti con successo dall'AI!", "success");
+        } else {
+          showToast("Scadenza non trovata in foto. Impostata scadenza stimata.", "info");
+        }
+        if (aiData.name) setName(aiData.name);
+        if (aiData.storage_type) setLocation(aiData.storage_type);
+        if (aiData.category) {
+          const normalized = aiData.category.toLowerCase();
+          let matchedCat = 'Altro';
+          if (normalized.includes('carn') || normalized.includes('meat')) matchedCat = 'Carni e Salumi';
+          else if (normalized.includes('verdur') || normalized.includes('frutt') || normalized.includes('veg')) matchedCat = 'Verdure e Frutta';
+          else if (normalized.includes('latt') || normalized.includes('uov') || normalized.includes('egg') || normalized.includes('dair')) matchedCat = 'Latticini e Uova';
+          else if (normalized.includes('pesc') || normalized.includes('fish') || normalized.includes('sea')) matchedCat = 'Pesce e Frutti di Mare';
+          else if (normalized.includes('pan') || normalized.includes('past') || normalized.includes('grain') || normalized.includes('cere')) matchedCat = 'Pane e Pasta';
+          else if (normalized.includes('conserv') || normalized.includes('sug') || normalized.includes('sauce') || normalized.includes('can')) matchedCat = 'Conserve e Sughi';
+          else if (normalized.includes('dolc') || normalized.includes('snack') || normalized.includes('sweet')) matchedCat = 'Dolci e Snack';
+          else if (normalized.includes('bev') || normalized.includes('drink')) matchedCat = 'Bevande';
+          
+          setCategory(matchedCat);
+        }
+      } else {
+        showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
+      }
+    } catch (error) {
+      console.error("Errore analisi foto:", error);
+      showToast("Errore durante l'analisi della foto.", "error");
+    } finally {
+      setScanning(false);
+      e.target.value = '';
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
