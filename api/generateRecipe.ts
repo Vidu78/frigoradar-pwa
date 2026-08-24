@@ -71,7 +71,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 `;
 
     const result = await model.generateContent({
-      contents: [prompt],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json"
       }

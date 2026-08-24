@@ -34,9 +34,14 @@ export default function AiRecipes() {
       if (res.ok) {
         const data = await res.json();
         setRecipe(data);
+      } else {
+        const errData = await res.json().catch(() => null);
+        console.error("API Error:", res.status, errData);
+        alert(`Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Fetch Error:", error);
+      alert("Errore di connessione. Controlla la tua rete.");
     } finally {
       setLoading(false);
     }

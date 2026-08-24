@@ -78,7 +78,7 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
 
     // Esegui la chiamata con configurazione per forzare output JSON nativo
     const result = await model.generateContent({
-      contents: [prompt, imagePart],
+      contents: [{ role: 'user', parts: [{ text: prompt }, imagePart] }],
       generationConfig: {
         responseMimeType: "application/json"
       }
