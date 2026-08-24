@@ -1,15 +1,12 @@
 async function test() {
   try {
-    const res = await fetch('https://pwa-app-silk-three.vercel.app/api/generateRecipe', {
+    const res = await fetch('https://frigoradar-pwa.vercel.app/api/analyzeImage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        items: [{name: 'Pomodoro', quantity: 2, expiration_date: '2026-10-10'}],
-        peopleCount: 2,
-        difficulty: 'FACILE',
-        priority: 'TUTTI'
+        image: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA='
       })
     });
     const text = await res.text();
