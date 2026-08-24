@@ -4,7 +4,6 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box, Camera } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
-import SavingsStats from '../components/SavingsStats';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 
@@ -211,8 +210,6 @@ export default function Dashboard() {
           <LogOut size={20} />
         </button>
       </div>
-
-      <SavingsStats />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
         <div 

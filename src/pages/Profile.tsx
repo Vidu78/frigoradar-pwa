@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { User, CheckCircle2, Loader2, LogOut } from 'lucide-react';
+import SavingsStats from '../components/SavingsStats';
 
 export default function Profile() {
   const { session, signOut } = useAuthStore();
@@ -64,6 +65,8 @@ export default function Profile() {
           </p>
         </div>
       </div>
+
+      <SavingsStats />
 
       <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Sicurezza Biometrica</h3>
