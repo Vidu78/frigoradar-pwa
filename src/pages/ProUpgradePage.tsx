@@ -1,0 +1,118 @@
+import { useState } from 'react';
+import { useAuthStore } from '../store/authStore';
+import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function ProUpgradePage() {
+  const navigate = useNavigate();
+  const { upgradeToPro, isPro } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      await upgradeToPro();
+      // Redirect alla home o resta qui
+      setTimeout(() => navigate('/'), 1500);
+    } catch (err) {
+      console.error(err);
+      alert('Errore durante l\'aggiornamento. Riprova più tardi.');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: '20px', paddingBottom: '120px', minHeight: '100%', color: 'white', background: 'radial-gradient(circle at 50% 0%, rgba(255,215,0,0.1) 0%, transparent 70%)' }}>
+      
+      {/* HEADER */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <div>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#FFD700', textShadow: '0 0 20px rgba(255,215,0,0.3)' }}>FrigoRadar PRO</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Sblocca il pieno potenziale</p>
+        </div>
+      </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ 
+          width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto',
+          boxShadow: '0 0 30px rgba(255,215,0,0.4)'
+        }}>
+          <Star size={40} color="black" />
+        </div>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Meno Sprechi, Meno Stress</h2>
+        <p style={{ color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '300px', margin: '0 auto' }}>
+          Passa a FrigoRadar PRO e lascia che l'Intelligenza Artificiale gestisca la tua cucina.
+        </p>
+      </div>
+
+      {/* FEATURES */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px' }}>
+        
+        <div className="glass-panel" style={{ padding: '20px', borderRadius: '20px', display: 'flex', gap: '16px', border: '1px solid rgba(255,215,0,0.2)' }}>
+          <div style={{ background: 'rgba(255,215,0,0.1)', padding: '12px', borderRadius: '14px', height: 'fit-content' }}>
+            <Sparkles size={24} color="#FFD700" />
+          </div>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Chef AI (Svuota Frigo)</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Genera ricette magiche istantanee basate sugli ingredienti che ti stanno per scadere.</p>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderRadius: '20px', display: 'flex', gap: '16px', border: '1px solid rgba(255,215,0,0.2)' }}>
+          <div style={{ background: 'rgba(255,215,0,0.1)', padding: '12px', borderRadius: '14px', height: 'fit-content' }}>
+            <ShoppingCart size={24} color="#FFD700" />
+          </div>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Smart Shopping</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Compila la lista della spesa automaticamente e sposta i prodotti in frigo con un tocco.</p>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderRadius: '20px', display: 'flex', gap: '16px', border: '1px solid rgba(255,215,0,0.2)', opacity: 0.7 }}>
+          <div style={{ background: 'rgba(255,215,0,0.1)', padding: '12px', borderRadius: '14px', height: 'fit-content' }}>
+            <Users size={24} color="#FFD700" />
+          </div>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Condivisione Familiare</h3>
+            <span style={{ fontSize: '0.7rem', background: '#FFD700', color: 'black', padding: '2px 6px', borderRadius: '8px', fontWeight: 700, marginBottom: '4px', display: 'inline-block' }}>IN ARRIVO</span>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Sincronizza il frigo in tempo reale con il tuo partner o i tuoi coinquilini.</p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* CTA */}
+      {isPro ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px', background: 'rgba(50, 215, 75, 0.1)', borderRadius: '20px', border: '1px solid rgba(50, 215, 75, 0.3)' }}>
+          <CheckCircle2 size={40} color="#32D74B" />
+          <h3 style={{ margin: 0, color: '#32D74B' }}>Sei già un utente PRO!</h3>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>Goditi tutte le funzioni premium sbloccate.</p>
+        </div>
+      ) : (
+        <button 
+          onClick={handleUpgrade}
+          disabled={loading}
+          style={{
+            width: '100%', padding: '18px', borderRadius: '16px', border: 'none',
+            background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+            color: 'black', fontSize: '1.1rem', fontWeight: 800,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            cursor: 'pointer', boxShadow: '0 8px 30px rgba(255, 215, 0, 0.4)',
+            transition: 'transform 0.2s',
+            transform: loading ? 'scale(0.98)' : 'scale(1)'
+          }}
+        >
+          {loading ? <Loader2 size={24} className="animate-spin" /> : 'Sblocca Gratis (Modalità Test)'}
+        </button>
+      )}
+
+    </div>
+  );
+}

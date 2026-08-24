@@ -26,28 +26,6 @@ export default function AuthPage() {
     }
   }, [session, navigate]);
 
-  // Gestione installazione PWA
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
-
-  const handleInstallApp = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    }
-  };
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -248,26 +226,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-      </div>
-
-      {/* Bottone Installazione PWA */}
-      {deferredPrompt && (
-        <div className="animate-fade-up" style={{ marginTop: '10px' }}>
-          <button 
-            onClick={handleInstallApp}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', 
-              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', 
-              borderRadius: '20px', padding: '10px 20px', color: '#fff', 
-              cursor: 'pointer', backdropFilter: 'blur(10px)', boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
-            }}
-          >
-            <Download size={18} />
-            <span style={{ fontWeight: 500 }}>Installa App su questo dispositivo</span>
-          </button>
-        </div>
-      )}
-
     </div>
   );
 }

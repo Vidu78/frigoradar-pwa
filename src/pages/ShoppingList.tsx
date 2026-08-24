@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useShoppingStore } from '../store/shoppingStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { ShoppingCart, CheckCircle2, Circle, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { ShoppingCart, CheckCircle2, Circle, Plus, Trash2, ArrowRight, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import AddItemModal from '../components/AddItemModal';
 
 export default function ShoppingList() {
+  const navigate = useNavigate();
+  const { isPro } = useAuthStore();
   const { items, fetchItems, addItem, toggleItemCheck, removeItem } = useShoppingStore();
   const { addItem: addToInventory } = useInventoryStore();
   const [newItemName, setNewItemName] = useState('');
@@ -55,6 +59,22 @@ export default function ShoppingList() {
           </p>
         </div>
       </div>
+
+      {!isPro && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backdropFilter: 'blur(12px)', background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255,215,0,0.4)' }}>
+            <Lock size={40} color="black" />
+          </div>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>Funzione Premium</h2>
+          <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>Sblocca FrigoRadar PRO per usare la Lista della Spesa Intelligente.</p>
+          <button 
+            onClick={() => navigate('/pro')}
+            style={{ padding: '16px 32px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', color: 'black', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(255, 215, 0, 0.4)' }}
+          >
+            Scopri FrigoRadar PRO
+          </button>
+        </div>
+      )}
 
       {/* Add form */}
       <form onSubmit={handleAdd} style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
