@@ -4,13 +4,14 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box, Camera } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
+import SavingsStats from '../components/SavingsStats';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 
 const categoryEmojis: Record<string, string> = {
   'Carni e Salumi': '🥩',
   'Verdure e Frutta': '🥦',
-  'Latticini e Uova': '🥛',
+  'Latticini e Ovuova': '🥛',
   'Pesce e Frutti di Mare': '🐟',
   'Pane e Pasta': '🍞',
   'Conserve e Sughi': '🥫',
@@ -20,7 +21,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export default function Dashboard() {
-  const { session, signOut } = useAuthStore();
+  const { session, signOut, updateStats } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
   const { showToast } = useToastStore();
   
@@ -36,17 +37,26 @@ export default function Dashboard() {
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
 
-
-
   useEffect(() => {
     fetchItems();
   }, []);
+
+  const handleDeleteWithStats = async (id: string, name: string) => {
+    const isConsumed = window.confirm(`Hai CONSUMATO questo prodotto ("${name}")?\n\n- Premi OK se l'hai mangiato/usato (Risparmio! 💰)\n- Premi Annulla se l'hai dovuto buttare (Spreco ⚠️)`);
+    
+    if (isConsumed) {
+      updateStats('SAVED', 2.5);
+    } else {
+      updateStats('WASTED', 2.5);
+    }
+    
+    await deleteItem(id);
+  };
 
   const handleScan = async (decodedText: string) => {
     setShowScanner(false);
     setIsProcessingBarcode(true);
     
-    // Funzione helper per il timeout delle fetch
     const fetchWithTimeout = async (url: string, options: any = {}, timeout = 4000) => {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeout);
@@ -69,7 +79,6 @@ export default function Dashboard() {
     let healthScore = "Sconosciuto";
 
     try {
-      // 1. Chiamata a OpenFoodFacts con timeout di 3 secondi
       try {
         const resOFF = await fetchWithTimeout(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(decodedText)}.json`, {}, 3000);
         const dataOFF = await resOFF.json();
@@ -82,7 +91,6 @@ export default function Dashboard() {
         console.warn("OpenFoodFacts offline o lento:", e);
       }
 
-      // 2. Chiamata a Gemini API con timeout di 4 secondi
       try {
         const aiRes = await fetchWithTimeout('/api/analyzeProduct', {
           method: 'POST',
@@ -95,7 +103,6 @@ export default function Dashboard() {
           finalName = aiData.name || rawName;
           days = aiData.default_shelf_life_days || 7;
           category = aiData.category || "Altro";
-          // Forza la location tra quelle disponibili nel menù
           location = (aiData.storage_type === 'FREEZER' || aiData.storage_type === 'PANTRY') 
             ? aiData.storage_type 
             : 'FRIDGE';
@@ -108,7 +115,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Errore generale durante la scansione:", error);
     } finally {
-      // Garantiamo l'apertura della modale in ogni caso, anche se le API falliscono
       setAiProductData({
         name: finalName,
         barcode: decodedText,
@@ -161,21 +167,18 @@ export default function Dashboard() {
     setAiProductData(null);
   };
 
-  // Filtraggio globale (Search) e per Tab (Location)
   const filteredItems = items.filter(item => {
     const matchSearch = (item.custom_name || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchTab = item.location === activeTab;
     return matchSearch && matchTab;
   });
 
-  // Ordinamento per data di scadenza imminente (le date più vicine o già scadute in cima)
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (!a.expiration_date) return 1;
     if (!b.expiration_date) return -1;
     return new Date(a.expiration_date).getTime() - new Date(b.expiration_date).getTime();
   });
 
-  // Raggruppamento per Categoria
   const groupedItems = sortedItems.reduce((acc, item) => {
     const cat = item.category || 'Altro';
     if (!acc[cat]) acc[cat] = [];
@@ -183,7 +186,6 @@ export default function Dashboard() {
     return acc;
   }, {} as Record<string, typeof items>);
 
-  // Calcolo Statistiche su tutti gli items
   const urgentCount = items.filter(item => {
     const status = getExpirationStatus(item.expiration_date);
     return status.status === 'URGENT' || status.status === 'EXPIRED';
@@ -198,7 +200,6 @@ export default function Dashboard() {
   return (
     <div style={{ padding: '20px', paddingBottom: '120px', maxWidth: '800px', margin: '0 auto', color: 'white' }}>
       
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '4px' }}>Bentornato,</p>
@@ -211,7 +212,8 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Main Actions */}
+      <SavingsStats />
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
         <div 
           className="glass-panel" 
@@ -426,7 +428,7 @@ export default function Dashboard() {
                                 +
                               </button>
                             </div>
-                            <button onClick={() => deleteItem(item.id)} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
+                            <button onClick={() => handleDeleteWithStats(item.id, item.custom_name || 'Prodotto')} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
                               <Trash2 size={18} />
                             </button>
                           </div>

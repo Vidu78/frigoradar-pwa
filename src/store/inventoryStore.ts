@@ -84,16 +84,19 @@ export const useInventoryStore = create<InventoryState>((set, get) => {
             await supabase.from('inventory_items').update({ quantity: newQty }).eq('id', item.id);
           }
 
-          await supabase.from('consumption_logs').insert([{
-            user_id: session.user.id,
-            item_name: ing.name,
-            quantity_consumed: ing.quantity_deducted,
-            health_score: item.health_score || ing.health_score || 'Sconosciuto'
-          }]);
+            await supabase.from('consumption_logs').insert([{
+              user_id: session.user.id,
+              item_name: ing.name,
+              quantity_consumed: ing.quantity_deducted,
+              health_score: item.health_score || ing.health_score || 'Sconosciuto'
+            }]);
+
+            // Traccia il risparmio economico stimato (es. €2.5 per ingrediente)
+            useAuthStore.getState().updateStats('SAVED', 2.5);
+          }
         }
       }
-    }
-    await get().fetchItems();
+      await get().fetchItems();
   },
 
   addItem: async (item) => {
