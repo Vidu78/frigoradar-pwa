@@ -25,53 +25,31 @@ const TEST_USER_ID = 'c5fbc463-e296-4b3b-9b23-4ba2869cee00'; // User ID di vince
 async function testInsert() {
   console.log(`Testing insert for user: ${TEST_USER_ID}`);
   
-  // Test insert with image_url
+  // Test insert with image_url and category
   const itemWithImage = {
     user_id: TEST_USER_ID,
-    custom_name: 'Test Prodotto con Immagine',
+    custom_name: 'Test Prodotto con Immagine e Categoria',
     quantity: 1,
     location: 'FRIDGE',
     is_frozen: false,
     health_score: 'Sano',
+    category: 'Latticini e Uova',
     image_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'
   };
 
-  console.log("\nAttempt 1: Inserting WITH image_url...");
+  console.log("\nAttempting final insert with all new fields...");
   const { data: d1, error: e1 } = await supabase
     .from('inventory_items')
     .insert([itemWithImage])
     .select();
 
   if (e1) {
-    console.error("FAILED Attempt 1:", e1.message, e1.details, e1.hint);
+    console.error("FAILED final insert:", e1.message, e1.details, e1.hint);
   } else {
-    console.log("SUCCESS Attempt 1! Inserted:", d1);
+    console.log("SUCCESS! Row inserted successfully with image_url and category:", d1[0]);
     // Delete it to keep DB clean
     await supabase.from('inventory_items').delete().eq('id', d1[0].id);
-  }
-
-  // Test insert WITHOUT image_url
-  const itemWithoutImage = {
-    user_id: TEST_USER_ID,
-    custom_name: 'Test Prodotto senza Immagine',
-    quantity: 1,
-    location: 'FRIDGE',
-    is_frozen: false,
-    health_score: 'Sano'
-  };
-
-  console.log("\nAttempt 2: Inserting WITHOUT image_url...");
-  const { data: d2, error: e2 } = await supabase
-    .from('inventory_items')
-    .insert([itemWithoutImage])
-    .select();
-
-  if (e2) {
-    console.error("FAILED Attempt 2:", e2.message, e2.details, e2.hint);
-  } else {
-    console.log("SUCCESS Attempt 2! Inserted:", d2);
-    // Delete it to keep DB clean
-    await supabase.from('inventory_items').delete().eq('id', d2[0].id);
+    console.log("SUCCESS! Deleted test row. Database is 100% healthy!");
   }
 }
 

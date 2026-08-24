@@ -128,7 +128,9 @@ export default function Dashboard() {
       await addItem({
         custom_name: data.custom_name,
         expiration_date: data.expiration_date,
+        purchase_date: data.purchase_date,
         quantity: data.quantity,
+        unit: data.unit,
         location: data.location,
         is_frozen: data.is_frozen,
         health_score: data.health_score,
@@ -141,7 +143,9 @@ export default function Dashboard() {
         await addItem({
           custom_name: data.custom_name,
           expiration_date: data.expiration_date,
+          purchase_date: data.purchase_date,
           quantity: data.quantity,
+          unit: data.unit,
           location: data.location,
           is_frozen: data.is_frozen,
           health_score: data.health_score,
@@ -380,9 +384,29 @@ export default function Dashboard() {
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '4px 8px' }}>
-                              <button onClick={() => updateItemQuantity(item.id, Math.max(1, item.quantity - 1))} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>-</button>
-                              <span style={{ fontSize: '0.9rem', width: '20px', textAlign: 'center', fontWeight: 600 }}>{item.quantity}</span>
-                              <button onClick={() => updateItemQuantity(item.id, item.quantity + 1)} style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}>+</button>
+                              <button 
+                                onClick={() => {
+                                  const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                  const minVal = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                  updateItemQuantity(item.id, Math.max(minVal, parseFloat((item.quantity - step).toFixed(2))));
+                                }} 
+                                style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}
+                              >
+                                -
+                              </button>
+                              <span style={{ fontSize: '0.85rem', minWidth: '50px', textAlign: 'center', fontWeight: 600 }}>
+                                {item.unit === 'kg' || item.unit === 'l' ? Number(item.quantity).toFixed(1) : item.quantity}
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '2px' }}>{item.unit || 'pz'}</span>
+                              </span>
+                              <button 
+                                onClick={() => {
+                                  const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                  updateItemQuantity(item.id, parseFloat((item.quantity + step).toFixed(2)));
+                                }} 
+                                style={{ background: 'none', border: 'none', color: 'white', padding: '0 8px', cursor: 'pointer' }}
+                              >
+                                +
+                              </button>
                             </div>
                             <button onClick={() => deleteItem(item.id)} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
                               <Trash2 size={18} />

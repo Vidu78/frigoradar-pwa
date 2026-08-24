@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2 } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
@@ -35,6 +35,10 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
   const [name, setName] = useState(initialData?.name || '');
   const [category, setCategory] = useState(initialData?.category || 'Altro');
   
+  const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
+  const [unit, setUnit] = useState(initialData?.unit || 'pz');
+  const [isExpiryEdited, setIsExpiryEdited] = useState(false);
+  
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
   const defaultExp = initialData?.expiration_date 
     ? initialData.expiration_date 
@@ -45,6 +49,34 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
   const [location, setLocation] = useState<'FRIDGE'|'FREEZER'|'PANTRY'|'OTHER'>(initialData?.location || 'FRIDGE');
   const [quantity, setQuantity] = useState(1);
   const [scanning, setScanning] = useState(false);
+
+  // Calcolo automatico della durata di conservazione in frigorifero per Frutta e Verdura
+  const getVegetableShelfLife = (productName: string): number => {
+    const n = productName.toLowerCase();
+    if (n.includes('carot') || n.includes('sedan') || n.includes('mela') || n.includes('per') || n.includes('aranc') || n.includes('limon') || n.includes('mandarin')) {
+      return 21; // 3 settimane
+    }
+    if (n.includes('insalat') || n.includes('lattug') || n.includes('rucol') || n.includes('spinac') || n.includes('fragol') || n.includes('bosco') || n.includes('fungh')) {
+      return 4; // 4 giorni (molto deperibili)
+    }
+    if (n.includes('pomodor') || n.includes('zucch') || n.includes('melanz') || n.includes('peperon') || n.includes('cetriol') || n.includes('asparag') || n.includes('pesc') || n.includes('albicoc')) {
+      return 7; // 1 settimana
+    }
+    if (n.includes('patat') || n.includes('cipoll') || n.includes('aglio')) {
+      return 30; // 30 giorni (principalmente dispensa)
+    }
+    return 7; // Default per frutta e verdura
+  };
+
+  // Effetto per aggiornare la scadenza se il prodotto è Frutta/Verdura e non è modificato a mano
+  useEffect(() => {
+    if (category === 'Verdure e Frutta' && name.trim().length > 2 && !isExpiryEdited) {
+      const days = getVegetableShelfLife(name);
+      const baseDate = purchaseDate ? new Date(purchaseDate) : new Date();
+      const presumedExpiry = addDays(baseDate, days).toISOString().split('T')[0];
+      setExpiry(presumedExpiry);
+    }
+  }, [name, category, purchaseDate, isExpiryEdited]);
 
   const handlePhotoScanInModal = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,8 +144,10 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
       custom_name: name,
       barcode: initialData?.barcode || null,
       expiration_date: expiry,
+      purchase_date: purchaseDate,
       location: location,
       quantity: quantity,
+      unit: unit,
       is_frozen: location === 'FREEZER',
       health_score: initialData?.health_score || null,
       category: category
@@ -254,7 +288,23 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
+          {/* Data di Acquisto e Data di Scadenza */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Data Acquisto</label>
+              <div style={{ position: 'relative' }}>
+                <Calendar size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="date" 
+                  value={purchaseDate}
+                  onChange={(e) => setPurchaseDate(e.target.value)}
+                  className="input-field"
+                  style={{ paddingLeft: '34px', fontSize: '0.85rem' }}
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Scadenza</label>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -263,7 +313,10 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
                   <input 
                     type="date" 
                     value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
+                    onChange={(e) => {
+                      setExpiry(e.target.value);
+                      setIsExpiryEdited(true);
+                    }}
                     className="input-field"
                     style={{ paddingLeft: '34px', fontSize: '0.85rem' }}
                     required
@@ -282,7 +335,8 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    flexShrink: 0
                   }}
                 >
                   <input 
@@ -298,14 +352,50 @@ export default function AddItemModal({ initialData, onSave, onClose }: AddItemMo
                 </label>
               </div>
             </div>
-            
+          </div>
+
+          {/* Quantità e Unità di Misura */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Quantità</label>
-              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-panel)', borderRadius: '12px', padding: '4px', border: '1px solid var(--border)' }}>
-                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ flex: 1, padding: '10px', background: 'none', border: 'none', color: 'white', fontSize: '1.2rem' }}>-</button>
-                <span style={{ fontWeight: 600, fontSize: '1.1rem', padding: '0 10px' }}>{quantity}</span>
-                <button type="button" onClick={() => setQuantity(quantity + 1)} style={{ flex: 1, padding: '10px', background: 'none', border: 'none', color: 'white', fontSize: '1.2rem' }}>+</button>
-              </div>
+              {unit === 'pz' ? (
+                <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-panel)', borderRadius: '12px', padding: '4px', border: '1px solid var(--border)' }}>
+                  <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ flex: 1, padding: '10px', background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}>-</button>
+                  <span style={{ fontWeight: 600, fontSize: '1.1rem', padding: '0 10px', minWidth: '30px', textAlign: 'center' }}>{quantity}</span>
+                  <button type="button" onClick={() => setQuantity(quantity + 1)} style={{ flex: 1, padding: '10px', background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}>+</button>
+                </div>
+              ) : (
+                <input 
+                  type="number" 
+                  step={unit === 'kg' || unit === 'l' ? '0.1' : '1'}
+                  value={quantity}
+                  onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
+                  className="input-field"
+                  placeholder="es. 1.5"
+                  style={{ textAlign: 'center', fontWeight: 600, height: '48px' }}
+                  required
+                />
+              )}
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Unità</label>
+              <select 
+                value={unit}
+                onChange={(e) => {
+                  const newUnit = e.target.value;
+                  setUnit(newUnit);
+                  if (newUnit === 'pz') setQuantity(Math.round(quantity) || 1);
+                  else if (newUnit === 'kg' && quantity === 1) setQuantity(0.5);
+                }}
+                className="input-field"
+                style={{ background: 'var(--bg-panel)', color: 'white', border: '1px solid var(--border)', width: '100%', height: '48px', borderRadius: '12px', padding: '0 12px' }}
+              >
+                <option value="pz" style={{ background: '#1c1c1e', color: 'white' }}>Pezzi (pz)</option>
+                <option value="kg" style={{ background: '#1c1c1e', color: 'white' }}>Chili (kg)</option>
+                <option value="g" style={{ background: '#1c1c1e', color: 'white' }}>Grammi (g)</option>
+                <option value="l" style={{ background: '#1c1c1e', color: 'white' }}>Litri (l)</option>
+              </select>
             </div>
           </div>
 
