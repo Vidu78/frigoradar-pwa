@@ -12,6 +12,8 @@ interface AddItemModalProps {
     category?: string;
     health_score?: string;
     expiration_date?: string;
+    unit?: string;
+    purchase_date?: string;
   } | null;
   onSave: (data: any) => void;
   onClose: () => void;

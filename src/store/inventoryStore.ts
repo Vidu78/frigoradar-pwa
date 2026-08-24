@@ -15,6 +15,7 @@ export interface InventoryItem {
   health_score?: string | null;
   image_url?: string | null;
   category?: string | null;
+  purchase_date?: string | null;
   created_at: string;
 }
 
