@@ -143,23 +143,12 @@ export default function AuthPage() {
         {/* Maniglia metallica 3D */}
         <div className="fridge-handle"></div>
 
-        {/* Pannello Digitale Termostato & Controlli LED integrato nell'acciaio */}
-        <div style={{ width: '100%', background: '#081414', border: '3px solid #000', borderRadius: '12px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.6), inset 0px 1px 1px rgba(255,255,255,0.05)' }}>
+        {/* Pannello Digitale FrigoRadar integrato nell'acciaio */}
+        <div style={{ width: '100%', background: '#081414', border: '3px solid #000', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.6), inset 0px 1px 1px rgba(255,255,255,0.05)' }}>
           
           {/* Logo FrigoRadar Premium LED */}
-          <div style={{ fontFamily: '"Outfit", sans-serif', fontWeight: 800, fontSize: '1.25rem', color: ledColor, textShadow: `0 0 10px ${ledColor}, 0 0 20px ${ledColor}` }}>
+          <div style={{ fontFamily: '"Outfit", sans-serif', fontWeight: 800, fontSize: '1.8rem', color: ledColor, textShadow: `0 0 12px ${ledColor}, 0 0 24px ${ledColor}`, letterSpacing: '1px' }}>
             FrigoRadar
-          </div>
-
-          {/* Temperature & LED Controls */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '8px', fontFamily: '"Courier New", Courier, monospace', fontWeight: 'bold', color: 'var(--primary)', fontSize: '0.9rem', textShadow: '0 0 8px var(--primary-glow)' }}>
-              <span>-18°</span>
-              <span style={{ color: 'rgba(255,255,255,0.2)', textShadow: 'none' }}>|</span>
-              <span>+4°</span>
-            </div>
-            <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '20px', height: '20px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title="Colore MoodUP" />
-            <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '50px', accentColor: ledColor, height: '4px' }} title="Intensità LED" />
           </div>
 
         </div>
@@ -246,10 +235,17 @@ export default function AuthPage() {
           </>
         )}
 
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
           <button type="button" onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}>
             {isLogin ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'} <ArrowRight size={14} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
           </button>
+          
+          {/* LED Controls (moved from top) */}
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '8px 16px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Illuminazione LED</span>
+            <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '24px', height: '24px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title="Colore MoodUP" />
+            <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '80px', accentColor: ledColor, height: '4px' }} title="Intensità LED" />
+          </div>
         </div>
       </div>
       </div>
