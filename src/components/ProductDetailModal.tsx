@@ -3,6 +3,7 @@ import { X, Plus, Minus, Flame, Box, ShieldCheck, Heart, AlertTriangle, ScanBarc
 import { getExpirationStatus } from '../utils/expirationEngine';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import { supabase } from '../lib/supabase';
+import { useToastStore } from '../store/toastStore';
 
 interface ProductDetailModalProps {
   item: any;
@@ -10,9 +11,11 @@ interface ProductDetailModalProps {
   onUpdateQuantity: (id: string, newQuantity: number) => void;
   onDelete: (id: string, name: string) => void;
   onRefreshItem: () => void;
+  onUpdateProduct: (item: any) => void;
 }
 
-export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete, onRefreshItem }: ProductDetailModalProps) {
+export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete, onRefreshItem, onUpdateProduct }: ProductDetailModalProps) {
+  const { showToast } = useToastStore();
   const [showScanner, setShowScanner] = useState(false);
   const expInfo = getExpirationStatus(item.expiration_date);
 
@@ -52,15 +55,18 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
 
         if (Object.keys(updates).length > 0) {
           await supabase.from('inventory_items').update(updates).eq('id', item.id);
-          onRefreshItem(); // Chiama la ricarica dati nel genitore
+          onRefreshItem(); // Aggiorna elenco globale
+          onUpdateProduct({ ...item, ...updates }); // Aggiorna UI locale istantaneamente
+          showToast('Dati prodotto aggiornati con successo!', 'success');
         } else {
-          alert('Prodotto trovato, ma nessun dato nutrizionale utile estratto.');
+          showToast('Prodotto trovato, ma nessun dato nutrizionale utile estratto.', 'info');
         }
       } else {
-        alert('Prodotto non trovato nel database mondiale.');
+        showToast('Prodotto non trovato nel database mondiale.', 'error');
       }
     } catch (e) {
-      alert('Errore durante la ricerca del codice a barre.');
+      console.error(e);
+      showToast('Errore durante la scansione del codice.', 'error');
     }
   };
 

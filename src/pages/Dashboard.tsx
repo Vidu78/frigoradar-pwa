@@ -398,8 +398,7 @@ export default function Dashboard() {
             </p>
             <button 
               onClick={() => {
-                setInitialInputMode('photo');
-                setShowAddModal(true);
+                document.dispatchEvent(new CustomEvent('openReceiptScanner'));
               }}
               style={{
                 background: 'var(--primary)', color: 'black',
@@ -543,6 +542,7 @@ export default function Dashboard() {
             updateItemQuantity(id, qty);
             setSelectedProduct({ ...selectedProduct, quantity: qty });
           }}
+          onUpdateProduct={(updatedItem) => setSelectedProduct(updatedItem)}
           onDelete={(id, name) => {
             handleDeleteWithStats(id, name);
           }}

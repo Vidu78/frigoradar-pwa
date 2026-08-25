@@ -31,8 +31,14 @@ const AppContainer = () => {
       const customEvent = e as CustomEvent<TabType>;
       setActiveTab(customEvent.detail);
     };
+    const handleOpenReceipt = () => setShowReceiptScanner(true);
+    
     document.addEventListener('changeTab', handleTabChange);
-    return () => document.removeEventListener('changeTab', handleTabChange);
+    document.addEventListener('openReceiptScanner', handleOpenReceipt);
+    return () => {
+      document.removeEventListener('changeTab', handleTabChange);
+      document.removeEventListener('openReceiptScanner', handleOpenReceipt);
+    };
   }, []);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
