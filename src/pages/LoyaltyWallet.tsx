@@ -90,90 +90,185 @@ export default function LoyaltyWallet() {
 
   if (isAddingManual || scannedBarcode) {
     return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h3>Salva Carta Fedeltà</h3>
-            <button onClick={() => { setScannedBarcode(null); setIsAddingManual(false); }} className="icon-button"><X size={24} /></button>
-          </div>
-          <div style={{ padding: '20px 0' }}>
-            
-            <button 
-              className="secondary-button" 
-              onClick={() => setIsScanning(true)}
-              style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', padding: '12px', marginBottom: '20px' }}
-            >
-              <Camera size={20} /> Scansiona con Fotocamera
-            </button>
+      <div style={{ 
+        position: 'fixed', inset: 0, 
+        background: 'linear-gradient(180deg, #0a0a0f 0%, #0f1520 100%)',
+        zIndex: 200, display: 'flex', flexDirection: 'column',
+        overflowY: 'auto'
+      }}>
+        {/* HEADER */}
+        <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button 
+            onClick={() => { setScannedBarcode(null); setIsAddingManual(false); setCustomStoreName(''); }}
+            style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <X size={22} />
+          </button>
+          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>Nuova Carta Fedeltà</h2>
+          <div style={{ width: 44 }} />
+        </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label className="input-label">Oppure inserisci il codice manualmente</label>
-              <input 
-                type="text" 
-                className="ios-input" 
-                placeholder="Es. 1234567890123"
-                value={scannedBarcode || ""}
-                onChange={(e) => setScannedBarcode(e.target.value)}
-              />
+        {/* STEP 1 — SCANSIONA O DIGITA CODICE */}
+        <div style={{ padding: '24px 20px 0' }}>
+          <p style={{ margin: '0 0 16px', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+            ① Codice Carta
+          </p>
+          
+          {/* Scan Button — grande e visuale */}
+          <button
+            onClick={() => setIsScanning(true)}
+            style={{
+              width: '100%', padding: '20px',
+              background: 'linear-gradient(135deg, rgba(0,255,170,0.15) 0%, rgba(0,200,130,0.08) 100%)',
+              border: '1.5px dashed rgba(0,255,170,0.5)',
+              borderRadius: '20px', color: '#00FFAA',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+              cursor: 'pointer', marginBottom: '16px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(0,255,170,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Camera size={26} />
             </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '1rem' }}>Scansiona Barcode</div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '2px' }}>Punta la fotocamera sulla carta fisica</div>
+            </div>
+          </button>
 
-            {scannedBarcode && (
-              <div style={{ background: 'white', padding: '10px', borderRadius: '12px', textAlign: 'center', marginBottom: '20px' }}>
-                 <Barcode value={scannedBarcode} background="transparent" width={1.5} height={60} />
-              </div>
-            )}
-            
-            <label className="input-label">Seleziona il supermercato</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '10px' }}>
-              {SUPERMARKETS.map(sm => (
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+            <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.8rem', fontWeight: 600 }}>oppure inserisci a mano</span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+          </div>
+
+          {/* Code Input — premium glass style */}
+          <div style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: `1.5px solid ${scannedBarcode ? 'rgba(0,255,170,0.5)' : 'rgba(255,255,255,0.1)'}`,
+            borderRadius: '18px', padding: '6px 16px',
+            display: 'flex', alignItems: 'center', gap: '12px',
+            transition: 'border-color 0.2s', marginBottom: '12px'
+          }}>
+            <CreditCard size={20} color={scannedBarcode ? '#00FFAA' : 'rgba(255,255,255,0.3)'} />
+            <input
+              type="text"
+              placeholder="Codice barcode (es. 1234567890123)"
+              value={scannedBarcode || ''}
+              onChange={e => setScannedBarcode(e.target.value)}
+              style={{
+                flex: 1, background: 'transparent', border: 'none',
+                color: 'white', fontSize: '1rem', padding: '14px 0',
+                letterSpacing: '1.5px', fontFamily: 'monospace', fontWeight: 600,
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          {/* Barcode preview */}
+          {scannedBarcode && (
+            <div style={{ background: 'white', borderRadius: '16px', padding: '16px', textAlign: 'center', marginBottom: '4px', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
+              <Barcode value={scannedBarcode} background="transparent" width={1.8} height={65} />
+            </div>
+          )}
+        </div>
+
+        {/* STEP 2 — SELEZIONA SUPERMERCATO */}
+        <div style={{ padding: '28px 20px 0' }}>
+          <p style={{ margin: '0 0 16px', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+            ② Supermercato
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            {SUPERMARKETS.map(sm => {
+              const isSelected = selectedSupermarket.name === sm.name;
+              return (
                 <button
                   key={sm.name}
                   onClick={() => setSelectedSupermarket(sm)}
                   style={{
-                    padding: '12px',
-                    borderRadius: '12px',
-                    border: selectedSupermarket.name === sm.name ? '2px solid #00FFAA' : '1px solid rgba(255,255,255,0.1)',
-                    background: selectedSupermarket.name === sm.name ? sm.color : 'rgba(255,255,255,0.05)',
-                    color: selectedSupermarket.name === sm.name ? (sm.color === '#FFD700' ? 'black' : 'white') : 'white',
-                    fontWeight: 'bold',
+                    padding: '18px 12px',
+                    borderRadius: '18px',
+                    border: isSelected ? `2px solid ${sm.color}` : '1.5px solid rgba(255,255,255,0.08)',
+                    background: isSelected 
+                      ? `linear-gradient(135deg, ${sm.color}30 0%, ${sm.color}10 100%)` 
+                      : 'rgba(255,255,255,0.03)',
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
+                    transition: 'all 0.25s ease',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                    boxShadow: isSelected ? `0 8px 20px ${sm.color}25` : 'none',
+                    transform: isSelected ? 'scale(1.03)' : 'scale(1)'
                   }}
                 >
-                  {sm.logo && (
-                    <img src={sm.logo} alt={sm.name} style={{ height: '20px', maxWidth: '50px', objectFit: 'contain', background: 'rgba(255,255,255,0.9)', padding: '2px 4px', borderRadius: '4px' }} />
+                  {sm.logo ? (
+                    <div style={{ 
+                      background: 'white', borderRadius: '10px', 
+                      padding: '6px 12px', height: '36px', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: '80px'
+                    }}>
+                      <img src={sm.logo} alt={sm.name} style={{ height: '24px', maxWidth: '70px', objectFit: 'contain' }} />
+                    </div>
+                  ) : (
+                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: sm.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <CreditCard size={22} color="white" />
+                    </div>
                   )}
-                  <span>{sm.name}</span>
+                  <span style={{ 
+                    color: isSelected ? 'white' : 'rgba(255,255,255,0.6)', 
+                    fontSize: '0.85rem', fontWeight: isSelected ? 700 : 500 
+                  }}>
+                    {sm.name}
+                  </span>
+                  {isSelected && (
+                    <div style={{ 
+                      width: '8px', height: '8px', borderRadius: '50%', 
+                      background: sm.color, boxShadow: `0 0 8px ${sm.color}` 
+                    }} />
+                  )}
                 </button>
-              ))}
-            </div>
-
-            {selectedSupermarket.name === 'Altro' && (
-              <div style={{ marginTop: '16px' }}>
-                <label className="input-label">Nome Carta (Opzionale)</label>
-                <input 
-                  type="text" 
-                  className="ios-input" 
-                  placeholder="Es. Palestra, Ikea..."
-                  value={customStoreName}
-                  onChange={(e) => setCustomStoreName(e.target.value)}
-                />
-              </div>
-            )}
-
-            <button 
-              className="primary-button" 
-              style={{ marginTop: '24px', width: '100%' }}
-              onClick={handleSaveCard}
-              disabled={loading || !scannedBarcode}
-            >
-              {loading ? 'Salvataggio...' : 'Salva Carta'}
-            </button>
+              );
+            })}
           </div>
+
+          {selectedSupermarket.name === 'Altro' && (
+            <div style={{ marginTop: '16px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '18px', padding: '6px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <CreditCard size={18} color="rgba(255,255,255,0.3)" />
+              <input
+                type="text"
+                placeholder="Nome carta (es. Ikea, Decathlon...)"
+                value={customStoreName}
+                onChange={e => setCustomStoreName(e.target.value)}
+                style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '1rem', padding: '14px 0', outline: 'none' }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* SAVE BUTTON */}
+        <div style={{ padding: '32px 20px 48px' }}>
+          <button
+            onClick={handleSaveCard}
+            disabled={loading || !scannedBarcode}
+            style={{
+              width: '100%', padding: '18px',
+              background: (!loading && scannedBarcode) 
+                ? 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)' 
+                : 'rgba(255,255,255,0.1)',
+              border: 'none', borderRadius: '20px',
+              color: (!loading && scannedBarcode) ? '#000' : 'rgba(255,255,255,0.3)',
+              fontWeight: 800, fontSize: '1.05rem',
+              cursor: (!loading && scannedBarcode) ? 'pointer' : 'not-allowed',
+              transition: 'all 0.3s',
+              boxShadow: (!loading && scannedBarcode) ? '0 10px 30px rgba(0,255,170,0.35)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+            }}
+          >
+            {loading ? 'Salvataggio in corso...' : (
+              <><Plus size={22} /> Aggiungi al Portafoglio</>
+            )}
+          </button>
         </div>
       </div>
     );
