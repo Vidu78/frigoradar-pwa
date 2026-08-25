@@ -4,6 +4,7 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { useAuthStore } from '../store/authStore';
 import { ShoppingCart, CheckCircle2, Circle, Plus, Trash2, ArrowRight, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import AddItemModal from '../components/AddItemModal';
 import { LoyaltyWalletModal } from './LoyaltyWallet';
 import { CreditCard } from 'lucide-react';
 
