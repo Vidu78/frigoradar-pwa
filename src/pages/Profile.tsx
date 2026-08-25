@@ -227,7 +227,7 @@ export default function Profile() {
             <div style={{ background: 'rgba(0, 255, 170, 0.1)', padding: '10px', borderRadius: '12px' }}><Users size={20} color="#00FFAA" /></div>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.family')}</div>
-              <div style={{ fontSize: '0.75rem', color: '#00FFAA', fontWeight: 600, letterSpacing: '0.5px' }}>{t('profile.family_pro')}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Condividi con i familiari</div>
             </div>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />

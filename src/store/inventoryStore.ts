@@ -89,8 +89,10 @@ export const useInventoryStore = create<InventoryState>((set, get) => {
             await supabase.from('inventory_items').update({ quantity: newQty }).eq('id', item.id);
           }
 
+            const familyId = session.user.user_metadata?.family_id || session.user.id;
             await supabase.from('consumption_logs').insert([{
               user_id: session.user.id,
+              family_id: familyId,
               item_name: ing.name,
               quantity_consumed: ing.quantity_deducted,
               health_score: item.health_score || ing.health_score || 'Sconosciuto'
