@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { useInventoryStore } from '../store/inventoryStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt, Crown } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
+import { useToastStore } from '../store/toastStore';
 
 export default function Profile() {
-  const { session, signOut } = useAuthStore();
+  const { session, signOut, isPro } = useAuthStore();
+  const { showToast } = useToastStore();
   const [loading, setLoading] = useState(false);
   const { t, i18n } = useTranslation();
 
@@ -18,8 +21,6 @@ export default function Profile() {
   const [name, setName] = useState(session?.user?.user_metadata?.display_name || '');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [registeringPasskey, setRegisteringPasskey] = useState(false);
-  const [passkeySuccess, setPasskeySuccess] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -28,14 +29,27 @@ export default function Profile() {
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loadingReceipts, setLoadingReceipts] = useState(false);
 
-  // Per il test delle notifiche
-  const [pushStatus, setPushStatus] = useState<string>('Non configurato');
+  const [pushStatus, setPushStatus] = useState('Verifica in corso...');
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
+  const [isTogglingPush, setIsTogglingPush] = useState(false);
 
   useEffect(() => {
-    if (showReceiptsModal) {
-      loadReceipts();
+    if (session) {
+      if (showReceiptsModal) loadReceipts();
+      if (showNotificationsModal) checkPushSubscription();
     }
-  }, [showReceiptsModal]);
+  }, [session, showReceiptsModal, showNotificationsModal]);
+
+  const checkPushSubscription = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      setIsPushEnabled(!!subscription);
+      setPushStatus(subscription ? 'Notifiche attivate' : 'Notifiche disattivate');
+    } catch (e) {
+      setPushStatus('Errore di verifica');
+    }
+  };
 
   const loadReceipts = async () => {
     setLoadingReceipts(true);
@@ -107,47 +121,67 @@ export default function Profile() {
     return outputArray;
   };
 
-  const handlePushRequest = async () => {
+  const handleTogglePush = async () => {
+    if (isTogglingPush) return;
+    setIsTogglingPush(true);
+    setPushStatus('Elaborazione...');
+
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        setPushStatus('Permesso accordato! Registrazione sul server...');
-        
-        const registration = await navigator.serviceWorker.ready;
-        const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-        
-        if (!VAPID_PUBLIC_KEY) {
-          setPushStatus('Errore: VAPID_PUBLIC_KEY mancante nel file .env');
-          return;
+      const registration = await navigator.serviceWorker.ready;
+
+      if (isPushEnabled) {
+        // DISATTIVA
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          await supabase.from('push_subscriptions').delete().eq('user_id', session?.user?.id);
         }
-
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-        });
-
-        const subJson = subscription.toJSON();
-        
-        const { error } = await supabase.from('push_subscriptions').upsert({
-          user_id: session?.user?.id,
-          endpoint: subJson.endpoint,
-          p256dh: subJson.keys?.p256dh,
-          auth: subJson.keys?.auth
-        }, { onConflict: 'user_id, endpoint' });
-
-        if (error) {
-          console.error(error);
-          setPushStatus('Errore salvataggio nel database.');
-        } else {
-          setPushStatus('Notifiche attivate con successo!');
-        }
-
+        setIsPushEnabled(false);
+        setPushStatus('Notifiche disattivate');
+        showToast('Notifiche disattivate con successo', 'success');
       } else {
-        setPushStatus('Permesso negato. Devi abilitarlo dal browser.');
+        // ATTIVA
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+          
+          if (!VAPID_PUBLIC_KEY) {
+            setPushStatus('Errore: VAPID_PUBLIC_KEY mancante nel file .env');
+            setIsTogglingPush(false);
+            return;
+          }
+
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          });
+
+          const subJson = subscription.toJSON();
+          
+          const { error } = await supabase.from('push_subscriptions').upsert({
+            user_id: session?.user?.id,
+            subscription: subJson
+          }, { onConflict: 'user_id' });
+
+          if (error) {
+            console.error(error);
+            setPushStatus('Errore salvataggio nel database.');
+            // Revert unsubscribe just in case
+            await subscription.unsubscribe();
+          } else {
+            setIsPushEnabled(true);
+            setPushStatus('Notifiche attivate con successo!');
+            showToast('Notifiche attivate con successo', 'success');
+          }
+        } else {
+          setPushStatus('Permesso negato. Devi abilitarlo dal browser.');
+        }
       }
     } catch (e) {
       console.error(e);
-      setPushStatus('Errore durante la registrazione.');
+      setPushStatus('Errore durante l\'operazione.');
+    } finally {
+      setIsTogglingPush(false);
     }
   };
 
@@ -325,11 +359,50 @@ export default function Profile() {
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
             <button onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '16px' }}>{t('profile.notifications')}</h2>
-            <p style={{ color: 'var(--text-muted)' }}>Ricevi avvisi per i prodotti in scadenza.</p>
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px', marginBottom: '24px', fontSize: '0.9rem' }}>
-              Stato: <strong style={{ color: 'var(--primary)' }}>{pushStatus}</strong>
+            <p style={{ color: 'var(--text-muted)' }}>Ricevi avvisi intelligenti per i prodotti che stanno per scadere nel tuo frigorifero.</p>
+            
+            <div style={{ 
+              background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', 
+              marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '4px' }}>Avvisi Scadenze</div>
+                <div style={{ fontSize: '0.85rem', color: isPushEnabled ? '#00FFAA' : 'var(--text-muted)' }}>
+                  {pushStatus}
+                </div>
+              </div>
+              
+              {/* Premium Toggle Switch */}
+              <button 
+                onClick={handleTogglePush}
+                disabled={isTogglingPush}
+                style={{
+                  position: 'relative', width: '56px', height: '32px', 
+                  borderRadius: '32px', border: 'none',
+                  background: isPushEnabled ? 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)' : 'rgba(255,255,255,0.1)',
+                  cursor: isTogglingPush ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.4s ease, opacity 0.3s',
+                  boxShadow: isPushEnabled ? '0 0 15px rgba(0, 255, 170, 0.4)' : 'inset 0 2px 4px rgba(0,0,0,0.3)',
+                  opacity: isTogglingPush ? 0.7 : 1
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: '2px', left: isPushEnabled ? '26px' : '2px',
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: '#FFFFFF',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                  transition: 'left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                }} />
+              </button>
             </div>
-            <button onClick={handlePushRequest} className="btn-primary" style={{ width: '100%' }}>Attiva Notifiche Push</button>
+            
+            {isPushEnabled && (
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0 10px' }}>
+                <Bell size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+                Riceverai notifiche solo quando necessario per evitare sprechi.
+              </div>
+            )}
           </div>
         </div>
       )}
