@@ -202,7 +202,7 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
-    const CURRENT_APP_VERSION = '3.2'; // Cambiare questo per forzare pulizia cache sui device
+    const CURRENT_APP_VERSION = '3.3'; // Cambiare questo per forzare pulizia cache sui device
     const storedVersion = localStorage.getItem('appVersion');
     
     if (storedVersion !== CURRENT_APP_VERSION) {

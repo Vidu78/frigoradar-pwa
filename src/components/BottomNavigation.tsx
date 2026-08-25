@@ -49,18 +49,6 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           </button>
 
           <button
-            onClick={() => onTabChange('loyalty')}
-            style={{
-              background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'loyalty' ? '#FFD700' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s',
-            }}
-          >
-            <CreditCard size={22} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
-            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
-          </button>
-
-          <button
             onClick={() => onTabChange('shopping')}
             style={{
               background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
@@ -91,7 +79,19 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', flex: 1, justifyContent: 'space-around' }}>
+        <div style={{ display: 'flex', gap: '6px', flex: 1, justifyContent: 'space-around' }}>
+          <button
+            onClick={() => onTabChange('loyalty')}
+            style={{
+              background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+              color: activeTab === 'loyalty' ? '#FFD700' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.4s',
+            }}
+          >
+            <CreditCard size={20} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
+          </button>
+
           <button
             onClick={() => onTabChange('recipes')}
             style={{
@@ -100,7 +100,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <ChefHat size={22} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
+            <ChefHat size={20} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
             <span style={{ fontSize: '10px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
           </button>
 
@@ -112,7 +112,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <User size={22} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
+            <User size={20} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
             <span style={{ fontSize: '10px', fontWeight: activeTab === 'profile' ? 700 : 500 }}>{t('nav.profile')}</span>
           </button>
         </div>
