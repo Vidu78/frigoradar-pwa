@@ -30,9 +30,7 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const { session, signOut, updateStats } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
-  const { addItem: addShoppingItem } = useShoppingStore();
   const { showToast } = useToastStore();
-  const { showDialog } = useDialogStore();
   
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,7 +70,7 @@ export default function Dashboard() {
     setShowWelcomeTutorial(false);
   };
 
-  const handleDeleteWithStats = async (id: string, name: string) => {
+  const handleDeleteWithStats = async (id: string) => {
     // L'utente non vuole visualizzare nessun popup.
     // Assumiamo come consumato (SAVED) di default
     updateStats('SAVED', 2.5);
@@ -584,8 +582,8 @@ export default function Dashboard() {
             setSelectedProduct({ ...selectedProduct, quantity: qty });
           }}
           onUpdateProduct={(updatedItem) => setSelectedProduct(updatedItem)}
-          onDelete={(id, name) => {
-            handleDeleteWithStats(id, name);
+          onDelete={(id) => {
+            handleDeleteWithStats(id);
           }}
           onRefreshItem={fetchItems}
         />
