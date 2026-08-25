@@ -196,7 +196,7 @@ export default function Onboarding() {
 
   return (
     <div style={{
-      minHeight: '100vh', minHeight: '100dvh',
+      minHeight: '100dvh',
       background: 'radial-gradient(circle at 30% 20%, rgba(0,255,170,0.06), transparent 50%), var(--bg-main)',
       display: 'flex', flexDirection: 'column', color: 'white',
       overflow: 'hidden', position: 'relative'
