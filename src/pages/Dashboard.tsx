@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useShoppingStore } from '../store/shoppingStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt, ChefHat } from 'lucide-react';
-import BarcodeScanner from '../components/BarcodeScanner';
+import BarcodeScannerModal from '../components/BarcodeScannerModal';
 import AddItemModal from '../components/AddItemModal';
 import ProductDetailModal from '../components/ProductDetailModal';
 import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
@@ -517,8 +517,8 @@ export default function Dashboard() {
       </div>
 
       {showScanner && (
-        <BarcodeScanner 
-          onScan={handleScan}
+        <BarcodeScannerModal 
+          onSuccess={handleScan}
           onClose={() => setShowScanner(false)}
         />
       )}
