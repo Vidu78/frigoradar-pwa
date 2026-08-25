@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDialogStore } from '../store/dialogStore';
 
 export default function ProUpgradePage() {
   const navigate = useNavigate();
   const { upgradeToPro, isPro } = useAuthStore();
+  const { showDialog } = useDialogStore();
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
@@ -16,7 +18,14 @@ export default function ProUpgradePage() {
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       console.error(err);
-      alert('Errore durante l\'aggiornamento. Riprova più tardi.');
+      console.error(err);
+      showDialog({
+        title: 'Errore',
+        message: 'Errore durante l\'aggiornamento. Riprova più tardi.',
+        type: 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
       setLoading(false);
     }
   };

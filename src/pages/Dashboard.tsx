@@ -4,6 +4,7 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { useShoppingStore } from '../store/shoppingStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
+import { useDialogStore } from '../store/dialogStore';
 import AddItemModal from '../components/AddItemModal';
 import ProductDetailModal from '../components/ProductDetailModal';
 import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
   const { addItem: addShoppingItem } = useShoppingStore();
   const { showToast } = useToastStore();
+  const { showDialog } = useDialogStore();
   
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,11 +73,19 @@ export default function Dashboard() {
   };
 
   const handleDeleteWithStats = async (id: string, name: string) => {
-    const isConsumed = window.confirm(`Hai CONSUMATO questo prodotto ("${name}")?\n\n- Premi OK se l'hai mangiato/usato (Risparmio! 💰)\n- Premi Annulla se l'hai dovuto buttare (Spreco ⚠️)`);
+    const isConsumed = await showDialog({
+      title: 'Prodotto Consumato?',
+      message: `Hai consumato questo prodotto ("${name}")?\n\n- Premi OK se l'hai mangiato/usato (Risparmio! 💰)\n- Premi Annulla se l'hai dovuto buttare (Spreco ⚠️)`,
+      type: 'warning'
+    });
     
     if (isConsumed) {
       updateStats('SAVED', 2.5);
-      const addToShopping = window.confirm(`Bravo! Vuoi aggiungere "${name}" alla tua Lista della Spesa per non dimenticare di ricomprarlo? 🛒`);
+      const addToShopping = await showDialog({
+        title: 'Lista della Spesa',
+        message: `Bravo! Vuoi aggiungere "${name}" alla tua Lista della Spesa per non dimenticare di ricomprarlo? 🛒`,
+        type: 'info'
+      });
       if (addToShopping) {
         await addShoppingItem(name, 1);
         showToast("Prodotto aggiunto alla lista della spesa!");

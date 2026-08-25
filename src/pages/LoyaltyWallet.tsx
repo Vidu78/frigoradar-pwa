@@ -4,6 +4,7 @@ import { X, Plus, Trash2, CreditCard, Camera, Tag } from 'lucide-react';
 import Barcode from 'react-barcode';
 import BarcodeScanner from '../components/BarcodeScanner';
 import { useToastStore } from '../store/toastStore';
+import { useDialogStore } from '../store/dialogStore';
 
 // No props needed since it's a page now
 
@@ -23,6 +24,7 @@ const SUPERMARKETS = [
 export default function LoyaltyWallet() {
   const { cards, discounts, fetchCards, fetchDiscounts, addCard, deleteCard, addPaperDiscount, loading } = useLoyaltyStore();
   const { showToast } = useToastStore();
+  const { showDialog } = useDialogStore();
   const [isScanning, setIsScanning] = useState(false);
   const [isAddingManual, setIsAddingManual] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
@@ -427,9 +429,14 @@ export default function LoyaltyWallet() {
                       {/* PULSANTE ELIMINA CARTA (SICURO E FUORI DALLA CARTA) */}
                       <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end' }}>
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            if (window.confirm(`Sei sicuro di voler eliminare la carta ${card.store_name}?`)) {
+                            const confirmed = await showDialog({
+                              title: 'Elimina Carta',
+                              message: `Sei sicuro di voler eliminare la carta ${card.store_name}?`,
+                              type: 'danger'
+                            });
+                            if (confirmed) {
                               deleteCard(card.id);
                             }
                           }}

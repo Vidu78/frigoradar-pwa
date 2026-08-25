@@ -19,6 +19,7 @@ import { Download, X, Receipt, Camera, Plus as PlusIcon } from 'lucide-react';
 import AddItemModal from './components/AddItemModal';
 import ReceiptScannerModal from './components/ReceiptScannerModal';
 import { useInventoryStore } from './store/inventoryStore';
+import PremiumDialog from './components/PremiumDialog';
 
 const AppContainer = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
@@ -252,6 +253,7 @@ function App() {
   return (
     <Router>
       {showWelcomeTutorial && <WelcomeTutorialModal onComplete={handleTutorialComplete} />}
+      <PremiumDialog />
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route 

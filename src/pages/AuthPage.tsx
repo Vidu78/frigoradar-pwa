@@ -3,10 +3,12 @@ import { useAuthStore } from '../store/authStore';
 import { Mail, Refrigerator, Loader2, Lock, Fingerprint, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useDialogStore } from '../store/dialogStore';
 
 export default function AuthPage() {
   const { session, signInWithGoogle } = useAuthStore();
   const navigate = useNavigate();
+  const { showDialog } = useDialogStore();
   
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -36,7 +38,13 @@ export default function AuthPage() {
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        alert("Controlla la tua email per confermare l'account!");
+        showDialog({
+          title: 'Email Inviata',
+          message: "Controlla la tua email per confermare l'account!",
+          type: 'info',
+          isAlert: true,
+          confirmText: 'Ok'
+        });
       }
     } catch (err: any) {
       setError(err.message || 'Errore durante l\'autenticazione');

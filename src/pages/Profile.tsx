@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
+import { useDialogStore } from '../store/dialogStore';
 import { useToastStore } from '../store/toastStore';
 
 export default function Profile() {
@@ -25,7 +26,7 @@ export default function Profile() {
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReceiptsModal, setShowReceiptsModal] = useState(false);
-  
+  const { showDialog } = useDialogStore();
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loadingReceipts, setLoadingReceipts] = useState(false);
 
@@ -79,7 +80,14 @@ export default function Profile() {
       setPasskeySuccess(true);
     } catch (err: any) {
       console.error(err);
-      alert(err.message || 'Impossibile registrare l\'impronta digitale. Assicurati di usare un browser supportato e che le Passkey siano abilitate su Supabase.');
+      console.error(err);
+      showDialog({
+        title: 'Errore Passkey',
+        message: err.message || 'Impossibile registrare l\'impronta digitale. Assicurati di usare un browser supportato.',
+        type: 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
     } finally {
       setRegisteringPasskey(false);
     }
@@ -104,7 +112,14 @@ export default function Profile() {
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error(err);
-      alert('Errore durante l\'aggiornamento del profilo');
+      console.error(err);
+      showDialog({
+        title: 'Errore',
+        message: 'Errore durante l\'aggiornamento del profilo',
+        type: 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
     } finally {
       setSaving(false);
     }

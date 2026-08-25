@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useAuthStore } from '../store/authStore';
+import { useDialogStore } from '../store/dialogStore';
 import { Sparkles, Users, Clock, Flame, CheckCircle2, ChevronRight, Utensils, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +9,7 @@ export default function AiRecipes() {
   const navigate = useNavigate();
   const { items, setPendingRecipe } = useInventoryStore();
   const { isPro } = useAuthStore();
+  const { showDialog } = useDialogStore();
   
   const [peopleCount, setPeopleCount] = useState(2);
   const [difficulty, setDifficulty] = useState<'FACILE' | 'MEDIO' | 'STELLATO'>('FACILE');
@@ -41,11 +43,23 @@ export default function AiRecipes() {
       } else {
         const errData = await res.json().catch(() => null);
         console.error("API Error:", res.status, errData);
-        alert(`Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'} Dettagli: ${errData?.details || ''}`);
+        showDialog({
+          title: 'Errore Server',
+          message: `Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'} Dettagli: ${errData?.details || ''}`,
+          type: 'danger',
+          isAlert: true,
+          confirmText: 'Ok'
+        });
       }
     } catch (error) {
       console.error("Fetch Error:", error);
-      alert("Errore di connessione. Controlla la tua rete.");
+      showDialog({
+        title: 'Errore di connessione',
+        message: 'Controlla la tua rete e riprova.',
+        type: 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
     } finally {
       setLoading(false);
     }
