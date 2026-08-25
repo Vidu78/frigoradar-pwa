@@ -87,19 +87,25 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
   // Trova il rect dell'elemento target
   useEffect(() => {
     const selector = current.targetSelector;
-    if (!selector) {
-      setTargetRect(null);
-      return;
-    }
-    const el = document.querySelector(selector) as HTMLElement | null;
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setTargetRect(rect);
-      // Scroll into view se necessario
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } else {
-      setTargetRect(null);
-    }
+    
+    // Usiamo setTimeout per evitare l'aggiornamento sincrono (setState in useEffect)
+    const updateTarget = () => {
+      if (!selector) {
+        setTargetRect(null);
+        return;
+      }
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        setTargetRect(rect);
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        setTargetRect(null);
+      }
+    };
+
+    const timer = setTimeout(updateTarget, 50);
+    return () => clearTimeout(timer);
   }, [step, current.targetSelector]);
 
   const handleNext = () => {

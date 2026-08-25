@@ -48,7 +48,7 @@ export default function LoyaltyWallet() {
       // Per semplicità inseriamo un nome di default, potremmo chiedere all'utente
       await addPaperDiscount(file, "Sconto Cartaceo/Volantino", "", cardId, storeName);
       showToast("Sconto salvato con successo!", "success");
-    } catch (err) {
+    } catch {
       showToast("Errore durante il salvataggio", "error");
     } finally {
       setUploadingDiscount(null);

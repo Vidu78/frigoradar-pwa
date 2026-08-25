@@ -233,11 +233,10 @@ function App() {
     
     // Mostra il tutorial al primo avvio per utenti loggati
     const { session } = useAuthStore.getState();
-    if (session) {
-      const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
-      if (!hasSeenTutorial) {
-        setShowWelcomeTutorial(true);
-      }
+    const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
+    if (session && !hasSeenTutorial) {
+      // Async per evitare update sincrono nel render iniziale
+      setTimeout(() => setShowWelcomeTutorial(true), 0);
     }
     
     return () => {
