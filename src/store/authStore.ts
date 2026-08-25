@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange((_event, session) => {
       set({ 
         session, 
         isPro: session?.user?.user_metadata?.is_pro === true,
@@ -52,13 +52,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         loading: false 
       });
     });
-    // Cleanup: salviamo la subscription per poterla rimuovere al logout
-    (window as any).__authSubscription = subscription;
   },
   signOut: async () => {
-    if ((window as any).__authSubscription) {
-      (window as any).__authSubscription.unsubscribe();
-    }
+    // signOut notifica onAuthStateChange con session=null → ProtectedRoute redirige a /auth
     await supabase.auth.signOut();
   },
   upgradeToPro: async () => {
