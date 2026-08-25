@@ -17,7 +17,7 @@ webpush.setVapidDetails(
   vapidPrivateKey
 );
 
-serve(async (req) => {
+serve(async (_req) => {
   try {
     // Inizializza Supabase client con service_role per bypassare RLS
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';

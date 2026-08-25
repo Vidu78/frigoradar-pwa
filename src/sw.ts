@@ -25,6 +25,7 @@ self.addEventListener('push', (event) => {
 
       event.waitUntil(self.registration.showNotification(title, options));
     } catch (e) {
+      console.error("Push data is not JSON:", e);
       const text = event.data.text();
       event.waitUntil(
         self.registration.showNotification('FrigoRadar', { body: text, icon: '/pwa-192x192.png' })

@@ -85,6 +85,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       const days = getVegetableShelfLife(name);
       const baseDate = purchaseDate ? new Date(purchaseDate) : new Date();
       const presumedExpiry = addDays(baseDate, days).toISOString().split('T')[0];
+      // eslint-disable-next-line react-hooks/exhaustive-deps, react/set-state-in-effect
       setExpiry(presumedExpiry);
     }
   }, [name, category, purchaseDate, isExpiryEdited]);

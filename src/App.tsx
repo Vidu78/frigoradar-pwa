@@ -220,7 +220,7 @@ function App() {
     } else {
       initialize();
     }
-  }, []);
+  }, [initialize]);
 
   return (
     <Router>

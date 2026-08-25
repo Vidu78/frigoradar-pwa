@@ -33,12 +33,7 @@ export default function Profile() {
   const [isPushEnabled, setIsPushEnabled] = useState(false);
   const [isTogglingPush, setIsTogglingPush] = useState(false);
 
-  useEffect(() => {
-    if (session) {
-      if (showReceiptsModal) loadReceipts();
-      if (showNotificationsModal) checkPushSubscription();
-    }
-  }, [session, showReceiptsModal, showNotificationsModal]);
+
 
   const checkPushSubscription = async () => {
     try {
@@ -46,7 +41,8 @@ export default function Profile() {
       const subscription = await registration.pushManager.getSubscription();
       setIsPushEnabled(!!subscription);
       setPushStatus(subscription ? 'Notifiche attivate' : 'Notifiche disattivate');
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       setPushStatus('Errore di verifica');
     }
   };
@@ -58,11 +54,21 @@ export default function Profile() {
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (!error && data) {
-      setReceipts(data);
+    if (error) {
+      console.error("Errore nel caricamento degli scontrini:", error);
+    } else {
+      setReceipts(data || []);
     }
     setLoadingReceipts(false);
   };
+
+  useEffect(() => {
+    if (session) {
+      if (showReceiptsModal) loadReceipts();
+      if (showNotificationsModal) checkPushSubscription();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, showReceiptsModal, showNotificationsModal]);
 
   const handleRegisterPasskey = async () => {
     setRegisteringPasskey(true);

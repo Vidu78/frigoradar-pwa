@@ -52,6 +52,7 @@ export default function Dashboard() {
       fetchItems();
       const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
       if (!hasSeenTutorial) {
+        // eslint-disable-next-line react/set-state-in-effect
         setShowWelcomeTutorial(true);
       }
     }
@@ -62,7 +63,7 @@ export default function Dashboard() {
     return () => {
       document.removeEventListener('openTutorial', handleOpenTutorial);
     };
-  }, [session]);
+  }, [session, fetchItems]);
 
   const handleTutorialComplete = () => {
     localStorage.setItem('frigoradar_tutorial_seen', 'true');

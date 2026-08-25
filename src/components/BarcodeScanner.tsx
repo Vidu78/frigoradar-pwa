@@ -79,7 +79,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             onScan(results[0].rawValue);
             return;
           }
-        } catch (_) { /* frame non ancora pronto, ignora */ }
+        } catch { /* frame non ancora pronto, ignora */ }
         rafRef.current = requestAnimationFrame(detect);
       };
 
@@ -119,7 +119,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             onScan(result);
             return;
           }
-        } catch (_) { /* nessun codice in questo frame, continua */ }
+        } catch { /* nessun codice in questo frame, continua */ }
 
         setTimeout(() => {
           if (isScanning.current) {
@@ -134,6 +134,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   }, [onScan]);
 
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     startCamera('environment');
     return () => {
       stopAll();
@@ -142,6 +143,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
       const el = document.getElementById('__offscreen_qr_scanner__');
       if (el) el.remove();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFlip = async () => {

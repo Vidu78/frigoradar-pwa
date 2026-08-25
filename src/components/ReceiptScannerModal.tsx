@@ -145,7 +145,8 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
       newItems[index].status = 'saved';
       setItems(newItems);
       showToast(`${item.name} salvato!`, "success");
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       showToast("Errore durante il salvataggio", "error");
     }
   };
@@ -167,7 +168,8 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
       newItems[enrichingItemIndex].status = 'saved';
       setItems(newItems);
       setEnrichingItemIndex(null);
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       showToast("Errore durante il salvataggio", "error");
     }
   };
