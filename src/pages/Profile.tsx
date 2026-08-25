@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { useInventoryStore } from '../store/inventoryStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt, Crown } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '../store/toastStore';
 
 export default function Profile() {
-  const { session, signOut, isPro } = useAuthStore();
+  const { session, signOut } = useAuthStore();
   const { showToast } = useToastStore();
   const [loading, setLoading] = useState(false);
   const { t, i18n } = useTranslation();
