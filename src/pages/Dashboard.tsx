@@ -144,7 +144,7 @@ export default function Dashboard() {
         is_frozen: data.is_frozen,
         health_score: data.health_score,
         category: data.category,
-        image_url: aiProductData?.imageUrl || null
+        image_url: data.image_url || aiProductData?.imageUrl || null
       });
     } catch (dbError) {
       console.warn("Salvataggio con image_url fallito. Riprovo senza immagine...", dbError);
