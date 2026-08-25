@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLoyaltyStore } from '../store/loyaltyStore';
 import { X, Plus, Trash2, CreditCard, Camera, Tag } from 'lucide-react';
 import Barcode from 'react-barcode';
-import BarcodeScanner from './BarcodeScanner';
+import BarcodeScanner from '../components/BarcodeScanner';
 import { useToastStore } from '../store/toastStore';
 
 // No props needed since it's a page now
@@ -335,6 +335,21 @@ export default function LoyaltyWallet() {
         >
           <Plus /> Aggiungi Carta
         </button>
+    </div>
+  );
+}
+
+export function LoyaltyWalletModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ background: 'var(--bg-color)', height: '85vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0 0' }}>
+          <button onClick={onClose} className="icon-button"><X size={24} /></button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <LoyaltyWallet />
+        </div>
+      </div>
     </div>
   );
 }
