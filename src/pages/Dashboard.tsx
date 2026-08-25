@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import ProductDetailModal from '../components/ProductDetailModal';
+import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 import { useTranslation } from 'react-i18next';
@@ -36,13 +37,25 @@ export default function Dashboard() {
   const [aiProductData, setAiProductData] = useState<any>(null);
   const [initialInputMode, setInitialInputMode] = useState<'manual' | 'photo'>('manual');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showWelcomeTutorial, setShowWelcomeTutorial] = useState(false);
 
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    if (session) {
+      fetchItems();
+      const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
+      if (!hasSeenTutorial) {
+        setShowWelcomeTutorial(true);
+      }
+    }
+  }, [session]);
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('frigoradar_tutorial_seen', 'true');
+    setShowWelcomeTutorial(false);
+  };
 
   const handleDeleteWithStats = async (id: string, name: string) => {
     const isConsumed = window.confirm(`Hai CONSUMATO questo prodotto ("${name}")?\n\n- Premi OK se l'hai mangiato/usato (Risparmio! 💰)\n- Premi Annulla se l'hai dovuto buttare (Spreco ⚠️)`);
@@ -369,12 +382,31 @@ export default function Dashboard() {
         {loading && items.length === 0 ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
         ) : filteredItems.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-            <div style={{ width: '80px', height: '80px', background: 'rgba(0,255,170,0.05)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
-              <Box size={40} color="var(--text-muted)" />
+          <div style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '80px', height: '80px', background: 'rgba(0,255,170,0.1)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', boxShadow: '0 0 30px rgba(0,255,170,0.2)' }}>
+              <Receipt size={40} color="#00FFAA" />
             </div>
-            <p style={{ fontSize: '1.1rem', margin: '0 0 8px 0' }}>{t('dashboard.empty')}</p>
-            <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Aggiungi il tuo primo prodotto!</p>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px 0', color: 'white' }}>Il Frigo è vuoto</h3>
+            <p style={{ fontSize: '1rem', color: 'var(--text-muted)', margin: '0 0 32px 0', lineHeight: '1.5', maxWidth: '300px' }}>
+              Inizia da qui: <strong style={{color: 'white'}}>Fotografa uno scontrino.</strong> L'Intelligenza Artificiale smisterà i prodotti, calcolerà le scadenze e li riporrà al posto giusto.
+            </p>
+            <button 
+              onClick={() => {
+                setInitialInputMode('photo');
+                setShowAddModal(true);
+              }}
+              style={{
+                background: 'var(--primary)', color: 'black',
+                border: 'none', padding: '16px 24px', borderRadius: '20px',
+                fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '10px',
+                boxShadow: '0 8px 24px rgba(0,255,170,0.3)',
+                transition: 'transform 0.2s'
+              }}
+            >
+              <Camera size={24} />
+              Scansiona Scontrino
+            </button>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -510,6 +542,10 @@ export default function Dashboard() {
           }}
           onRefreshItem={fetchItems}
         />
+      )}
+
+      {showWelcomeTutorial && (
+        <WelcomeTutorialModal onComplete={handleTutorialComplete} />
       )}
 
       <style>{`
