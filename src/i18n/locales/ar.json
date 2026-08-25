@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "ثلاجة",
+    "recipes": "شيف ذكاء اصطناعي",
+    "scanner": "ماسح",
+    "profile": "حساب تعريفي"
+  },
+  "dashboard": {
+    "title": "ثلاجتي",
+    "empty": "ثلاجتك فارغة!",
+    "add_item": "إضافة",
+    "scan_barcode": "مسح الرمز",
+    "search": "البحث عن منتج...",
+    "expiring_soon": "تنتهي صلاحيته قريباً"
+  },
+  "profile": {
+    "title": "حساب تعريفي",
+    "biometric": "الأمان البيومتري",
+    "biometric_desc": "استخدم البصمة أو معرف الوجه لتسجيل الدخول.",
+    "notifications": "تنبيهات انتهاء الصلاحية",
+    "family": "ثلاجة العائلة",
+    "family_pro": "PRO قريباً",
+    "preferences": "تفضيلاتي",
+    "support": "المساعدة والدعم",
+    "settings": "إعدادات التطبيق",
+    "language": "Lingua / Language",
+    "logout": "تسجيل الخروج",
+    "pro_badge": "مستخدم PRO"
+  },
+  "stats": {
+    "title": "المال المدخر",
+    "saved": "تم توفيره",
+    "wasted": "ضائع",
+    "desc_saved": "قيمة الطعام المستهلك",
+    "desc_wasted": "قيمة الطعام المهدر"
+  }
+}

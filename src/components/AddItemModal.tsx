@@ -256,21 +256,32 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
     }}>
       <div style={{
         background: 'var(--bg-panel-solid)',
-        width: '100%', borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
-        padding: '24px', paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
+        width: '100%', 
+        maxHeight: '90dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
+        paddingTop: '24px',
         borderTop: '1px solid var(--border)',
         boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
         animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600 }}>
-            {initialData?.barcode ? 'Conferma Prodotto' : 'Aggiungi Prodotto'}
-          </h3>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
-            <X size={20} />
-          </button>
+        {/* Header fisso (non scrolla) */}
+        <div style={{ padding: '0 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600 }}>
+              {initialData?.barcode ? 'Conferma Prodotto' : 'Aggiungi Prodotto'}
+            </h3>
+            <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+              <X size={20} />
+            </button>
+          </div>
         </div>
+
+        {/* Corpo scrollabile */}
+        <div style={{ overflowY: 'auto', padding: '0 24px', paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' }}>
+
 
         {initialData?.category && (
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
@@ -566,8 +577,8 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             Salva Prodotto
           </button>
         </form>
+        </div>
       </div>
-
       <style>{`
         @keyframes slideUp {
           from { transform: translateY(100%); }

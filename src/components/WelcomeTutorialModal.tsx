@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Camera, Layers, ScanBarcode, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Layers, ScanBarcode, ChefHat, Receipt } from 'lucide-react';
 
 interface WelcomeTutorialModalProps {
   onComplete: () => void;
@@ -10,25 +10,32 @@ export default function WelcomeTutorialModal({ onComplete }: WelcomeTutorialModa
 
   const steps = [
     {
-      title: "Il Frigorifero Magico",
-      description: "Benvenuto su FrigoRadar! Qui il tuo inventario si compila (quasi) da solo. Dimentica l'inserimento manuale.",
+      title: "Il Futuro del Frigo",
+      description: "Benvenuto su FrigoRadar 2.0! Abbiamo eliminato l'inserimento manuale per sempre. L'AI fa tutto il lavoro noioso al posto tuo.",
       icon: <Layers size={48} color="#00FFAA" />,
       color: "rgba(0, 255, 170, 0.2)",
       primary: "#00FFAA"
     },
     {
-      title: "1. Scatta & Dimentica",
-      description: "Inizia fotografando lo scontrino della spesa. L'Intelligenza Artificiale smisterà i prodotti, stimerà le date di scadenza e li organizzerà in un batter d'occhio.",
-      icon: <Camera size={48} color="#64C8FF" />,
+      title: "Magia dello Scontrino",
+      description: "Scatta una foto alla ricevuta della spesa. Il sistema leggerà tutti i prodotti, calcolerà le scadenze stimate e riempirà il frigo in un colpo solo.",
+      icon: <Receipt size={48} color="#FF9F0A" />,
+      color: "rgba(255, 159, 10, 0.2)",
+      primary: "#FF9F0A"
+    },
+    {
+      title: "Scadenze & Barcode",
+      description: "Inquadra la data di scadenza e l'AI la leggerà per te. Se passi il codice a barre dalla Home, l'app aggancerà foto e calorie in automatico ai prodotti orfani.",
+      icon: <ScanBarcode size={48} color="#64C8FF" />,
       color: "rgba(100, 200, 255, 0.2)",
       primary: "#64C8FF"
     },
     {
-      title: "2. Il Tocco Finale",
-      description: "Vuoi dettagli perfetti? Apri la scheda di un prodotto nel frigo e scansiona il codice a barre per ottenere foto, NutriScore e calorie automaticamente.",
-      icon: <ScanBarcode size={48} color="#FF9F0A" />,
-      color: "rgba(255, 159, 10, 0.2)",
-      primary: "#FF9F0A"
+      title: "Chef AI Anti-Spreco",
+      description: "Non sai cosa cucinare? Lo Chef AI analizza i prodotti che stanno per scadere nel tuo frigo e crea ricette stellate su misura per non farti sprecare nulla.",
+      icon: <ChefHat size={48} color="#FF453A" />,
+      color: "rgba(255, 69, 58, 0.2)",
+      primary: "#FF453A"
     }
   ];
 

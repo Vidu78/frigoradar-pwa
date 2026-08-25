@@ -55,6 +55,13 @@ export default function Dashboard() {
         setShowWelcomeTutorial(true);
       }
     }
+    
+    const handleOpenTutorial = () => setShowWelcomeTutorial(true);
+    document.addEventListener('openTutorial', handleOpenTutorial);
+    
+    return () => {
+      document.removeEventListener('openTutorial', handleOpenTutorial);
+    };
   }, [session]);
 
   const handleTutorialComplete = () => {

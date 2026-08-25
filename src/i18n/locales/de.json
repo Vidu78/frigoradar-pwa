@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "Kühlschrank",
+    "recipes": "Chef KI",
+    "scanner": "Scanner",
+    "profile": "Profil"
+  },
+  "dashboard": {
+    "title": "Mein Kühlschrank",
+    "empty": "Dein Kühlschrank ist leer!",
+    "add_item": "Hinzufügen",
+    "scan_barcode": "Barcode scannen",
+    "search": "Produkt suchen...",
+    "expiring_soon": "Läuft bald ab"
+  },
+  "profile": {
+    "title": "Profil",
+    "biometric": "Biometrische Sicherheit",
+    "biometric_desc": "Verwende Fingerabdruck oder Face ID.",
+    "notifications": "Ablaufwarnungen",
+    "family": "Familien-Kühlschrank",
+    "family_pro": "PRO BALD VERFÜGBAR",
+    "preferences": "Meine Einstellungen",
+    "support": "Hilfe & Support",
+    "settings": "App-Einstellungen",
+    "language": "Lingua / Language",
+    "logout": "Abmelden",
+    "pro_badge": "PRO-NUTZER"
+  },
+  "stats": {
+    "title": "Geld gespart",
+    "saved": "Gespart",
+    "wasted": "Verschwendet",
+    "desc_saved": "Wert der verbrauchten Lebensmittel",
+    "desc_wasted": "Wert der verschwendeten Lebensmittel"
+  }
+}

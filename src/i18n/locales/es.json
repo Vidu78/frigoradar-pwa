@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "Nevera",
+    "recipes": "Chef IA",
+    "scanner": "Escáner",
+    "profile": "Perfil"
+  },
+  "dashboard": {
+    "title": "Mi Nevera",
+    "empty": "¡Tu nevera está vacía!",
+    "add_item": "Añadir",
+    "scan_barcode": "Escanear Código",
+    "search": "Buscar producto...",
+    "expiring_soon": "Caduca Pronto"
+  },
+  "profile": {
+    "title": "Perfil",
+    "biometric": "Seguridad Biométrica",
+    "biometric_desc": "Usa huella dactilar o Face ID para iniciar sesión.",
+    "notifications": "Alertas de Caducidad",
+    "family": "Nevera Familiar",
+    "family_pro": "PRO PRÓXIMAMENTE",
+    "preferences": "Mis Preferencias",
+    "support": "Ayuda y Soporte",
+    "settings": "Ajustes de la App",
+    "language": "Lingua / Language",
+    "logout": "Cerrar Sesión",
+    "pro_badge": "USUARIO PRO"
+  },
+  "stats": {
+    "title": "Dinero Ahorrado",
+    "saved": "Ahorrado",
+    "wasted": "Desperdiciado",
+    "desc_saved": "valor de comida consumida",
+    "desc_wasted": "valor de comida tirada"
+  }
+}

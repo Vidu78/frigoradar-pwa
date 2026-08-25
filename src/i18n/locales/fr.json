@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "Frigo",
+    "recipes": "Chef IA",
+    "scanner": "Scanner",
+    "profile": "Profil"
+  },
+  "dashboard": {
+    "title": "Mon Frigo",
+    "empty": "Votre frigo est vide !",
+    "add_item": "Ajouter",
+    "scan_barcode": "Scanner Code",
+    "search": "Chercher produit...",
+    "expiring_soon": "Expire Bientôt"
+  },
+  "profile": {
+    "title": "Profil",
+    "biometric": "Sécurité Biométrique",
+    "biometric_desc": "Utilisez l'empreinte ou Face ID pour vous connecter.",
+    "notifications": "Alertes d'Expiration",
+    "family": "Frigo Familial",
+    "family_pro": "PRO BIENTÔT",
+    "preferences": "Mes Préférences",
+    "support": "Aide & Support",
+    "settings": "Paramètres de l'App",
+    "language": "Lingua / Language",
+    "logout": "Se Déconnecter",
+    "pro_badge": "UTILISATEUR PRO"
+  },
+  "stats": {
+    "title": "Argent Économisé",
+    "saved": "Économisé",
+    "wasted": "Gaspillé",
+    "desc_saved": "valeur des aliments consommés",
+    "desc_wasted": "valeur des aliments gaspillés"
+  }
+}

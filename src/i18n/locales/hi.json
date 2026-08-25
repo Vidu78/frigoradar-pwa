@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "फ्रिज",
+    "recipes": "एआई शेफ",
+    "scanner": "स्कैनर",
+    "profile": "प्रोफ़ाइल"
+  },
+  "dashboard": {
+    "title": "मेरा फ्रिज",
+    "empty": "आपका फ्रिज खाली है!",
+    "add_item": "जोड़ें",
+    "scan_barcode": "बारकोड स्कैन करें",
+    "search": "उत्पाद खोजें...",
+    "expiring_soon": "जल्द ही समाप्त"
+  },
+  "profile": {
+    "title": "प्रोफ़ाइल",
+    "biometric": "बायोमेट्रिक सुरक्षा",
+    "biometric_desc": "लॉग इन करने के लिए फिंगरप्रिंट का उपयोग करें।",
+    "notifications": "समाप्ति अलर्ट",
+    "family": "परिवार का फ्रिज",
+    "family_pro": "जल्द आ रहा है",
+    "preferences": "मेरी प्राथमिकताएँ",
+    "support": "मदद और समर्थन",
+    "settings": "ऐप सेटिंग",
+    "language": "Lingua / Language",
+    "logout": "लॉग आउट",
+    "pro_badge": "प्रो उपयोगकर्ता"
+  },
+  "stats": {
+    "title": "पैसे बचाए गए",
+    "saved": "बचाया",
+    "wasted": "बर्बाद",
+    "desc_saved": "खपत किए गए भोजन का मूल्य",
+    "desc_wasted": "बर्बाद भोजन का मूल्य"
+  }
+}

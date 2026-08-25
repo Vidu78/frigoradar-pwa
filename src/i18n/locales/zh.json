@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "冰箱",
+    "recipes": "AI大厨",
+    "scanner": "扫描仪",
+    "profile": "个人资料"
+  },
+  "dashboard": {
+    "title": "我的冰箱",
+    "empty": "您的冰箱是空的！",
+    "add_item": "添加",
+    "scan_barcode": "扫描条形码",
+    "search": "搜索产品...",
+    "expiring_soon": "即将过期"
+  },
+  "profile": {
+    "title": "个人资料",
+    "biometric": "生物识别安全",
+    "biometric_desc": "使用指纹或面容ID登录。",
+    "notifications": "过期提醒",
+    "family": "家庭冰箱",
+    "family_pro": "PRO即将推出",
+    "preferences": "我的偏好",
+    "support": "帮助与支持",
+    "settings": "应用设置",
+    "language": "Lingua / Language",
+    "logout": "登出",
+    "pro_badge": "高级用户"
+  },
+  "stats": {
+    "title": "节省的金额",
+    "saved": "已节省",
+    "wasted": "已浪费",
+    "desc_saved": "消耗食物的价值",
+    "desc_wasted": "浪费食物的价值"
+  }
+}

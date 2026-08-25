@@ -12,9 +12,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const { t, i18n } = useTranslation();
 
-  const toggleLanguage = () => {
-    const nextLang = i18n.language.startsWith('it') ? 'en' : 'it';
-    i18n.changeLanguage(nextLang);
+  const openTutorial = () => {
+    document.dispatchEvent(new CustomEvent('openTutorial'));
   };
 
   const [name, setName] = useState(session?.user?.user_metadata?.display_name || '');
@@ -190,9 +189,9 @@ export default function Profile() {
     <div style={{ padding: '20px', color: 'white', paddingBottom: '120px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
         <h1 style={{ fontSize: '2.2rem', fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>{t('profile.title')}</h1>
-        <button onClick={toggleLanguage} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+        <button onClick={() => setShowPreferencesModal(true)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
           <Globe size={18} />
-          {i18n.language.toUpperCase()}
+          {i18n.language.toUpperCase().substring(0, 2)}
         </button>
       </div>
 
@@ -239,6 +238,15 @@ export default function Profile() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 159, 10, 0.1)', padding: '10px', borderRadius: '12px' }}><Receipt size={20} color="#FF9F0A" /></div>
             <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Storico Scontrini</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
+        {/* Guida all'Uso */}
+        <button onClick={openTutorial} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(52, 152, 219, 0.1)', padding: '10px', borderRadius: '12px' }}><LifeBuoy size={20} color="#3498DB" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Guida all'Uso</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -452,9 +460,22 @@ export default function Profile() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <span>Lingua</span>
-              <button onClick={toggleLanguage} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer' }}>
-                {i18n.language.toUpperCase()}
-              </button>
+              <select 
+                value={i18n.language.substring(0, 2)} 
+                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', outline: 'none' }}
+              >
+                <option value="it" style={{ color: 'black' }}>Italiano</option>
+                <option value="en" style={{ color: 'black' }}>English</option>
+                <option value="es" style={{ color: 'black' }}>Español</option>
+                <option value="fr" style={{ color: 'black' }}>Français</option>
+                <option value="de" style={{ color: 'black' }}>Deutsch</option>
+                <option value="zh" style={{ color: 'black' }}>中文</option>
+                <option value="ja" style={{ color: 'black' }}>日本語</option>
+                <option value="ar" style={{ color: 'black' }}>العربية</option>
+                <option value="hi" style={{ color: 'black' }}>हिन्दी</option>
+                <option value="ka" style={{ color: 'black' }}>ქართული</option>
+              </select>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>

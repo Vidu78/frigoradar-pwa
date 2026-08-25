@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "fridge": "冷蔵庫",
+    "recipes": "AIシェフ",
+    "scanner": "スキャナー",
+    "profile": "プロフィール"
+  },
+  "dashboard": {
+    "title": "私の冷蔵庫",
+    "empty": "冷蔵庫は空です！",
+    "add_item": "追加",
+    "scan_barcode": "バーコードをスキャン",
+    "search": "製品を検索...",
+    "expiring_soon": "もうすぐ期限切れ"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "biometric": "生体認証セキュリティ",
+    "biometric_desc": "指紋またはFace IDを使用します。",
+    "notifications": "期限切れ警告",
+    "family": "家族の冷蔵庫",
+    "family_pro": "まもなくPRO",
+    "preferences": "設定",
+    "support": "ヘルプとサポート",
+    "settings": "アプリ設定",
+    "language": "Lingua / Language",
+    "logout": "ログアウト",
+    "pro_badge": "PROユーザー"
+  },
+  "stats": {
+    "title": "節約したお金",
+    "saved": "節約",
+    "wasted": "無駄",
+    "desc_saved": "消費された食べ物の価値",
+    "desc_wasted": "無駄になった食べ物の価値"
+  }
+}
