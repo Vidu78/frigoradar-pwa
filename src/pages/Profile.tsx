@@ -21,6 +21,8 @@ export default function Profile() {
   const [name, setName] = useState(session?.user?.user_metadata?.display_name || '');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [registeringPasskey, setRegisteringPasskey] = useState(false);
+  const [passkeySuccess, setPasskeySuccess] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
