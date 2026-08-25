@@ -198,6 +198,13 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
           
           setCategory(matchedCat);
         }
+
+        // Salva temporaneamente i dati estesi per onSave
+        if (aiData.brand) (window as any).__aiBrand = aiData.brand;
+        if (aiData.ingredients) (window as any).__aiIngredients = aiData.ingredients;
+        if (aiData.nutriscore) (window as any).__aiNutriscore = aiData.nutriscore;
+        if (aiData.nutritional_info) (window as any).__aiNutritionalInfo = aiData.nutritional_info;
+
       } else {
         showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
       }
@@ -226,13 +233,17 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       health_score: (window as any).__aiHealthScore || initialData?.health_score || null,
       category: category,
       image_url: scannedImageUrl || initialData?.imageUrl || null,
-      brand: initialData?.brand || null,
-      ingredients: initialData?.ingredients || null,
-      nutriscore: initialData?.nutriscore || null,
-      nutritional_info: initialData?.nutritional_info || null
+      brand: (window as any).__aiBrand || initialData?.brand || null,
+      ingredients: (window as any).__aiIngredients || initialData?.ingredients || null,
+      nutriscore: (window as any).__aiNutriscore || initialData?.nutriscore || null,
+      nutritional_info: (window as any).__aiNutritionalInfo || initialData?.nutritional_info || null
     });
     // Pulizia variabile temporanea
     delete (window as any).__aiHealthScore;
+    delete (window as any).__aiBrand;
+    delete (window as any).__aiIngredients;
+    delete (window as any).__aiNutriscore;
+    delete (window as any).__aiNutritionalInfo;
   };
 
   return (
