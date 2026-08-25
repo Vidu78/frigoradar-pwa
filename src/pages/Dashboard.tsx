@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useShoppingStore } from '../store/shoppingStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt, ChefHat } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
 import AddItemModal from '../components/AddItemModal';
 import ProductDetailModal from '../components/ProductDetailModal';
 import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
+import BarcodeAssociationModal from '../components/BarcodeAssociationModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 
 const categoryEmojis: Record<string, string> = {
   'Carni e Salumi': '🥩',
@@ -40,6 +42,7 @@ export default function Dashboard() {
   const [initialInputMode, setInitialInputMode] = useState<'manual' | 'photo'>('manual');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showWelcomeTutorial, setShowWelcomeTutorial] = useState(false);
+  const [showAssociationModal, setShowAssociationModal] = useState(false);
 
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
@@ -155,7 +158,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Errore generale durante la scansione:", error);
     } finally {
-      setAiProductData({
+      const scannedProductObj = {
         name: finalName,
         barcode: decodedText,
         days: days,
@@ -167,10 +170,18 @@ export default function Dashboard() {
         ingredients: ingredients,
         nutriscore: nutriscore,
         nutritional_info: nutritional_info
-      });
+      };
+
+      setAiProductData(scannedProductObj);
       setIsProcessingBarcode(false);
-      setInitialInputMode('manual');
-      setShowAddModal(true);
+
+      const unbarcodedItems = items.filter(i => !(i as any).barcode);
+      if (unbarcodedItems.length > 0) {
+        setShowAssociationModal(true);
+      } else {
+        setInitialInputMode('manual');
+        setShowAddModal(true);
+      }
     }
   };
 
@@ -294,15 +305,15 @@ export default function Dashboard() {
         <div 
           className="glass-panel" 
           onClick={() => {
-            const event = new CustomEvent('changeTab', { detail: 'recipes' });
+            const event = new CustomEvent('openReceiptScanner');
             document.dispatchEvent(event);
           }}
           style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s', border: '1px solid rgba(255, 170, 0, 0.3)', background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.1) 0%, rgba(255, 170, 0, 0.02) 100%)' }}
         >
           <div style={{ background: 'rgba(255, 170, 0, 0.2)', padding: '14px', borderRadius: '50%' }}>
-            <ChefHat size={28} color="#FFAA00" />
+            <Receipt size={28} color="#FFAA00" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#FFAA00' }}>Ricette AI</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#FFAA00' }}>Scontrino</span>
         </div>
       </div>
 
@@ -519,6 +530,35 @@ export default function Dashboard() {
         <BarcodeScannerModal 
           onSuccess={handleScan}
           onClose={() => setShowScanner(false)}
+        />
+      )}
+
+      {showAssociationModal && aiProductData && (
+        <BarcodeAssociationModal
+          scannedData={aiProductData}
+          candidates={items.filter(i => !(i as any).barcode)}
+          onClose={() => {
+            setShowAssociationModal(false);
+            setAiProductData(null);
+          }}
+          onAddNew={() => {
+            setShowAssociationModal(false);
+            setInitialInputMode('manual');
+            setShowAddModal(true);
+          }}
+          onAssociate={async (itemId, updates) => {
+            try {
+              const { error } = await supabase.from('inventory_items').update(updates).eq('id', itemId);
+              if (error) throw error;
+              showToast('Prodotto associato con successo!', 'success');
+              setShowAssociationModal(false);
+              setAiProductData(null);
+              fetchItems();
+            } catch (err) {
+              console.error(err);
+              showToast("Errore durante l'associazione.", "error");
+            }
+          }}
         />
       )}
 

@@ -89,7 +89,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
             }}
           >
             <ChefHat size={24} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>{t('nav.recipes')}</span>
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
           </button>
 
           <button

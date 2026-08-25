@@ -172,6 +172,40 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
     }
   };
 
+  const handleImportAll = async () => {
+    setScanning(true); // Uso scanning come stato di caricamento generico
+    try {
+      let savedCount = 0;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.status === 'pending') {
+          const productData = {
+            custom_name: item.name || item.raw_name,
+            quantity: item.quantity || 1,
+            unit: item.unit || 'pz',
+            category: item.category || 'Altro',
+            location: item.storage_type || 'FRIDGE',
+            expiration_date: addDays(new Date(), item.default_shelf_life_days || 7).toISOString().split('T')[0],
+            purchase_date: new Date().toISOString().split('T')[0],
+          };
+          await onSaveItem(productData);
+          setItems(prev => {
+            const next = [...prev];
+            next[i].status = 'saved';
+            return next;
+          });
+          savedCount++;
+        }
+      }
+      showToast(`${savedCount} prodotti importati con successo!`, 'success');
+    } catch (e) {
+      console.error(e);
+      showToast("Errore durante l'importazione massiva", "error");
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const allSaved = items.length > 0 && items.every(i => i.status === 'saved');
 
   return (
@@ -246,10 +280,37 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
             )}
 
             {!allSaved && (
-               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 170, 0, 0.1)', color: '#FFAA00', padding: '12px', borderRadius: '12px', marginBottom: '8px' }}>
-                 <AlertTriangle size={20} />
-                 <span style={{ fontSize: '0.85rem', lineHeight: '1.3' }}>Approva i prodotti a lunga conservazione (Pasta, Scatolame) o aggiungi la foto scadenza per i freschi (Carne, Latte).</span>
-               </div>
+               <>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 170, 0, 0.1)', color: '#FFAA00', padding: '12px', borderRadius: '12px', marginBottom: '8px' }}>
+                   <AlertTriangle size={20} />
+                   <span style={{ fontSize: '0.85rem', lineHeight: '1.3' }}>Approva i prodotti a lunga conservazione (Pasta, Scatolame) o aggiungi la foto scadenza per i freschi (Carne, Latte).</span>
+                 </div>
+                 
+                 <button 
+                   onClick={handleImportAll}
+                   disabled={scanning}
+                   style={{
+                     width: '100%',
+                     background: 'var(--primary)',
+                     color: 'black',
+                     border: 'none',
+                     padding: '16px',
+                     borderRadius: '16px',
+                     fontWeight: 800,
+                     fontSize: '1.1rem',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     gap: '10px',
+                     cursor: scanning ? 'not-allowed' : 'pointer',
+                     marginBottom: '16px',
+                     boxShadow: '0 8px 24px rgba(0, 255, 170, 0.2)'
+                   }}
+                 >
+                   {scanning ? <Loader2 size={24} className="animate-spin" /> : <Check size={24} />}
+                   Importa Tutto Rapidamente
+                 </button>
+               </>
             )}
 
             {items.map((item, index) => (
