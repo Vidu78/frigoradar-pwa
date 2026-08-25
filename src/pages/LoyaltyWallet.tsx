@@ -259,13 +259,6 @@ export default function LoyaltyWallet() {
                         boxShadow: '0 15px 35px rgba(0,0,0,0.4)',
                         border: '1px solid rgba(255,255,255,0.8)'
                       }}>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); deleteCard(card.id); }}
-                          style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,69,58,0.1)', border: 'none', color: '#FF453A', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={20} />
-                        </button>
-                        
                         <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#333', position: 'absolute', top: 20, left: 20 }}>{card.store_name}</div>
                         
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', transform: 'scale(1.1)', marginTop: '10px' }}>
@@ -335,6 +328,33 @@ export default function LoyaltyWallet() {
                           ))}
                         </div>
                       )}
+
+                      {/* PULSANTE ELIMINA CARTA (SICURO E FUORI DALLA CARTA) */}
+                      <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`Sei sicuro di voler eliminare la carta ${card.store_name}?`)) {
+                              deleteCard(card.id);
+                            }
+                          }}
+                          style={{
+                            background: 'rgba(255,69,58,0.1)',
+                            border: '1px solid rgba(255,69,58,0.3)',
+                            color: '#FF453A',
+                            padding: '8px 16px',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Trash2 size={16} /> Elimina Carta
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

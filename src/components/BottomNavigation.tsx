@@ -35,7 +35,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
       {/* --- BOTTONI NAVIGAZIONE (FOREGROUND LAYER) --- */}
       <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1, height: '100%' }}>
         
-        <div style={{ display: 'flex', gap: '8px', flex: 1, justifyContent: 'space-around' }}>
+        <div style={{ display: 'flex', gap: '4px', flex: 1, justifyContent: 'space-around' }}>
           <button
             onClick={() => onTabChange('fridge')}
             style={{
@@ -46,6 +46,18 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           >
             <Refrigerator size={22} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
             <span style={{ fontSize: '10px', fontWeight: activeTab === 'fridge' ? 700 : 500 }}>{t('nav.fridge')}</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('loyalty')}
+            style={{
+              background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+              color: activeTab === 'loyalty' ? '#FFD700' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.4s',
+            }}
+          >
+            <CreditCard size={22} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
           </button>
 
           <button
@@ -90,18 +102,6 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           >
             <ChefHat size={22} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
             <span style={{ fontSize: '10px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
-          </button>
-
-          <button
-            onClick={() => onTabChange('loyalty')}
-            style={{
-              background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'loyalty' ? '#FFD700' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s',
-            }}
-          >
-            <CreditCard size={22} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
-            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
           </button>
 
           <button
