@@ -447,6 +447,26 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             </div>
           </div>
 
+          {/* Alert Scadenza Barcode */}
+          {initialData?.barcode && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.15) 0%, rgba(255, 170, 0, 0.05) 100%)',
+              borderLeft: '4px solid #FFAA00',
+              padding: '12px 16px',
+              borderRadius: '0 12px 12px 0',
+              marginTop: '-4px',
+              display: 'flex',
+              gap: '12px',
+              alignItems: 'flex-start'
+            }}>
+              <div style={{ color: '#FFAA00', marginTop: '2px' }}><Calendar size={20} /></div>
+              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', lineHeight: '1.4' }}>
+                <strong style={{ color: '#FFAA00', display: 'block', marginBottom: '2px' }}>Verifica la Scadenza</strong>
+                I codici a barre non contengono la data di scadenza esatta. Controllala sulla confezione reale e aggiustala qui sopra se necessario.
+              </div>
+            </div>
+          )}
+
           {/* Quantità e Unità di Misura */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
             <div>
