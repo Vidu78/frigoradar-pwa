@@ -9,6 +9,7 @@ import ShoppingList from './pages/ShoppingList';
 import Profile from './pages/Profile';
 import ProUpgradePage from './pages/ProUpgradePage';
 import Onboarding from './pages/Onboarding';
+import FamilySharing from './pages/FamilySharing';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
@@ -16,6 +17,15 @@ import { Download, X } from 'lucide-react';
 
 const AppContainer = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
+  
+  useEffect(() => {
+    const handleTabChange = (e: Event) => {
+      const customEvent = e as CustomEvent<TabType>;
+      setActiveTab(customEvent.detail);
+    };
+    document.addEventListener('changeTab', handleTabChange);
+    return () => document.removeEventListener('changeTab', handleTabChange);
+  }, []);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -63,6 +73,7 @@ const AppContainer = () => {
         {activeTab === 'shopping' && <ShoppingList />}
         {activeTab === 'recipes' && <AiRecipes />}
         {activeTab === 'profile' && <Profile />}
+        {activeTab === 'family' && <FamilySharing />}
       </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onScanClick={() => console.log('scan')} />
     </div>

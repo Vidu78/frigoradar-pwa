@@ -104,7 +104,7 @@ export default function Profile() {
         </button>
 
         {/* Condivisione Familiare */}
-        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <button onClick={() => document.dispatchEvent(new CustomEvent('changeTab', { detail: 'family' }))} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(0, 255, 170, 0.1)', padding: '10px', borderRadius: '12px' }}><Users size={20} color="#00FFAA" /></div>
             <div style={{ textAlign: 'left' }}>

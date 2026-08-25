@@ -33,37 +33,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
       border: '1px solid rgba(255,255,255,0.05)'
     }}>
       
-      {/* --- DESIGN FRIGORIFERO (BACKGROUND LAYER) --- */}
-      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 0 }}>
-        {/* Fessura Centrale */}
-        <div style={{ 
-          position: 'absolute', top: 0, bottom: 0, left: '50%', width: '2px', 
-          background: 'rgba(0,0,0,0.8)', boxShadow: '1px 0 0 rgba(255,255,255,0.05)', 
-          transform: 'translateX(-50%)' 
-        }} />
-        
-        {/* Maniglia Sinistra */}
-        <div style={{ 
-          position: 'absolute', top: '16px', bottom: '16px', right: 'calc(50% + 12px)', 
-          width: '4px', borderRadius: '4px', 
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%)', 
-          boxShadow: '-1px 0 3px rgba(0,0,0,0.8), inset 1px 0 1px rgba(255,255,255,0.2)' 
-        }} />
-        
-        {/* Maniglia Destra */}
-        <div style={{ 
-          position: 'absolute', top: '16px', bottom: '16px', left: 'calc(50% + 12px)', 
-          width: '4px', borderRadius: '4px', 
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%)', 
-          boxShadow: '1px 0 3px rgba(0,0,0,0.8), inset -1px 0 1px rgba(255,255,255,0.2)' 
-        }} />
 
-        {/* Riflesso Metallica Superiore */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '30%',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)'
-        }} />
-      </div>
 
       {/* --- BOTTONI NAVIGAZIONE (FOREGROUND LAYER) --- */}
       <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>

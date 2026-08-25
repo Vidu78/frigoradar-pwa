@@ -1,4 +1,6 @@
-# Gemini Model Versioning Rule
+# Gemini API Version Rule
+**CRITICAL RULE:**
+You MUST ALWAYS use the model version `gemini-3.6-flash` whenever querying the Google Generative AI API (Gemini).
+This rule overrides any default assumptions about available models. Do NOT use 1.5, 2.0, or 2.5. The ONLY correct version is `gemini-3.6-flash`.
 
-Quando devi utilizzare le API di Google Generative AI (Gemini) tramite Node.js o altri SDK in questo progetto, **devi sempre utilizzare la versione `gemini-3.6-flash`** che è l'unica supportata dal piano attuale del cliente. 
-NON usare 1.5, 2.5 o altri numeri. Usa esattamente `gemini-3.6-flash`.
+Failure to follow this rule will break the application and anger the user.
