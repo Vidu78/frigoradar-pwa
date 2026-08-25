@@ -119,6 +119,7 @@ export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScann
       </div>
       <style>{`
         #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 24px !important; }
+        #qr-shaded-region { display: none !important; }
         @keyframes scan {
           0% { transform: translateY(0); opacity: 0; }
           10% { opacity: 1; }
