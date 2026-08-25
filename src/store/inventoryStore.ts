@@ -105,9 +105,12 @@ export const useInventoryStore = create<InventoryState>((set, get) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('User not authenticated');
 
+      const familyId = userData.user.user_metadata?.family_id || userData.user.id;
+
       const newItem = {
         ...item,
         user_id: userData.user.id,
+        family_id: familyId,
       };
 
       const { data, error } = await supabase

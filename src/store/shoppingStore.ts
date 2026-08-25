@@ -49,9 +49,11 @@ export const useShoppingStore = create<ShoppingState>((set) => ({
     const { session } = useAuthStore.getState();
     if (!session) return;
 
+    const familyId = session.user.user_metadata?.family_id || session.user.id;
+
     const { data, error } = await supabase
       .from('shopping_items')
-      .insert([{ user_id: session.user.id, name, quantity, unit }])
+      .insert([{ user_id: session.user.id, family_id: familyId, name, quantity, unit }])
       .select()
       .single();
 
