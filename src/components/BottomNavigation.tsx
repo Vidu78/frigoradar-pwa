@@ -49,6 +49,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           </button>
 
           <button
+            data-tour="nav-shopping"
             onClick={() => onTabChange('shopping')}
             style={{
               background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
@@ -64,6 +65,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
         {/* FAB CENTRALE */}
         <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center', margin: '0 10px', position: 'relative', top: '-15px' }}>
           <button
+            data-tour="fab-button"
             onClick={onAddClick}
             style={{
               width: '60px', height: '60px', borderRadius: '30px', border: 'none',
@@ -81,6 +83,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
 
         <div style={{ display: 'flex', gap: '6px', flex: 1, justifyContent: 'space-around' }}>
           <button
+            data-tour="nav-loyalty"
             onClick={() => onTabChange('loyalty')}
             style={{
               background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
@@ -93,6 +96,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
           </button>
 
           <button
+            data-tour="nav-recipes"
             onClick={() => onTabChange('recipes')}
             style={{
               background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
