@@ -5,9 +5,7 @@ import Barcode from 'react-barcode';
 import BarcodeScanner from './BarcodeScanner';
 import { useToastStore } from '../store/toastStore';
 
-interface LoyaltyWalletModalProps {
-  onClose: () => void;
-}
+// No props needed since it's a page now
 
 const SUPERMARKETS = [
   { name: 'Esselunga', color: '#FFD700' },
@@ -22,7 +20,7 @@ const SUPERMARKETS = [
   { name: 'Altro', color: '#1E1E1E' }
 ];
 
-export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps) {
+export default function LoyaltyWallet() {
   const { cards, discounts, fetchCards, fetchDiscounts, addCard, deleteCard, addPaperDiscount, loading } = useLoyaltyStore();
   const { showToast } = useToastStore();
   const [isScanning, setIsScanning] = useState(false);
@@ -175,14 +173,12 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ background: 'var(--bg-color)', height: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="modal-header" style={{ paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '20px', paddingBottom: '100px' }}>
+        <div style={{ paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CreditCard color="var(--primary)" /> 
+            <CreditCard color="var(--primary)" size={28} /> 
             Le Mie Carte
           </h2>
-          <button onClick={onClose} className="icon-button"><X size={24} /></button>
         </div>
         
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -339,7 +335,6 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
         >
           <Plus /> Aggiungi Carta
         </button>
-      </div>
     </div>
   );
 }

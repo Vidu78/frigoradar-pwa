@@ -1,7 +1,7 @@
-import { Refrigerator, User, ChefHat, ShoppingCart } from 'lucide-react';
+import { Refrigerator, User, ChefHat, ShoppingCart, CreditCard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export type TabType = 'fridge' | 'shopping' | 'recipes' | 'profile' | 'family';
+export type TabType = 'fridge' | 'shopping' | 'recipes' | 'profile' | 'family' | 'loyalty';
 
 interface BottomNavigationProps {
   activeTab: TabType;
@@ -44,8 +44,8 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <Refrigerator size={24} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'fridge' ? 700 : 500 }}>{t('nav.fridge')}</span>
+            <Refrigerator size={22} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'fridge' ? 700 : 500 }}>{t('nav.fridge')}</span>
           </button>
 
           <button
@@ -56,8 +56,8 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <ShoppingCart size={24} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'shopping' ? 700 : 500 }}>Spesa</span>
+            <ShoppingCart size={22} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'shopping' ? 700 : 500 }}>Spesa</span>
           </button>
         </div>
 
@@ -88,8 +88,20 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <ChefHat size={24} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
+            <ChefHat size={22} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('loyalty')}
+            style={{
+              background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+              color: activeTab === 'loyalty' ? '#FFD700' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.4s',
+            }}
+          >
+            <CreditCard size={22} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
           </button>
 
           <button
@@ -100,8 +112,8 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
               transition: 'all 0.4s',
             }}
           >
-            <User size={24} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'profile' ? 700 : 500 }}>{t('nav.profile')}</span>
+            <User size={22} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'profile' ? 700 : 500 }}>{t('nav.profile')}</span>
           </button>
         </div>
       </div>

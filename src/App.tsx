@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import ProUpgradePage from './pages/ProUpgradePage';
 import Onboarding from './pages/Onboarding';
 import FamilySharing from './pages/FamilySharing';
+import LoyaltyWallet from './pages/LoyaltyWallet';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import WelcomeTutorialModal from './components/WelcomeTutorialModal';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
@@ -92,6 +93,7 @@ const AppContainer = () => {
         {activeTab === 'recipes' && <AiRecipes />}
         {activeTab === 'profile' && <Profile />}
         {activeTab === 'family' && <FamilySharing />}
+        {activeTab === 'loyalty' && <LoyaltyWallet />}
       </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onAddClick={() => setShowActionSheet(true)} />
 
@@ -200,7 +202,7 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
-    const CURRENT_APP_VERSION = '2.9'; // Cambiare questo per forzare pulizia cache sui device
+    const CURRENT_APP_VERSION = '3.0'; // Cambiare questo per forzare pulizia cache sui device
     const storedVersion = localStorage.getItem('appVersion');
     
     if (storedVersion !== CURRENT_APP_VERSION) {
