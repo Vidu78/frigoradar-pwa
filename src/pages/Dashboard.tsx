@@ -73,28 +73,11 @@ export default function Dashboard() {
   };
 
   const handleDeleteWithStats = async (id: string, name: string) => {
-    const isConsumed = await showDialog({
-      title: 'Prodotto Consumato?',
-      message: `Hai consumato questo prodotto ("${name}")?\n\n- Premi OK se l'hai mangiato/usato (Risparmio! 💰)\n- Premi Annulla se l'hai dovuto buttare (Spreco ⚠️)`,
-      type: 'warning'
-    });
-    
-    if (isConsumed) {
-      updateStats('SAVED', 2.5);
-      const addToShopping = await showDialog({
-        title: 'Lista della Spesa',
-        message: `Bravo! Vuoi aggiungere "${name}" alla tua Lista della Spesa per non dimenticare di ricomprarlo? 🛒`,
-        type: 'info'
-      });
-      if (addToShopping) {
-        await addShoppingItem(name, 1);
-        showToast("Prodotto aggiunto alla lista della spesa!");
-      }
-    } else {
-      updateStats('WASTED', 2.5);
-    }
-    
+    // L'utente non vuole visualizzare nessun popup.
+    // Assumiamo come consumato (SAVED) di default
+    updateStats('SAVED', 2.5);
     await deleteItem(id);
+    showToast("Prodotto consumato e rimosso", "success");
   };
 
   const handleScan = async (decodedText: string) => {
