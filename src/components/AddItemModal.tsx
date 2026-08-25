@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, Refrigerator, Box, Camera, Loader2 } from 'lucide-react';
+import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 interface AddItemModalProps {
   initialData?: {
@@ -39,9 +40,45 @@ const CATEGORIES = [
   'Altro'
 ];
 
+// Prodotti sfusi a peso con emoji e scadenza stimata in giorni
+const PRODUCE_ITEMS = [
+  { name: 'Pomodori', emoji: '🍅', days: 7 },
+  { name: 'Zucchine', emoji: '🥒', days: 7 },
+  { name: 'Peperoni', emoji: '🫑', days: 10 },
+  { name: 'Cetrioli', emoji: '🥒', days: 7 },
+  { name: 'Melanzane', emoji: '🍆', days: 7 },
+  { name: 'Insalata', emoji: '🥬', days: 4 },
+  { name: 'Spinaci', emoji: '🌿', days: 4 },
+  { name: 'Broccoli', emoji: '🥦', days: 5 },
+  { name: 'Carote', emoji: '🥕', days: 21 },
+  { name: 'Patate', emoji: '🥔', days: 30 },
+  { name: 'Cipolle', emoji: '🧅', days: 30 },
+  { name: 'Aglio', emoji: '🧄', days: 30 },
+  { name: 'Pesche', emoji: '🍑', days: 5 },
+  { name: 'Anguria', emoji: '🍉', days: 7 },
+  { name: 'Melone', emoji: '🍈', days: 5 },
+  { name: 'Mirtilli', emoji: '🫐', days: 4 },
+  { name: 'Fragole', emoji: '🍓', days: 4 },
+  { name: 'Uva', emoji: '🍇', days: 7 },
+  { name: 'Ciliegie', emoji: '🍒', days: 5 },
+  { name: 'Arance', emoji: '🍊', days: 21 },
+  { name: 'Limoni', emoji: '🍋', days: 21 },
+  { name: 'Mele', emoji: '🍎', days: 21 },
+  { name: 'Pere', emoji: '🍐', days: 14 },
+  { name: 'Kiwi', emoji: '🥝', days: 14 },
+  { name: 'Banane', emoji: '🍌', days: 5 },
+];
+
 export default function AddItemModal({ initialData, initialInputMode, onSave, onClose }: AddItemModalProps) {
+  const { t } = useTranslation();
   const { showToast } = useToastStore();
-  const [inputMode, setInputMode] = useState<'manual' | 'photo'>(initialInputMode || 'manual');
+  const [inputMode, setInputMode] = useState<'manual' | 'photo' | 'produce'>(initialInputMode || 'manual');
+  
+  // Produce mode state
+  const [produceItem, setProduceItem] = useState<{ name: string; emoji: string; days: number } | null>(null);
+  const [produceWeight, setProduceWeight] = useState<string>('');
+  const [produceSearch, setProduceSearch] = useState('');
+  const [produceWeightScanning, setProduceWeightScanning] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
   const [category, setCategory] = useState(initialData?.category || 'Altro');
   const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(initialData?.imageUrl || null);
@@ -136,7 +173,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
     };
 
     try {
-      showToast("Comprimo la foto...", "info");
+      showToast(t('add_item.compressing', 'Comprimo la foto...'), "info");
       const base64String = await compressImage(file);
       
       // Funzione helper locale per Blob
@@ -149,7 +186,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         return new Blob([u8arr], {type:mime});
       };
 
-      showToast("Salvataggio foto in cloud...", "info");
+      showToast(t('add_item.uploading', 'Salvataggio foto in cloud...'), "info");
       try {
         const blob = dataURLtoBlob(base64String);
         const fileName = `product_${Date.now()}.jpg`;
@@ -163,7 +200,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         console.warn("Upload immagine fallito:", uploadEx);
       }
 
-      showToast("Analisi in corso...", "info");
+      showToast(t('add_item.analyzing', 'Analisi in corso...'), "info");
       
       const res = await fetch('/api/analyzeImage', {
         method: 'POST',
@@ -175,15 +212,13 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         const aiData = await res.json();
         if (aiData.expiration_date) {
           setExpiry(aiData.expiration_date);
-          showToast("Dati letti con successo dall'AI!", "success");
+          showToast(t('add_item.ai_success', "Dati letti con successo dall'AI!"), "success");
         } else {
-          showToast("Scadenza non trovata in foto. Impostata scadenza stimata.", "info");
+          showToast(t('add_item.ai_no_date', "Scadenza non trovata. Impostata scadenza stimata."), "info");
         }
         if (aiData.name) setName(aiData.name);
         if (aiData.storage_type) setLocation(aiData.storage_type);
-        // Applica health_score dall'AI (prima era ignorato dalla foto)
         if (aiData.health_score && aiData.health_score !== 'Sconosciuto') {
-          // Viene passato tramite onSave -> il campo health_score verrà letto dall'handler
           (window as any).__aiHealthScore = aiData.health_score;
         }
         if (aiData.category) {
@@ -197,18 +232,14 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
           else if (normalized.includes('conserv') || normalized.includes('sug') || normalized.includes('sauce') || normalized.includes('can')) matchedCat = 'Conserve e Sughi';
           else if (normalized.includes('dolc') || normalized.includes('snack') || normalized.includes('sweet')) matchedCat = 'Dolci e Snack';
           else if (normalized.includes('bev') || normalized.includes('drink')) matchedCat = 'Bevande';
-          
           setCategory(matchedCat);
         }
-
-        // Salva temporaneamente i dati estesi per onSave
         if (aiData.brand) (window as any).__aiBrand = aiData.brand;
         if (aiData.ingredients) (window as any).__aiIngredients = aiData.ingredients;
         if (aiData.nutriscore) (window as any).__aiNutriscore = aiData.nutriscore;
         if (aiData.nutritional_info) (window as any).__aiNutritionalInfo = aiData.nutritional_info;
-
       } else {
-        showToast("L'AI non è riuscita a leggere la data. Prova con una foto più nitida.", "error");
+        showToast(t('add_item.ai_error', "L'AI non è riuscita a leggere la foto. Prova con una foto più nitida."), "error");
       }
     } catch (error) {
       console.error("Errore analisi foto:", error);
@@ -217,6 +248,63 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       setScanning(false);
       e.target.value = '';
     }
+  };
+
+  // Handler per il salvataggio diretto dei prodotti a peso (modalità produce)
+  const handleProduceSave = () => {
+    if (!produceItem) { showToast('Seleziona un prodotto', 'error'); return; }
+    const wkg = parseFloat(produceWeight);
+    if (!wkg || wkg <= 0) { showToast('Inserisci il peso', 'error'); return; }
+    const expiryDate = addDays(new Date(), produceItem.days).toISOString().split('T')[0];
+    onSave({
+      custom_name: `${produceItem.emoji} ${produceItem.name}`,
+      barcode: null,
+      expiration_date: expiryDate,
+      purchase_date: new Date().toISOString().split('T')[0],
+      location: 'FRIDGE',
+      quantity: wkg,
+      unit: 'kg',
+      is_frozen: false,
+      health_score: 'Sano',
+      category: 'Verdure e Frutta',
+      image_url: null,
+      brand: null, ingredients: null, nutriscore: null, nutritional_info: null
+    });
+  };
+
+  // Handler AI per lettura peso da etichetta banco
+  const handleProduceWeightScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setProduceWeightScanning(true);
+    showToast(t('add_item.analyzing', 'Analisi peso in corso...'), 'info');
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.readAsDataURL(file);
+        reader.onload = e => resolve(e.target?.result as string);
+        reader.onerror = reject;
+      });
+      const res = await fetch('/api/analyzeImage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mode: 'produce_weight' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.weight_kg) {
+          setProduceWeight(String(data.weight_kg));
+          if (data.produce_name && !produceItem) {
+            const match = PRODUCE_ITEMS.find(p => p.name.toLowerCase().includes(data.produce_name.toLowerCase()));
+            if (match) setProduceItem(match);
+          }
+          showToast(`Peso letto: ${data.weight_kg} kg`, 'success');
+        } else {
+          showToast('Peso non leggibile. Inseriscilo manualmente.', 'info');
+        }
+      }
+    } catch { showToast('Errore lettura etichetta', 'error'); }
+    finally { setProduceWeightScanning(false); e.target.value = ''; }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -240,7 +328,6 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       nutriscore: (window as any).__aiNutriscore || initialData?.nutriscore || null,
       nutritional_info: (window as any).__aiNutritionalInfo || initialData?.nutritional_info || null
     });
-    // Pulizia variabile temporanea
     delete (window as any).__aiHealthScore;
     delete (window as any).__aiBrand;
     delete (window as any).__aiIngredients;
@@ -272,7 +359,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         <div style={{ padding: '0 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600 }}>
-              {initialData?.barcode ? 'Conferma Prodotto' : 'Aggiungi Prodotto'}
+              {initialData?.barcode ? t('add_item.title_confirm', 'Conferma Prodotto') : t('add_item.title_add', 'Aggiungi Prodotto')}
             </h3>
             <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
               <X size={20} />
@@ -303,32 +390,44 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* Doppia Opzione Manuale / Foto */}
+          {/* Toggle Modalità: Manuale / Foto AI / Prodotti a Peso */}
           <div>
-            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '12px' }}>
               <button 
                 type="button" 
                 onClick={() => setInputMode('manual')}
                 style={{
-                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
-                  background: inputMode === 'manual' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  flex: 1, padding: '8px 4px', borderRadius: '8px', border: 'none',
+                  background: inputMode === 'manual' ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  color: 'white', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
               >
-                ✍️ Manuale
+                ✍️ {t('add_item.mode_manual', 'Manuale')}
               </button>
               <button 
                 type="button" 
                 onClick={() => setInputMode('photo')}
                 style={{
-                  flex: 1, padding: '8px', borderRadius: '8px', border: 'none',
+                  flex: 1, padding: '8px 4px', borderRadius: '8px', border: 'none',
                   background: inputMode === 'photo' ? 'rgba(46, 204, 113, 0.2)' : 'transparent',
-                  color: inputMode === 'photo' ? '#2ECC71' : 'white', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  color: inputMode === 'photo' ? '#2ECC71' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
               >
-                📸 Foto Scadenza (AI)
+                📸 {t('add_item.mode_photo', 'Foto AI')}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setInputMode('produce')}
+                style={{
+                  flex: 1, padding: '8px 4px', borderRadius: '8px', border: 'none',
+                  background: inputMode === 'produce' ? 'rgba(34, 197, 94, 0.25)' : 'transparent',
+                  color: inputMode === 'produce' ? '#22C55E' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🥦 {t('add_item.mode_produce', 'A Peso')}
               </button>
             </div>
           </div>
@@ -358,29 +457,160 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 {scanning ? <Loader2 size={24} className="animate-spin" /> : <Camera size={24} />}
               </div>
               <span style={{ fontWeight: 600, color: '#2ECC71', fontSize: '0.9rem' }}>
-                {scanning ? 'Lettura immagine in corso...' : 'Scatta Foto alla Scadenza'}
+                {scanning ? t('add_item.scanning', 'Lettura immagine in corso...') : t('add_item.photo_prompt', 'Scatta Foto alla Scadenza')}
               </span>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center' }}>
-                L\'AI estrarrà automaticamente la scadenza e compilerà i dati.
+                {t('add_item.photo_sub', "L'AI estrarrà automaticamente la scadenza e compilerà i dati.")}
               </span>
             </label>
           )}
 
+          {/* ===== MODALITÀ PRODUCE A PESO ===== */}
+          {inputMode === 'produce' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {/* Search bar prodotti */}
+              <div style={{
+                background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.1)',
+                borderRadius: '14px', padding: '6px 14px',
+                display: 'flex', alignItems: 'center', gap: '10px'
+              }}>
+                <Search size={18} color="rgba(255,255,255,0.4)" />
+                <input
+                  type="text"
+                  placeholder={t('add_item.produce_search', 'Cerca frutto o verdura...')}
+                  value={produceSearch}
+                  onChange={e => setProduceSearch(e.target.value)}
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '0.95rem', padding: '10px 0', outline: 'none' }}
+                />
+              </div>
+
+              {/* Griglia prodotti */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
+                {PRODUCE_ITEMS.filter(p =>
+                  !produceSearch || p.name.toLowerCase().includes(produceSearch.toLowerCase())
+                ).map(item => {
+                  const isSel = produceItem?.name === item.name;
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => { setProduceItem(item); setProduceSearch(''); }}
+                      style={{
+                        padding: '10px 4px', borderRadius: '12px',
+                        border: `1.5px solid ${isSel ? '#22C55E' : 'rgba(255,255,255,0.08)'}`,
+                        background: isSel ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer', display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', gap: '4px',
+                        transform: isSel ? 'scale(1.05)' : 'scale(1)',
+                        transition: 'all 0.2s',
+                        boxShadow: isSel ? '0 4px 12px rgba(34,197,94,0.25)' : 'none'
+                      }}
+                    >
+                      <span style={{ fontSize: '1.5rem' }}>{item.emoji}</span>
+                      <span style={{ color: isSel ? '#22C55E' : 'rgba(255,255,255,0.7)', fontSize: '0.65rem', fontWeight: 600, textAlign: 'center', lineHeight: 1.2 }}>
+                        {item.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Peso selezionato */}
+              {produceItem && (
+                <div style={{
+                  background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                  borderRadius: '16px', padding: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '1.4rem' }}>{produceItem.emoji}</span>
+                    <div>
+                      <div style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>{produceItem.name}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>Scadenza stimata: {produceItem.days} giorni</div>
+                    </div>
+                  </div>
+
+                  {/* Scan etichetta peso AI */}
+                  <label htmlFor="produce-weight-scan" style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    background: 'rgba(34,197,94,0.15)', border: '1.5px dashed rgba(34,197,94,0.5)',
+                    borderRadius: '12px', padding: '12px', cursor: 'pointer', marginBottom: '10px'
+                  }}>
+                    <input type="file" accept="image/*" capture="environment" id="produce-weight-scan"
+                      onChange={handleProduceWeightScan} style={{ display: 'none' }} disabled={produceWeightScanning} />
+                    <div style={{ background: 'rgba(34,197,94,0.2)', padding: '8px', borderRadius: '50%', color: '#22C55E' }}>
+                      {produceWeightScanning ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                    </div>
+                    <div>
+                      <div style={{ color: '#22C55E', fontWeight: 700, fontSize: '0.85rem' }}>
+                        {produceWeightScanning ? t('add_item.scanning', 'Lettura...') : t('add_item.produce_scan_label', 'Fotografa etichetta del banco')}
+                      </div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>
+                        {t('add_item.produce_scan_sub', "L'AI leggerà il peso automaticamente")}
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Input peso manuale */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      flex: 1, background: 'rgba(255,255,255,0.05)', border: `1.5px solid ${produceWeight ? 'rgba(34,197,94,0.6)' : 'rgba(255,255,255,0.1)'}`,
+                      borderRadius: '12px', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '8px'
+                    }}>
+                      <Weight size={18} color={produceWeight ? '#22C55E' : 'rgba(255,255,255,0.3)'} />
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder={t('add_item.produce_weight_placeholder', 'es. 0.550')}
+                        value={produceWeight}
+                        onChange={e => setProduceWeight(e.target.value)}
+                        style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', fontSize: '1.1rem', fontWeight: 700, outline: 'none', padding: '8px 0' }}
+                      />
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '1rem' }}>kg</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pulsante salva produce */}
+              <button
+                type="button"
+                onClick={handleProduceSave}
+                disabled={!produceItem || !produceWeight}
+                style={{
+                  width: '100%', padding: '16px',
+                  background: (produceItem && produceWeight) ? 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)' : 'rgba(255,255,255,0.08)',
+                  border: 'none', borderRadius: '16px',
+                  color: (produceItem && produceWeight) ? '#000' : 'rgba(255,255,255,0.3)',
+                  fontWeight: 800, fontSize: '1rem',
+                  cursor: (produceItem && produceWeight) ? 'pointer' : 'not-allowed',
+                  boxShadow: (produceItem && produceWeight) ? '0 8px 24px rgba(34,197,94,0.35)' : 'none',
+                  transition: 'all 0.3s'
+                }}
+              >
+                🥦 {t('add_item.produce_save', 'Aggiungi al Frigo')}
+              </button>
+            </div>
+          )}
+
+          {inputMode !== 'produce' && (
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Nome Prodotto</label>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.name', 'Nome Prodotto')}</label>
             <input 
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input-field"
-              placeholder="es. Latte Parzialmente Scremato"
+              placeholder={t('add_item.name_placeholder', 'es. Latte Parzialmente Scremato')}
               autoFocus
               required
             />
           </div>
+          )}
 
+          {inputMode !== 'produce' && (
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Categoria</label>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.category', 'Categoria')}</label>
             <select 
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -392,11 +622,12 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
               ))}
             </select>
           </div>
+          )}
 
-          {/* Data di Acquisto e Data di Scadenza */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {/* Data di Acquisto e Data di Scadenza — nascoste in produce mode */}
+          {inputMode !== 'produce' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Data Acquisto</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.purchase_date', 'Data Acquisto')}</label>
               <div style={{ position: 'relative' }}>
                 <Calendar size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input 
@@ -411,7 +642,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Scadenza</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.expiry', 'Scadenza')}</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <Calendar size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -457,10 +688,10 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 </label>
               </div>
             </div>
-          </div>
+          </div>}
 
           {/* Alert Scadenza Barcode */}
-          {initialData?.barcode && (
+          {inputMode !== 'produce' && initialData?.barcode && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.15) 0%, rgba(255, 170, 0, 0.05) 100%)',
               borderLeft: '4px solid #FFAA00',
@@ -473,16 +704,16 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             }}>
               <div style={{ color: '#FFAA00', marginTop: '2px' }}><Calendar size={20} /></div>
               <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', lineHeight: '1.4' }}>
-                <strong style={{ color: '#FFAA00', display: 'block', marginBottom: '2px' }}>Verifica la Scadenza</strong>
-                I codici a barre non contengono la data di scadenza esatta. Controllala sulla confezione reale e aggiustala qui sopra se necessario.
+                <strong style={{ color: '#FFAA00', display: 'block', marginBottom: '2px' }}>{t('add_item.verify_expiry', 'Verifica la Scadenza')}</strong>
+                {t('add_item.verify_expiry_desc', 'I codici a barre non contengono la data di scadenza esatta. Controllala sulla confezione.')}
               </div>
             </div>
           )}
 
-          {/* Quantità e Unità di Misura */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
+          {/* Quantità e Unità di Misura — nascoste in produce mode */}
+          {inputMode !== 'produce' && <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Quantità</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.quantity', 'Quantità')}</label>
               {unit === 'pz' ? (
                 <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-panel)', borderRadius: '12px', padding: '4px', border: '1px solid var(--border)' }}>
                   <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ flex: 1, padding: '10px', background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}>-</button>
@@ -504,7 +735,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Unità</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.unit', 'Unità')}</label>
               <select 
                 value={unit}
                 onChange={(e) => {
@@ -516,16 +747,16 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 className="input-field"
                 style={{ background: 'var(--bg-panel)', color: 'white', border: '1px solid var(--border)', width: '100%', height: '48px', borderRadius: '12px', padding: '0 12px' }}
               >
-                <option value="pz" style={{ background: '#1c1c1e', color: 'white' }}>Pezzi (pz)</option>
-                <option value="kg" style={{ background: '#1c1c1e', color: 'white' }}>Chili (kg)</option>
-                <option value="g" style={{ background: '#1c1c1e', color: 'white' }}>Grammi (g)</option>
-                <option value="l" style={{ background: '#1c1c1e', color: 'white' }}>Litri (l)</option>
+                <option value="pz" style={{ background: '#1c1c1e', color: 'white' }}>{t('add_item.unit_pz', 'Pezzi (pz)')}</option>
+                <option value="kg" style={{ background: '#1c1c1e', color: 'white' }}>{t('add_item.unit_kg', 'Chili (kg)')}</option>
+                <option value="g" style={{ background: '#1c1c1e', color: 'white' }}>{t('add_item.unit_g', 'Grammi (g)')}</option>
+                <option value="l" style={{ background: '#1c1c1e', color: 'white' }}>{t('add_item.unit_l', 'Litri (l)')}</option>
               </select>
             </div>
-          </div>
+          </div>}
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Dove lo conservi?</label>
+          {inputMode !== 'produce' && <div>
+            <label style={{ display: 'block', marginBottom: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('add_item.location', 'Dove lo conservi?')}</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
               <button 
                 type="button" 
@@ -539,7 +770,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 }}
               >
                 <Refrigerator size={24} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Frigo</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{t('add_item.loc_fridge', 'Frigo')}</span>
               </button>
 
               <button 
@@ -554,7 +785,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 }}
               >
                 <Box size={24} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Freezer</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{t('add_item.loc_freezer', 'Freezer')}</span>
               </button>
               
               <button 
@@ -569,14 +800,14 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 }}
               >
                 <Box size={24} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dispensa</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{t('add_item.loc_pantry', 'Dispensa')}</span>
               </button>
             </div>
-          </div>
+          </div>}
 
-          <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
-            Salva Prodotto
-          </button>
+          {inputMode !== 'produce' && <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
+            {t('add_item.save', 'Salva Prodotto')}
+          </button>}
         </form>
         </div>
       </div>

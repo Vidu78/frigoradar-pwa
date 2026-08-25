@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { X, FlipHorizontal2 } from 'lucide-react';
+import { X, FlipHorizontal2, ScanBarcode, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface BarcodeScannerProps {
   onScan: (decodedText: string) => void;
@@ -13,6 +14,7 @@ interface BarcodeScannerProps {
  * Nessuna UI di html5-qrcode viene mai montata nel DOM visibile.
  */
 export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -22,6 +24,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [ready, setReady] = useState(false);
+  const [detected, setDetected] = useState(false);
 
   // Ferma stream e detection loop
   const stopAll = useCallback(() => {
@@ -76,7 +79,8 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           const results = await detector.detect(videoRef.current);
           if (results.length > 0 && results[0].rawValue) {
             isScanning.current = false;
-            onScan(results[0].rawValue);
+            setDetected(true);
+            setTimeout(() => onScan(results[0].rawValue), 300);
             return;
           }
         } catch { /* frame non ancora pronto, ignora */ }
@@ -116,7 +120,8 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           const result = await scannerRef.current!.scanFile(file, false);
           if (result) {
             isScanning.current = false;
-            onScan(result);
+            setDetected(true);
+            setTimeout(() => onScan(result), 300);
             return;
           }
         } catch { /* nessun codice in questo frame, continua */ }
@@ -164,7 +169,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
       <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 1000, overflow: 'hidden' }}>
 
-        {/* Video — pieno schermo, nessun canvas sovrapposto */}
+        {/* Video — pieno schermo */}
         <video
           ref={videoRef}
           autoPlay
@@ -177,36 +182,52 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           }}
         />
 
-        {/* Overlay: fasce scure attorno alla cornice */}
+        {/* Overlay scuro attorno alla cornice */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
-          {/* top */}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'calc(50% + 90px)', background: 'rgba(0,0,0,0.58)' }} />
-          {/* bottom */}
-          <div style={{ position: 'absolute', top: 'calc(50% + 90px)', left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.58)' }} />
-          {/* left */}
-          <div style={{ position: 'absolute', top: 'calc(50% - 90px)', bottom: 'calc(50% - 90px)', left: 0, width: 'calc(50% - 135px)', background: 'rgba(0,0,0,0.58)' }} />
-          {/* right */}
-          <div style={{ position: 'absolute', top: 'calc(50% - 90px)', bottom: 'calc(50% - 90px)', right: 0, width: 'calc(50% - 135px)', background: 'rgba(0,0,0,0.58)' }} />
+          {/* fasce scure */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'calc(50% + 90px)', background: 'rgba(0,0,0,0.65)' }} />
+          <div style={{ position: 'absolute', top: 'calc(50% + 90px)', left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.65)' }} />
+          <div style={{ position: 'absolute', top: 'calc(50% - 90px)', bottom: 'calc(50% - 90px)', left: 0, width: 'calc(50% - 135px)', background: 'rgba(0,0,0,0.65)' }} />
+          <div style={{ position: 'absolute', top: 'calc(50% - 90px)', bottom: 'calc(50% - 90px)', right: 0, width: 'calc(50% - 135px)', background: 'rgba(0,0,0,0.65)' }} />
 
-          {/* Cornice con angoli bianchi (270 × 180, centrata) */}
+          {/* Cornice premium 270×180 centrata */}
           <div style={{ position: 'absolute', left: 'calc(50% - 135px)', top: 'calc(50% - 90px)', width: 270, height: 180 }}>
-            {/* angolo top-left */}
-            <div style={{ position: 'absolute', top: 0, left: 0, width: 32, height: 32, borderTop: '3px solid #fff', borderLeft: '3px solid #fff', borderRadius: '4px 0 0 0' }} />
-            {/* angolo top-right */}
-            <div style={{ position: 'absolute', top: 0, right: 0, width: 32, height: 32, borderTop: '3px solid #fff', borderRight: '3px solid #fff', borderRadius: '0 4px 0 0' }} />
-            {/* angolo bottom-left */}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, width: 32, height: 32, borderBottom: '3px solid #fff', borderLeft: '3px solid #fff', borderRadius: '0 0 0 4px' }} />
-            {/* angolo bottom-right */}
-            <div style={{ position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, borderBottom: '3px solid #fff', borderRight: '3px solid #fff', borderRadius: '0 0 4px 0' }} />
+            {/* angoli neon verde con glow */}
+            {[
+              { top: 0, left: 0, borderTop: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderLeft: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRadius: '6px 0 0 0' },
+              { top: 0, right: 0, borderTop: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRight: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRadius: '0 6px 0 0' },
+              { bottom: 0, left: 0, borderBottom: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderLeft: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRadius: '0 0 0 6px' },
+              { bottom: 0, right: 0, borderBottom: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRight: `3px solid ${detected ? '#00FFAA' : '#00FFAA'}`, borderRadius: '0 0 6px 0' },
+            ].map((style, i) => (
+              <div key={i} style={{
+                position: 'absolute', width: 36, height: 36,
+                boxShadow: detected ? '0 0 12px #00FFAA, 0 0 24px #00FFAA44' : '0 0 8px #00FFAA88',
+                ...style
+              }} />
+            ))}
 
-            {/* Linea scanner animata — compare solo quando la camera è pronta */}
-            {ready && (
+            {/* Linea scanner animata */}
+            {ready && !detected && (
               <div style={{
                 position: 'absolute', left: 12, right: 12, height: 2,
                 background: 'linear-gradient(90deg, transparent, #00FFAA 30%, #00FFAA 70%, transparent)',
                 borderRadius: 2,
+                boxShadow: '0 0 8px #00FFAA',
                 animation: 'scanLine 2s ease-in-out infinite',
               }} />
+            )}
+
+            {/* Feedback visivo: detected */}
+            {detected && (
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'rgba(0,255,170,0.12)',
+                borderRadius: '4px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: 'fadeIn 0.2s ease'
+              }}>
+                <div style={{ color: '#00FFAA', fontSize: '2rem' }}>✓</div>
+              </div>
             )}
           </div>
 
@@ -219,41 +240,96 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             padding: '0 48px',
           }}>
             <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', textAlign: 'center' }}>
-              Posiziona il codice a barre all'interno della cornice
+              {t('scanner.tip', 'Posiziona il codice a barre all\'interno della cornice')}
             </span>
             <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.78rem', textAlign: 'center' }}>
-              Assicurati che l'immagine sia nitida e il codice ben illuminato.
+              {t('scanner.tip_sub', 'Assicurati che l\'immagine sia nitida e ben illuminata')}
             </span>
           </div>
         </div>
 
-        {/* Pulsante chiudi — top-left */}
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute', top: 'calc(16px + env(safe-area-inset-top, 0px))', left: 16, zIndex: 10,
-            background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff',
-            width: 44, height: 44, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', backdropFilter: 'blur(10px)',
-          }}
-        >
-          <X size={22} />
-        </button>
+        {/* HEADER PREMIUM — sopra il video */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+          padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 16px',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        }}>
+          {/* Pulsante chiudi */}
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', width: 44, height: 44, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(10px)',
+            }}
+          >
+            <X size={22} />
+          </button>
 
-        {/* Pulsante flip camera — top-right */}
-        <button
-          onClick={handleFlip}
-          style={{
-            position: 'absolute', top: 'calc(16px + env(safe-area-inset-top, 0px))', right: 16, zIndex: 10,
-            background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff',
-            width: 44, height: 44, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', backdropFilter: 'blur(10px)',
-          }}
-        >
-          <FlipHorizontal2 size={22} />
-        </button>
+          {/* Titolo + Badge */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <ScanBarcode size={18} color="#00FFAA" />
+              <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem' }}>
+                {t('scanner.title', 'Scansiona Barcode')}
+              </span>
+            </div>
+            <div style={{
+              background: 'rgba(0,255,170,0.15)', border: '1px solid rgba(0,255,170,0.4)',
+              borderRadius: '20px', padding: '2px 10px',
+              color: '#00FFAA', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px'
+            }}>
+              {ready ? (detected ? '✓ LETTO' : '● ATTIVO') : '○ AVVIO...'}
+            </div>
+          </div>
+
+          {/* Pulsante flip */}
+          <button
+            onClick={handleFlip}
+            style={{
+              background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', width: 44, height: 44, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(10px)',
+            }}
+          >
+            <FlipHorizontal2 size={22} />
+          </button>
+        </div>
+
+        {/* PANNELLO INFERIORE GLASS */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
+          background: 'linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 70%, transparent 100%)',
+          backdropFilter: 'blur(2px)',
+          padding: '24px 24px calc(32px + env(safe-area-inset-bottom, 0px))',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16
+        }}>
+          {/* Indicatori formato supportato */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {['EAN-13', 'EAN-8', 'CODE-128', 'QR', 'UPC'].map(fmt => (
+              <span key={fmt} style={{
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '6px', padding: '3px 8px',
+                color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', fontWeight: 600
+              }}>{fmt}</span>
+            ))}
+          </div>
+
+          {/* Stato scanner */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Zap size={16} color={ready ? '#00FFAA' : 'rgba(255,255,255,0.3)'} />
+            <span style={{ color: ready ? '#00FFAA' : 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>
+              {detected
+                ? '✓ Codice rilevato!'
+                : ready
+                  ? t('scanner.tip', 'Inquadra il codice a barre')
+                  : t('scanner.searching', 'Avvio fotocamera...')}
+            </span>
+          </div>
+        </div>
 
         <style>{`
           @keyframes scanLine {
@@ -261,6 +337,10 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             8%   { opacity: 1; }
             92%  { opacity: 1; }
             100% { top: calc(100% - 10px); opacity: 0; }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
           }
         `}</style>
       </div>
