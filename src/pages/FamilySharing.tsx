@@ -61,6 +61,9 @@ export default function FamilySharing() {
 
       if (updateError) throw updateError;
       
+      // Elimina il codice usato per non far crescere la tabella all'infinito
+      await supabase.from('family_invites').delete().eq('code', joinCode.toUpperCase());
+      
       setSuccess("Frigoriferi sincronizzati con successo! Riavvia l'app.");
     } catch (err: any) {
       setError(err.message);

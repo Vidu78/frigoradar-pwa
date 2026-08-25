@@ -78,7 +78,7 @@ const AppContainer = () => {
         {activeTab === 'profile' && <Profile />}
         {activeTab === 'family' && <FamilySharing />}
       </div>
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onScanClick={() => console.log('scan')} />
+      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
@@ -119,10 +119,10 @@ function App() {
       console.log(`Aggiornamento app rilevato alla versione ${CURRENT_APP_VERSION}. Pulizia cache in corso...`);
       localStorage.setItem('appVersion', CURRENT_APP_VERSION);
       
-      if ('caches' in window) {
-        caches.keys().then((names) => {
+      if (window.caches) {
+        window.caches.keys().then((names) => {
           for (const name of names) {
-            caches.delete(name);
+            window.caches.delete(name);
           }
         }).then(() => {
           window.location.reload();

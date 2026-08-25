@@ -25,6 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Nessun ingrediente fornito.' });
   }
 
+  // Limite di sicurezza: max 50 ingredienti per prevenire abuso di token
+  const safeItems = items.slice(0, 50);
+
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -46,7 +49,7 @@ LIVELLO RICETTA RICHIESTO: ${diffLabel}
 PRIORITÀ ALIMENTI: ${priorityLabel}
 
 INGREDIENTI DISPONIBILI (Usa prevalentemente questi. Puoi assumere che l'utente abbia in dispensa ingredienti base come sale, pepe, olio d'oliva, acqua, aceto):
-${items.map((i: any) => `- ${i.name} (Quantità: ${i.quantity}, Scadenza: ${i.expiration_date}, ID: ${i.original_id})`).join('\n')}
+${safeItems.map((i: any) => `- ${i.name} (Quantità: ${i.quantity}, Scadenza: ${i.expiration_date}, ID: ${i.original_id})`).join('\n')}
 
 REGOLE DEL PROMPT DA CHEF STELLATO:
 1. ISPIRAZIONE REGIONALE: Dai un tocco regionale marcato (es. pugliese, toscano, campano, ecc.) alla ricetta, menzionando l'ispirazione.

@@ -175,6 +175,11 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         }
         if (aiData.name) setName(aiData.name);
         if (aiData.storage_type) setLocation(aiData.storage_type);
+        // Applica health_score dall'AI (prima era ignorato dalla foto)
+        if (aiData.health_score && aiData.health_score !== 'Sconosciuto') {
+          // Viene passato tramite onSave -> il campo health_score verrà letto dall'handler
+          (window as any).__aiHealthScore = aiData.health_score;
+        }
         if (aiData.category) {
           const normalized = aiData.category.toLowerCase();
           let matchedCat = 'Altro';
@@ -214,10 +219,12 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       quantity: quantity,
       unit: unit,
       is_frozen: location === 'FREEZER',
-      health_score: initialData?.health_score || null,
+      health_score: (window as any).__aiHealthScore || initialData?.health_score || null,
       category: category,
       image_url: scannedImageUrl || initialData?.imageUrl || null
     });
+    // Pulizia variabile temporanea
+    delete (window as any).__aiHealthScore;
   };
 
   return (

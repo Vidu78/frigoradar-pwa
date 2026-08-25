@@ -1,15 +1,14 @@
-import { Refrigerator, User, ScanBarcode, ChefHat, ShoppingCart } from 'lucide-react';
+import { Refrigerator, User, ChefHat, ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export type TabType = 'fridge' | 'shopping' | 'recipes' | 'profile';
+export type TabType = 'fridge' | 'shopping' | 'recipes' | 'profile' | 'family';
 
 interface BottomNavigationProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onScanClick: () => void;
 }
 
-export default function BottomNavigation({ activeTab, onTabChange, onScanClick }: BottomNavigationProps) {
+export default function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   const { t } = useTranslation();
 
   return (
