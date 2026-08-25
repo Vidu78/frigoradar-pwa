@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
+import { useShoppingStore } from '../store/shoppingStore';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt, ChefHat } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
 import ProductDetailModal from '../components/ProductDetailModal';
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const { session, signOut, updateStats } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
+  const { addItem: addShoppingItem } = useShoppingStore();
   const { showToast } = useToastStore();
   
   const [showScanner, setShowScanner] = useState(false);
@@ -62,6 +64,11 @@ export default function Dashboard() {
     
     if (isConsumed) {
       updateStats('SAVED', 2.5);
+      const addToShopping = window.confirm(`Bravo! Vuoi aggiungere "${name}" alla tua Lista della Spesa per non dimenticare di ricomprarlo? 🛒`);
+      if (addToShopping) {
+        await addShoppingItem(name, 1);
+        showToast("Prodotto aggiunto alla lista della spesa!");
+      }
     } else {
       updateStats('WASTED', 2.5);
     }
@@ -287,16 +294,15 @@ export default function Dashboard() {
         <div 
           className="glass-panel" 
           onClick={() => {
-            setAiProductData(null);
-            setInitialInputMode('manual');
-            setShowAddModal(true);
+            const event = new CustomEvent('changeTab', { detail: 'recipes' });
+            document.dispatchEvent(event);
           }}
-          style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s' }}
+          style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s', border: '1px solid rgba(255, 170, 0, 0.3)', background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.1) 0%, rgba(255, 170, 0, 0.02) 100%)' }}
         >
-          <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '14px', borderRadius: '50%' }}>
-            <Plus size={28} color="var(--accent)" />
+          <div style={{ background: 'rgba(255, 170, 0, 0.2)', padding: '14px', borderRadius: '50%' }}>
+            <ChefHat size={28} color="#FFAA00" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>Manuale</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#FFAA00' }}>Ricette AI</span>
         </div>
       </div>
 

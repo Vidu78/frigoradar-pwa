@@ -45,7 +45,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const prompt = `
 AGISCI COME: Database Architect e Cassiere Virtuale specializzato in scontrini della GDO italiana.
-COMPITO: Analizza lo scontrino della spesa fornito. Estrai l'elenco dei prodotti alimentari acquistati, ignorando buste, sconti, voci non alimentari (es. detersivi, carta igienica) e i subtotali.
+COMPITO: Analizza lo scontrino della spesa fornito. Estrai l'elenco dei prodotti alimentari acquistati. 
+ATTENZIONE (REGOLE TASSATIVE):
+1. Devi IGNORARE E SCARTARE in modo categorico qualsiasi prodotto NON ALIMENTARE (es. detersivi, saponi, shampoo, dentifricio, cura della casa, carta igienica, profumi, pile, cancelleria, abbigliamento, farmaci). Se non si mangia e non si beve, SCARTALO. L'app gestisce SOLO ED ESCLUSIVAMENTE cibo e bevande da mettere in frigo o in dispensa.
+2. Ignora buste, sconti, ticket, buoni pasto, resi e i subtotali.
 
 Per ogni prodotto trovato:
 1. "raw_name": Il nome esatto letto dallo scontrino (es. "POM PEL MUTTI").
