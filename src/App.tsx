@@ -48,12 +48,12 @@ const AppContainer = () => {
   };
 
   return (
-    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <Toast />
       
       {/* PWA Install Banner */}
       {deferredPrompt && (
-        <div style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #27AE60 100%)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1000, position: 'relative' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #27AE60 100%)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1000, position: 'relative', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'black' }} onClick={handleInstallApp}>
             <Download size={20} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -67,8 +67,11 @@ const AppContainer = () => {
         </div>
       )}
 
-      <PendingRecipeBanner />
-      <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ flexShrink: 0 }}>
+        <PendingRecipeBanner />
+      </div>
+      
+      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', position: 'relative' }}>
         {activeTab === 'fridge' && <Dashboard />}
         {activeTab === 'shopping' && <ShoppingList />}
         {activeTab === 'recipes' && <AiRecipes />}
@@ -109,7 +112,27 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
-    initialize();
+    const CURRENT_APP_VERSION = '2.2'; // Cambiare questo per forzare pulizia cache sui device
+    const storedVersion = localStorage.getItem('appVersion');
+    
+    if (storedVersion !== CURRENT_APP_VERSION) {
+      console.log(`Aggiornamento app rilevato alla versione ${CURRENT_APP_VERSION}. Pulizia cache in corso...`);
+      localStorage.setItem('appVersion', CURRENT_APP_VERSION);
+      
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          for (const name of names) {
+            caches.delete(name);
+          }
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
+    } else {
+      initialize();
+    }
   }, []);
 
   return (
