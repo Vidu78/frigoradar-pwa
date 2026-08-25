@@ -5,6 +5,7 @@ import { addDays } from 'date-fns';
 import AddItemModal from './AddItemModal';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
+import { useLoyaltyStore } from '../store/loyaltyStore';
 
 interface ReceiptScannerModalProps {
   onClose: () => void;
@@ -85,7 +86,31 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           }));
           setItems(itemsWithState);
           setStep('review');
+          setStep('review');
           showToast(`Trovati ${itemsWithState.length} prodotti!`, "success");
+          
+          // Gestione Punti e Sconti Fedeltà
+          if (data.store_name) {
+            const loyaltyStore = useLoyaltyStore.getState();
+            // Assicuriamoci di avere le carte caricate
+            if (loyaltyStore.cards.length === 0) await loyaltyStore.fetchCards();
+            
+            const match = loyaltyStore.cards.find(c => 
+              c.store_name.toLowerCase().includes(data.store_name.toLowerCase()) || 
+              data.store_name.toLowerCase().includes(c.store_name.toLowerCase())
+            );
+            
+            if (match) {
+              if (data.loyalty_points !== undefined && data.loyalty_points !== null) {
+                await loyaltyStore.updatePoints(match.id, data.loyalty_points);
+                showToast(`Aggiornati ${data.loyalty_points} punti ${match.store_name}!`, "success");
+              }
+              if (data.discounts && Array.isArray(data.discounts) && data.discounts.length > 0) {
+                await loyaltyStore.addDiscounts(data.discounts, match.id, match.store_name);
+                showToast(`Trovati ${data.discounts.length} sconti per ${match.store_name}!`, "success");
+              }
+            }
+          }
           
           // Salvataggio scontrino in background
           if (session?.user?.id) {

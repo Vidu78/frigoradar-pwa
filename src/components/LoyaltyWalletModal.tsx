@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLoyaltyStore } from '../store/loyaltyStore';
-import { X, Plus, Trash2, CreditCard } from 'lucide-react';
+import { X, Plus, Trash2, CreditCard, Camera, Tag } from 'lucide-react';
 import Barcode from 'react-barcode';
 import BarcodeScanner from './BarcodeScanner';
+import { useToastStore } from '../store/toastStore';
 
 interface LoyaltyWalletModalProps {
   onClose: () => void;
@@ -22,15 +23,38 @@ const SUPERMARKETS = [
 ];
 
 export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps) {
-  const { cards, fetchCards, addCard, deleteCard, loading } = useLoyaltyStore();
+  const { cards, discounts, fetchCards, fetchDiscounts, addCard, deleteCard, addPaperDiscount, loading } = useLoyaltyStore();
+  const { showToast } = useToastStore();
   const [isScanning, setIsScanning] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState(SUPERMARKETS[0]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  
+  // Per i coupon cartacei
+  const [uploadingDiscount, setUploadingDiscount] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCards();
-  }, [fetchCards]);
+    fetchDiscounts();
+  }, [fetchCards, fetchDiscounts]);
+
+  const handlePhotoScan = async (e: React.ChangeEvent<HTMLInputElement>, cardId: string, storeName: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingDiscount(cardId);
+    showToast("Salvataggio sconto...", "info");
+    try {
+      // Per semplicità inseriamo un nome di default, potremmo chiedere all'utente
+      await addPaperDiscount(file, "Sconto Cartaceo/Volantino", "", cardId, storeName);
+      showToast("Sconto salvato con successo!", "success");
+    } catch (err) {
+      showToast("Errore durante il salvataggio", "error");
+    } finally {
+      setUploadingDiscount(null);
+      e.target.value = '';
+    }
+  };
 
   const handleScan = (value: string) => {
     setScannedBarcode(value);
@@ -131,6 +155,8 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
             cards.map(card => {
               const isExpanded = expandedCardId === card.id;
               const textColor = card.color === '#FFD700' ? 'black' : 'white';
+              const cardDiscounts = discounts.filter(d => d.loyalty_card_id === card.id);
+              
               
               return (
                 <div 
@@ -150,8 +176,13 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
                     zIndex: isExpanded ? 10 : 1
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isExpanded ? '20px' : '0' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>{card.store_name}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isExpanded ? '20px' : '0' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>{card.store_name}</h3>
+                      <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.8, marginTop: '4px' }}>
+                        {card.points_balance > 0 ? `${card.points_balance} Punti` : 'Nessun punto'}
+                      </p>
+                    </div>
                     {isExpanded && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); deleteCard(card.id); }}
@@ -163,15 +194,55 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
                   </div>
                   
                   {isExpanded && (
-                    <div style={{ background: 'white', padding: '15px', borderRadius: '12px', textAlign: 'center', marginTop: '10px' }}>
-                      <Barcode 
-                        value={card.barcode_value} 
-                        background="transparent" 
-                        lineColor="black"
-                        width={2} 
-                        height={80} 
-                        displayValue={true} 
-                      />
+                    <div style={{ marginTop: '10px' }}>
+                      <div style={{ background: 'white', padding: '15px', borderRadius: '12px', textAlign: 'center', marginBottom: '16px' }}>
+                        <Barcode 
+                          value={card.barcode_value} 
+                          background="transparent" 
+                          lineColor="black"
+                          width={2} 
+                          height={80} 
+                          displayValue={true} 
+                        />
+                      </div>
+                      
+                      <div style={{ borderTop: `1px solid ${textColor}40`, paddingTop: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h4 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Tag size={16} /> Sconti ({cardDiscounts.length})
+                          </h4>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', background: 'rgba(0,0,0,0.2)', padding: '6px 10px', borderRadius: '12px', cursor: 'pointer' }}>
+                            <Camera size={14} /> Fotografa
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              capture="environment"
+                              onChange={(e) => handlePhotoScan(e, card.id, card.store_name)}
+                              style={{ display: 'none' }}
+                              disabled={uploadingDiscount === card.id}
+                            />
+                          </label>
+                        </div>
+
+                        {cardDiscounts.length === 0 ? (
+                          <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: 0 }}>Nessuno sconto salvato.</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {cardDiscounts.map(disc => (
+                              <div key={disc.id} style={{ background: 'rgba(0,0,0,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <strong>{disc.discount_amount || disc.description}</strong>
+                                  <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>{disc.expiration_date ? `Scade: ${disc.expiration_date}` : ''}</span>
+                                </div>
+                                {disc.discount_amount && <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>{disc.description}</div>}
+                                {disc.image_url && (
+                                  <a href={disc.image_url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '8px', fontSize: '0.8rem', color: textColor, textDecoration: 'underline' }}>Vedi Foto</a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
