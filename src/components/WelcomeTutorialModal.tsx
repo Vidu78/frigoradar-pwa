@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layers, ScanBarcode, ChefHat, Receipt } from 'lucide-react';
+import { Layers, ScanBarcode, ChefHat, Receipt, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 interface WelcomeTutorialModalProps {
   onComplete: () => void;
