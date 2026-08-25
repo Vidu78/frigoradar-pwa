@@ -26,8 +26,10 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
   const { cards, discounts, fetchCards, fetchDiscounts, addCard, deleteCard, addPaperDiscount, loading } = useLoyaltyStore();
   const { showToast } = useToastStore();
   const [isScanning, setIsScanning] = useState(false);
+  const [isAddingManual, setIsAddingManual] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState(SUPERMARKETS[0]);
+  const [customStoreName, setCustomStoreName] = useState("");
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   
   // Per i coupon cartacei
@@ -63,8 +65,11 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
 
   const handleSaveCard = async () => {
     if (!scannedBarcode) return;
-    await addCard(selectedSupermarket.name, scannedBarcode, selectedSupermarket.color);
+    const finalName = selectedSupermarket.name === 'Altro' && customStoreName.trim() ? customStoreName.trim() : selectedSupermarket.name;
+    await addCard(finalName, scannedBarcode, selectedSupermarket.color);
     setScannedBarcode(null);
+    setIsAddingManual(false);
+    setCustomStoreName("");
   };
 
   if (isScanning) {
@@ -85,18 +90,40 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
     );
   }
 
-  if (scannedBarcode) {
+  if (isAddingManual || scannedBarcode) {
     return (
       <div className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
             <h3>Salva Carta Fedeltà</h3>
-            <button onClick={() => setScannedBarcode(null)} className="icon-button"><X size={24} /></button>
+            <button onClick={() => { setScannedBarcode(null); setIsAddingManual(false); }} className="icon-button"><X size={24} /></button>
           </div>
           <div style={{ padding: '20px 0' }}>
-            <div style={{ background: 'white', padding: '10px', borderRadius: '12px', textAlign: 'center', marginBottom: '20px' }}>
-               <Barcode value={scannedBarcode} background="transparent" width={1.5} height={60} />
+            
+            <button 
+              className="secondary-button" 
+              onClick={() => setIsScanning(true)}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', padding: '12px', marginBottom: '20px' }}
+            >
+              <Camera size={20} /> Scansiona con Fotocamera
+            </button>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label className="input-label">Oppure inserisci il codice manualmente</label>
+              <input 
+                type="text" 
+                className="ios-input" 
+                placeholder="Es. 1234567890123"
+                value={scannedBarcode || ""}
+                onChange={(e) => setScannedBarcode(e.target.value)}
+              />
             </div>
+
+            {scannedBarcode && (
+              <div style={{ background: 'white', padding: '10px', borderRadius: '12px', textAlign: 'center', marginBottom: '20px' }}>
+                 <Barcode value={scannedBarcode} background="transparent" width={1.5} height={60} />
+              </div>
+            )}
             
             <label className="input-label">Seleziona il supermercato</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginTop: '10px' }}>
@@ -120,11 +147,24 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
               ))}
             </div>
 
+            {selectedSupermarket.name === 'Altro' && (
+              <div style={{ marginTop: '16px' }}>
+                <label className="input-label">Nome Carta (Opzionale)</label>
+                <input 
+                  type="text" 
+                  className="ios-input" 
+                  placeholder="Es. Palestra, Ikea..."
+                  value={customStoreName}
+                  onChange={(e) => setCustomStoreName(e.target.value)}
+                />
+              </div>
+            )}
+
             <button 
               className="primary-button" 
               style={{ marginTop: '24px', width: '100%' }}
               onClick={handleSaveCard}
-              disabled={loading}
+              disabled={loading || !scannedBarcode}
             >
               {loading ? 'Salvataggio...' : 'Salva Carta'}
             </button>
@@ -253,7 +293,7 @@ export default function LoyaltyWalletModal({ onClose }: LoyaltyWalletModalProps)
 
         <button 
           className="primary-button" 
-          onClick={() => setIsScanning(true)}
+          onClick={() => setIsAddingManual(true)}
           style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', padding: '16px' }}
         >
           <Plus /> Aggiungi Carta
