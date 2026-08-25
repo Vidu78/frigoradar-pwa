@@ -1,14 +1,19 @@
-import { X, Plus, Minus, Flame, Box, ShieldCheck, Heart, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { X, Plus, Minus, Flame, Box, ShieldCheck, Heart, AlertTriangle, ScanBarcode } from 'lucide-react';
 import { getExpirationStatus } from '../utils/expirationEngine';
+import BarcodeScannerModal from './BarcodeScannerModal';
+import { supabase } from '../lib/supabase';
 
 interface ProductDetailModalProps {
   item: any;
   onClose: () => void;
   onUpdateQuantity: (id: string, newQuantity: number) => void;
   onDelete: (id: string, name: string) => void;
+  onRefreshItem: () => void;
 }
 
-export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete }: ProductDetailModalProps) {
+export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete, onRefreshItem }: ProductDetailModalProps) {
+  const [showScanner, setShowScanner] = useState(false);
   const expInfo = getExpirationStatus(item.expiration_date);
 
   const handleIncrement = () => {
@@ -20,6 +25,43 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
     const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
     const minVal = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
     onUpdateQuantity(item.id, Math.max(minVal, parseFloat((item.quantity - step).toFixed(2))));
+  };
+
+  const handleBarcodeSuccess = async (barcode: string) => {
+    setShowScanner(false);
+    try {
+      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const data = await res.json();
+      
+      if (data.status === 1) {
+        const product = data.product;
+        
+        const updates: any = {};
+        if (product.brands) updates.brand = product.brands.split(',')[0];
+        if (product.nutriments?.['energy-kcal_100g']) updates.nutritional_info = { calories_per_100g: product.nutriments['energy-kcal_100g'] };
+        if (product.nutrition_grades) updates.nutriscore = product.nutrition_grades.toUpperCase();
+        if (product.ingredients_text_it || product.ingredients_text) updates.ingredients = product.ingredients_text_it || product.ingredients_text;
+        if (product.image_url && !item.image_url) updates.image_url = product.image_url;
+
+        // Determine health score based on nutriscore
+        if (updates.nutriscore) {
+          if (['A', 'B'].includes(updates.nutriscore)) updates.health_score = 'Sano';
+          else if (updates.nutriscore === 'C') updates.health_score = 'Moderato';
+          else updates.health_score = 'Da Limitare';
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await supabase.from('inventory_items').update(updates).eq('id', item.id);
+          onRefreshItem(); // Chiama la ricarica dati nel genitore
+        } else {
+          alert('Prodotto trovato, ma nessun dato nutrizionale utile estratto.');
+        }
+      } else {
+        alert('Prodotto non trovato nel database mondiale.');
+      }
+    } catch (e) {
+      alert('Errore durante la ricerca del codice a barre.');
+    }
   };
 
   const calories = item.nutritional_info?.calories_per_100g || item.nutritional_info?.calories || null;
@@ -130,14 +172,23 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             )}
             
             {(!item.brand && !item.ingredients && !calories) && (
-              <div style={{ marginTop: '16px', background: 'rgba(255,159,10,0.1)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,159,10,0.2)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <AlertTriangle size={20} color="#FF9F0A" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <h4 style={{ color: '#FF9F0A', margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Dati Nutrizionali Assenti</h4>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem', lineHeight: '1.4' }}>
-                    Aggiungi un'immagine più nitida con l'AI o scansiona un codice a barre per compilare automaticamente i valori nutrizionali e la composizione.
-                  </p>
+              <div style={{ marginTop: '16px', background: 'rgba(255,159,10,0.1)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,159,10,0.2)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <AlertTriangle size={20} color="#FF9F0A" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h4 style={{ color: '#FF9F0A', margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Dati Nutrizionali Assenti</h4>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem', lineHeight: '1.4' }}>
+                      Scansiona il codice a barre per compilare automaticamente i valori nutrizionali, il NutriScore e gli ingredienti tramite OpenFoodFacts.
+                    </p>
+                  </div>
                 </div>
+                <button 
+                  onClick={() => setShowScanner(true)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#FF9F0A', color: 'black', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                >
+                  <ScanBarcode size={20} />
+                  Scansiona Codice a Barre
+                </button>
               </div>
             )}
           </div>
@@ -156,6 +207,13 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
 
         </div>
       </div>
+
+      {showScanner && (
+        <BarcodeScannerModal 
+          onClose={() => setShowScanner(false)}
+          onSuccess={handleBarcodeSuccess}
+        />
+      )}
 
       <style>{`
         @keyframes slideUpModal {

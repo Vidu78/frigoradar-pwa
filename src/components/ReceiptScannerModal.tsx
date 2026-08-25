@@ -3,6 +3,8 @@ import { X, Camera, Loader2, Check, Receipt, AlertTriangle } from 'lucide-react'
 import { useToastStore } from '../store/toastStore';
 import { addDays } from 'date-fns';
 import AddItemModal from './AddItemModal';
+import { useAuthStore } from '../store/authStore';
+import { supabase } from '../lib/supabase';
 
 interface ReceiptScannerModalProps {
   onClose: () => void;
@@ -10,6 +12,7 @@ interface ReceiptScannerModalProps {
 }
 
 export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScannerModalProps) {
+  const { session } = useAuthStore();
   const { showToast } = useToastStore();
   const [scanning, setScanning] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -83,6 +86,28 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           setItems(itemsWithState);
           setStep('review');
           showToast(`Trovati ${itemsWithState.length} prodotti!`, "success");
+          
+          // Salvataggio scontrino in background
+          if (session?.user?.id) {
+            const fileName = `${session.user.id}/${Date.now()}.jpg`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('receipts')
+              .upload(fileName, file);
+              
+            if (!uploadError && uploadData) {
+              const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(fileName);
+              const totalAmount = data.items.reduce((acc: number, item: any) => acc + (item.price || 0) * (item.quantity || 1), 0);
+              
+              await supabase.from('receipts').insert({
+                user_id: session.user.id,
+                store_name: "Scontrino Scansionato",
+                total_amount: totalAmount,
+                items_count: data.items.length,
+                image_url: urlData.publicUrl
+              });
+            }
+          }
+
         } else {
           showToast("Nessun prodotto alimentare trovato nello scontrino.", "error");
         }

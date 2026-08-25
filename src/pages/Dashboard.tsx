@@ -508,6 +508,7 @@ export default function Dashboard() {
           onDelete={(id, name) => {
             handleDeleteWithStats(id, name);
           }}
+          onRefreshItem={fetchItems}
         />
       )}
 

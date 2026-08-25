@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
 
@@ -23,9 +23,32 @@ export default function Profile() {
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showReceiptsModal, setShowReceiptsModal] = useState(false);
   
+  const [receipts, setReceipts] = useState<any[]>([]);
+  const [loadingReceipts, setLoadingReceipts] = useState(false);
+
   // Per il test delle notifiche
   const [pushStatus, setPushStatus] = useState<string>('Non configurato');
+
+  useEffect(() => {
+    if (showReceiptsModal) {
+      loadReceipts();
+    }
+  }, [showReceiptsModal]);
+
+  const loadReceipts = async () => {
+    setLoadingReceipts(true);
+    const { data, error } = await supabase
+      .from('receipts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setReceipts(data);
+    }
+    setLoadingReceipts(false);
+  };
 
   const handleRegisterPasskey = async () => {
     setRegisteringPasskey(true);
@@ -176,6 +199,15 @@ export default function Profile() {
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
 
+        {/* Storico Scontrini */}
+        <button onClick={() => setShowReceiptsModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'rgba(255, 159, 10, 0.1)', padding: '10px', borderRadius: '12px' }}><Receipt size={20} color="#FF9F0A" /></div>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Storico Scontrini</span>
+          </div>
+          <ChevronRight size={20} color="var(--text-muted)" />
+        </button>
+
         {/* Preferenze */}
         <button onClick={() => setShowPreferencesModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -298,6 +330,41 @@ export default function Profile() {
               Stato: <strong style={{ color: 'var(--primary)' }}>{pushStatus}</strong>
             </div>
             <button onClick={handlePushRequest} className="btn-primary" style={{ width: '100%' }}>Attiva Notifiche Push</button>
+          </div>
+        </div>
+      )}
+
+      {/* RECEIPTS MODAL */}
+      {showReceiptsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', maxHeight: '80vh', borderRadius: '24px', padding: '24px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+            <button onClick={() => setShowReceiptsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ marginTop: 0, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><Receipt size={24} color="#FF9F0A"/> I tuoi Scontrini</h2>
+            
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {loadingReceipts ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
+              ) : receipts.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>Nessuno scontrino salvato. Scansionane uno!</div>
+              ) : (
+                receipts.map(r => (
+                  <div key={r.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    {r.image_url ? (
+                      <img src={r.image_url} alt="Scontrino" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer' }} onClick={() => window.open(r.image_url, '_blank')} />
+                    ) : (
+                      <div style={{ width: '60px', height: '60px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Receipt size={24} opacity={0.5} /></div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: '1rem' }}>{r.store_name || "Spesa"}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(r.created_at).toLocaleDateString()} • {r.items_count} prodotti</div>
+                    </div>
+                    <div style={{ fontWeight: 800, color: 'white' }}>
+                      €{r.total_amount ? r.total_amount.toFixed(2) : "0.00"}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}
