@@ -8,16 +8,16 @@ import { useToastStore } from '../store/toastStore';
 // No props needed since it's a page now
 
 const SUPERMARKETS = [
-  { name: 'Esselunga', color: '#FFD700' },
-  { name: 'Coop', color: '#E31B23' },
-  { name: 'Conad', color: '#F18A00' },
-  { name: 'Carrefour', color: '#0054A6' },
-  { name: 'Pam', color: '#00833E' },
-  { name: 'Lidl', color: '#0050AA' },
-  { name: 'Eurospin', color: '#0055A5' },
-  { name: 'MD', color: '#009640' },
-  { name: 'Penny Market', color: '#E30613' },
-  { name: 'Altro', color: '#1E1E1E' }
+  { name: 'Esselunga', color: '#002B49', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Esselunga_Logo.svg' },
+  { name: 'Coop', color: '#E31B23', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Coop_logo_Italy.svg' },
+  { name: 'Conad', color: '#F18A00', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Logo_Conad.svg' },
+  { name: 'Carrefour', color: '#0054A6', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5b/Carrefour_logo.svg' },
+  { name: 'Pam', color: '#00833E', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Logo_Gruppo_Pam.svg' },
+  { name: 'Lidl', color: '#0050AA', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Lidl-Logo.svg' },
+  { name: 'Eurospin', color: '#0055A5', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Eurospin_logo.svg' },
+  { name: 'MD', color: '#E2001A', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/88/MD_Discount_logo.svg' },
+  { name: 'Penny Market', color: '#E30613', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Penny_Market_logo.svg' },
+  { name: 'Altro', color: '#1E1E1E', logo: '' }
 ];
 
 export default function LoyaltyWallet() {
@@ -131,16 +131,23 @@ export default function LoyaltyWallet() {
                   onClick={() => setSelectedSupermarket(sm)}
                   style={{
                     padding: '12px',
-                    borderRadius: '8px',
-                    border: 'none',
+                    borderRadius: '12px',
+                    border: selectedSupermarket.name === sm.name ? '2px solid #00FFAA' : '1px solid rgba(255,255,255,0.1)',
                     background: selectedSupermarket.name === sm.name ? sm.color : 'rgba(255,255,255,0.05)',
                     color: selectedSupermarket.name === sm.name ? (sm.color === '#FFD700' ? 'black' : 'white') : 'white',
                     fontWeight: 'bold',
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
                   }}
                 >
-                  {sm.name}
+                  {sm.logo && (
+                    <img src={sm.logo} alt={sm.name} style={{ height: '20px', maxWidth: '50px', objectFit: 'contain', background: 'rgba(255,255,255,0.9)', padding: '2px 4px', borderRadius: '4px' }} />
+                  )}
+                  <span>{sm.name}</span>
                 </button>
               ))}
             </div>
@@ -224,9 +231,17 @@ export default function LoyaltyWallet() {
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: textColor
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.5px' }}>{card.store_name}</h3>
-                          <CreditCard size={32} style={{ opacity: 0.3 }} />
+                          {SUPERMARKETS.find(s => s.name === card.store_name)?.logo ? (
+                            <img 
+                              src={SUPERMARKETS.find(s => s.name === card.store_name)?.logo} 
+                              alt={card.store_name} 
+                              style={{ height: '36px', maxWidth: '90px', objectFit: 'contain', background: 'rgba(255,255,255,0.9)', padding: '4px 8px', borderRadius: '8px' }} 
+                            />
+                          ) : (
+                            <CreditCard size={32} style={{ opacity: 0.3 }} />
+                          )}
                         </div>
                         <div>
                           <div style={{ fontSize: '0.9rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Saldo Punti</div>
