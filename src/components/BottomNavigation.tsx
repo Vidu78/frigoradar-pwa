@@ -36,88 +36,67 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
 
 
       {/* --- BOTTONI NAVIGAZIONE (FOREGROUND LAYER) --- */}
-      <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
+      <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-around', zIndex: 1, height: '100%' }}>
         
-        {/* Left Side */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'space-evenly' }}>
-          <button
-            onClick={() => onTabChange('fridge')}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'fridge' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: activeTab === 'fridge' ? 'translateY(-2px)' : 'translateY(0)',
-            }}
-          >
-            <Refrigerator size={24} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'fridge' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-              {t('nav.fridge')}
-            </span>
-          </button>
+        <button
+          onClick={() => onTabChange('fridge')}
+          style={{
+            background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+            color: activeTab === 'fridge' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: activeTab === 'fridge' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <Refrigerator size={24} strokeWidth={activeTab === 'fridge' ? 2.5 : 2} />
+          <span style={{ fontSize: '11px', fontWeight: activeTab === 'fridge' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+            {t('nav.fridge')}
+          </span>
+        </button>
 
-          <button
-            onClick={() => onTabChange('shopping')}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'shopping' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: activeTab === 'shopping' ? 'translateY(-2px)' : 'translateY(0)',
-            }}
-          >
-            <ShoppingCart size={24} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'shopping' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-              Spesa
-            </span>
-          </button>
-        </div>
+        <button
+          onClick={() => onTabChange('shopping')}
+          style={{
+            background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+            color: activeTab === 'shopping' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: activeTab === 'shopping' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <ShoppingCart size={24} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
+          <span style={{ fontSize: '11px', fontWeight: activeTab === 'shopping' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+            Spesa
+          </span>
+        </button>
 
-        {/* Center: SCANNER BUTTON */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }}>
-          <button 
-            onClick={onScanClick}
-            style={{
-              width: '64px', height: '64px', borderRadius: '32px', background: 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)',
-              border: '4px solid var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(0,255,170,0.4), inset 0 2px 4px rgba(255,255,255,0.4)',
-              transform: 'translateY(-16px)', transition: 'transform 0.2s', zIndex: 10
-            }}
-          >
-            <ScanBarcode size={28} color="#0F1012" />
-          </button>
-        </div>
+        <button
+          onClick={() => onTabChange('recipes')}
+          style={{
+            background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+            color: activeTab === 'recipes' ? '#FFD700' : 'rgba(255,255,255,0.4)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: activeTab === 'recipes' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <ChefHat size={24} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
+          <span style={{ fontSize: '11px', fontWeight: activeTab === 'recipes' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+            {t('nav.recipes')}
+          </span>
+        </button>
 
-        {/* Right Side */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'space-evenly' }}>
-          <button
-            onClick={() => onTabChange('recipes')}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'recipes' ? '#FFD700' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: activeTab === 'recipes' ? 'translateY(-2px)' : 'translateY(0)',
-            }}
-          >
-            <ChefHat size={24} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'recipes' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-              {t('nav.recipes')}
-            </span>
-          </button>
-
-          <button
-            onClick={() => onTabChange('profile')}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
-              color: activeTab === 'profile' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: activeTab === 'profile' ? 'translateY(-2px)' : 'translateY(0)',
-            }}
-          >
-            <User size={24} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
-            <span style={{ fontSize: '11px', fontWeight: activeTab === 'profile' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
-              {t('nav.profile')}
-            </span>
-          </button>
-        </div>
+        <button
+          onClick={() => onTabChange('profile')}
+          style={{
+            background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer',
+            color: activeTab === 'profile' ? '#00FFAA' : 'rgba(255,255,255,0.4)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: activeTab === 'profile' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <User size={24} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
+          <span style={{ fontSize: '11px', fontWeight: activeTab === 'profile' ? 700 : 500, letterSpacing: '0.3px', transition: 'all 0.3s' }}>
+            {t('nav.profile')}
+          </span>
+        </button>
       </div>
     </div>
   );

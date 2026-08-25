@@ -1,7 +1,6 @@
-# Sincronizzazione Frigo di Famiglia
-Aggiunta la colonna `family_id` a tutte le tabelle utente.
+-- Sincronizzazione Frigo di Famiglia
+-- Aggiunta la colonna family_id a tutte le tabelle utente.
 
-```sql
 -- Aggiungi family_id a inventory_items
 ALTER TABLE inventory_items ADD COLUMN family_id UUID;
 UPDATE inventory_items SET family_id = user_id WHERE family_id IS NULL;
@@ -17,7 +16,6 @@ CREATE POLICY "Users view family inventory" ON inventory_items FOR SELECT USING 
 CREATE POLICY "Users insert family inventory" ON inventory_items FOR INSERT WITH CHECK (family_id = (SELECT COALESCE((auth.jwt() -> 'user_metadata' ->> 'family_id')::uuid, auth.uid())));
 CREATE POLICY "Users update family inventory" ON inventory_items FOR UPDATE USING (family_id = (SELECT COALESCE((auth.jwt() -> 'user_metadata' ->> 'family_id')::uuid, auth.uid())));
 CREATE POLICY "Users delete family inventory" ON inventory_items FOR DELETE USING (family_id = (SELECT COALESCE((auth.jwt() -> 'user_metadata' ->> 'family_id')::uuid, auth.uid())));
-
 
 -- Ripeti per shopping_items
 ALTER TABLE shopping_items ADD COLUMN family_id UUID;
@@ -43,4 +41,3 @@ CREATE TABLE family_invites (
 ALTER TABLE family_invites ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can create invites" ON family_invites FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Users can read all invites" ON family_invites FOR SELECT USING (auth.role() = 'authenticated');
-```
