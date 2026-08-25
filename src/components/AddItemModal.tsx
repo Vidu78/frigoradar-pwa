@@ -13,6 +13,7 @@ interface AddItemModalProps {
     category?: string;
     health_score?: string;
     expiration_date?: string;
+    quantity?: number;
     unit?: string;
     purchase_date?: string;
     imageUrl?: string;
@@ -57,7 +58,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
   const [expiry, setExpiry] = useState(defaultExp);
   
   const [location, setLocation] = useState<'FRIDGE'|'FREEZER'|'PANTRY'|'OTHER'>(initialData?.location || 'FRIDGE');
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(initialData?.quantity || 1);
   const [scanning, setScanning] = useState(false);
 
   // Calcolo automatico della durata di conservazione in frigorifero per Frutta e Verdura

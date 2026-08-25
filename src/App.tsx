@@ -13,10 +13,18 @@ import FamilySharing from './pages/FamilySharing';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
-import { Download, X } from 'lucide-react';
+import { Download, X, Receipt, Camera, Plus as PlusIcon } from 'lucide-react';
+import AddItemModal from './components/AddItemModal';
+import ReceiptScannerModal from './components/ReceiptScannerModal';
+import { useInventoryStore } from './store/inventoryStore';
 
 const AppContainer = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [showReceiptScanner, setShowReceiptScanner] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addMode, setAddMode] = useState<'manual' | 'photo'>('manual');
+  const { addItem } = useInventoryStore();
   
   useEffect(() => {
     const handleTabChange = (e: Event) => {
@@ -78,7 +86,80 @@ const AppContainer = () => {
         {activeTab === 'profile' && <Profile />}
         {activeTab === 'family' && <FamilySharing />}
       </div>
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onAddClick={() => setShowActionSheet(true)} />
+
+      {/* ACTION SHEET */}
+      {showActionSheet && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          zIndex: 1000, display: 'flex', alignItems: 'flex-end'
+        }} onClick={() => setShowActionSheet(false)}>
+          <div style={{
+            background: 'var(--bg-panel-solid)', width: '100%',
+            padding: '24px 16px calc(24px + env(safe-area-inset-bottom)) 16px',
+            borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
+            animation: 'slideUp 0.3s ease-out', display: 'flex', flexDirection: 'column', gap: '12px'
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 16px 0', textAlign: 'center', fontSize: '1.1rem' }}>Scegli modalità di inserimento</h3>
+            
+            <button onClick={() => { setShowActionSheet(false); setShowReceiptScanner(true); }} style={{
+              background: 'rgba(255,255,255,0.05)', border: '1px solid var(--primary)', color: 'white',
+              padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer'
+            }}>
+              <div style={{ background: 'var(--primary)', padding: '10px', borderRadius: '50%', color: 'black' }}><Receipt size={24} /></div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Scontrino Spesa</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Analisi automatica e rapida</div>
+              </div>
+            </button>
+            
+            <button onClick={() => { setShowActionSheet(false); setAddMode('photo'); setShowAddModal(true); }} style={{
+              background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white',
+              padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer'
+            }}>
+              <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '10px', borderRadius: '50%', color: '#2ECC71' }}><Camera size={24} /></div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Foto Prodotto</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Usa AI per un prodotto singolo</div>
+              </div>
+            </button>
+
+            <button onClick={() => { setShowActionSheet(false); setAddMode('manual'); setShowAddModal(true); }} style={{
+              background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white',
+              padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer'
+            }}>
+              <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '10px', borderRadius: '50%', color: 'var(--accent)' }}><PlusIcon size={24} /></div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Manuale</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Inserimento classico</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showReceiptScanner && (
+        <ReceiptScannerModal 
+          onClose={() => setShowReceiptScanner(false)} 
+          onSaveItem={async (data) => {
+            await addItem(data);
+          }}
+        />
+      )}
+
+      {showAddModal && (
+        <AddItemModal 
+          initialData={null}
+          initialInputMode={addMode}
+          onSave={async (data) => {
+            await addItem(data);
+            setShowAddModal(false);
+          }}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
+
     </div>
   );
 };

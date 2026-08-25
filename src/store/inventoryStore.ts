@@ -20,6 +20,7 @@ export interface InventoryItem {
   nutritional_info?: any | null;
   nutriscore?: string | null;
   purchase_date?: string | null;
+  price?: number | null;
   created_at: string;
 }
 
