@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
-import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Trash2, Loader2, Info, Box, Camera } from 'lucide-react';
+import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera } from 'lucide-react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AddItemModal from '../components/AddItemModal';
+import ProductDetailModal from '../components/ProductDetailModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import { useToastStore } from '../store/toastStore';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [aiProductData, setAiProductData] = useState<any>(null);
   const [initialInputMode, setInitialInputMode] = useState<'manual' | 'photo'>('manual');
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
@@ -78,6 +80,10 @@ export default function Dashboard() {
     let category = "Altro";
     let location: 'FRIDGE' | 'FREEZER' | 'PANTRY' = 'FRIDGE';
     let healthScore = "Sconosciuto";
+    let brand = null;
+    let ingredients = null;
+    let nutriscore = null;
+    let nutritional_info = null;
 
     try {
       try {
@@ -86,6 +92,14 @@ export default function Dashboard() {
         if (dataOFF.status === 1 && dataOFF.product) {
           rawName = dataOFF.product.product_name || dataOFF.product.generic_name || rawName;
           imageUrl = dataOFF.product.image_front_url || dataOFF.product.image_url;
+          brand = dataOFF.product.brands || null;
+          ingredients = dataOFF.product.ingredients_text || null;
+          nutriscore = dataOFF.product.nutriscore_grade?.toUpperCase() || null;
+          if (dataOFF.product.nutriments) {
+            nutritional_info = {
+              calories_per_100g: dataOFF.product.nutriments['energy-kcal_100g'] || dataOFF.product.nutriments['energy-kcal_value'] || null
+            };
+          }
           finalName = rawName;
         }
       } catch (e) {
@@ -108,6 +122,11 @@ export default function Dashboard() {
             ? aiData.storage_type 
             : 'FRIDGE';
           healthScore = aiData.health_score || "Sconosciuto";
+          
+          if (!brand && aiData.brand) brand = aiData.brand;
+          if (!ingredients && aiData.ingredients) ingredients = aiData.ingredients;
+          if (!nutriscore && aiData.nutriscore) nutriscore = aiData.nutriscore;
+          if (!nutritional_info && aiData.nutritional_info) nutritional_info = aiData.nutritional_info;
         }
       } catch (aiError) {
         console.error("Errore Gemini API o timeout:", aiError);
@@ -123,7 +142,11 @@ export default function Dashboard() {
         category: category,
         location: location,
         imageUrl: imageUrl,
-        health_score: healthScore
+        health_score: healthScore,
+        brand: brand,
+        ingredients: ingredients,
+        nutriscore: nutriscore,
+        nutritional_info: nutritional_info
       });
       setIsProcessingBarcode(false);
       setInitialInputMode('manual');
@@ -144,10 +167,14 @@ export default function Dashboard() {
         is_frozen: data.is_frozen,
         health_score: data.health_score,
         category: data.category,
-        image_url: data.image_url || aiProductData?.imageUrl || null
+        image_url: data.image_url || aiProductData?.imageUrl || null,
+        brand: aiProductData?.brand || null,
+        ingredients: aiProductData?.ingredients || null,
+        nutriscore: aiProductData?.nutriscore || null,
+        nutritional_info: aiProductData?.nutritional_info || null
       });
     } catch (dbError) {
-      console.warn("Salvataggio con image_url fallito. Riprovo senza immagine...", dbError);
+      console.warn("Salvataggio con immagine fallito. Riprovo senza immagine...", dbError);
       try {
         await addItem({
           custom_name: data.custom_name,
@@ -158,7 +185,11 @@ export default function Dashboard() {
           location: data.location,
           is_frozen: data.is_frozen,
           health_score: data.health_score,
-          category: data.category
+          category: data.category,
+          brand: aiProductData?.brand || null,
+          ingredients: aiProductData?.ingredients || null,
+          nutriscore: aiProductData?.nutriscore || null,
+          nutritional_info: aiProductData?.nutritional_info || null
         });
       } catch (retryError: any) {
         console.error("Salvataggio fallito:", retryError);
@@ -370,70 +401,72 @@ export default function Dashboard() {
                     </span>
                   </div>
 
-                  {/* Category Items List */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {/* Category Items Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
                     {catItems.map(item => {
                       const expInfo = getExpirationStatus(item.expiration_date);
                       const isExpired = expInfo.status === 'EXPIRED';
                       
                       return (
-                        <div key={item.id} className="glass-panel" style={{ 
-                          padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', 
-                          borderLeft: `4px solid ${expInfo.color}`,
+                        <div key={item.id} className="glass-panel" onClick={() => setSelectedProduct(item)} style={{ 
+                          padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px', 
+                          borderTop: `3px solid ${expInfo.color}`,
                           background: isExpired ? 'rgba(255, 59, 48, 0.05)' : 'var(--bg-panel)',
-                          animation: isExpired ? 'pulseRed 2s infinite' : 'none'
+                          animation: isExpired ? 'pulseRed 2s infinite' : 'none',
+                          cursor: 'pointer', position: 'relative'
                         }}>
                           
-                          {item.image_url ? (
-                            <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '50px', height: '50px', borderRadius: '12px', objectFit: 'cover', background: 'white' }} />
-                          ) : (
-                            <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              {item.location === 'FREEZER' ? <Box size={24} color="#64C8FF" opacity={0.6} /> : 
-                               item.location === 'PANTRY' ? <Box size={24} color="#FFAA00" opacity={0.6} /> :
-                               <Refrigerator size={24} color="var(--primary)" opacity={0.6} />}
+                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {item.location === 'FREEZER' ? <Box size={32} color="#64C8FF" opacity={0.6} /> : 
+                                 item.location === 'PANTRY' ? <Box size={32} color="#FFAA00" opacity={0.6} /> :
+                                 <Refrigerator size={32} color="var(--primary)" opacity={0.6} />}
+                              </div>
+                            )}
+                            
+                            {/* Badge Quantità */}
+                            <div style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', padding: '2px 8px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', color: 'white', fontSize: '0.8rem', fontWeight: 800 }}>
+                              {item.unit === 'kg' || item.unit === 'l' ? Number(item.quantity).toFixed(1) : item.quantity}
+                              <span style={{ fontSize: '0.6rem', marginLeft: '2px', fontWeight: 600 }}>{item.unit || 'pz'}</span>
                             </div>
-                          )}
+                          </div>
                           
-                          <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
-                            <h4 style={{ margin: 0, fontWeight: 600, fontSize: '0.95rem', lineHeight: '1.2', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            <h4 style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', lineHeight: '1.2', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>
                               {item.custom_name}
                             </h4>
-                            <p style={{ margin: '6px 0 0 0', fontSize: '0.75rem', color: expInfo.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <p style={{ margin: '8px 0 0 0', fontSize: '0.75rem', color: expInfo.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: expInfo.color }}></span>
                               {expInfo.text}
                             </p>
                           </div>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 4px' }}>
-                              <button 
-                                onClick={() => {
-                                  const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
-                                  const minVal = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
-                                  updateItemQuantity(item.id, Math.max(minVal, parseFloat((item.quantity - step).toFixed(2))));
-                                }} 
-                                style={{ background: 'none', border: 'none', color: 'white', padding: '4px 6px', cursor: 'pointer' }}
-                              >
-                                -
-                              </button>
-                              <span style={{ fontSize: '0.85rem', minWidth: '35px', textAlign: 'center', fontWeight: 700 }}>
-                                {item.unit === 'kg' || item.unit === 'l' ? Number(item.quantity).toFixed(1) : item.quantity}
-                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '2px' }}>{item.unit || 'pz'}</span>
-                              </span>
-                              <button 
-                                onClick={() => {
-                                  const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
-                                  updateItemQuantity(item.id, parseFloat((item.quantity + step).toFixed(2)));
-                                }} 
-                                style={{ background: 'none', border: 'none', color: 'white', padding: '4px 6px', cursor: 'pointer' }}
-                              >
-                                +
-                              </button>
-                            </div>
-                            <button onClick={() => handleDeleteWithStats(item.id, item.custom_name || 'Prodotto')} style={{ background: 'rgba(255, 69, 58, 0.1)', border: 'none', color: '#FF453A', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
-                              <Trash2 size={18} />
+                          
+                          {/* Pulsanti +/- rapidi integrati nella card */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', padding: '2px' }} onClick={e => e.stopPropagation()}>
+                            <button 
+                              onClick={() => {
+                                const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                const minVal = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                updateItemQuantity(item.id, Math.max(minVal, parseFloat((item.quantity - step).toFixed(2))));
+                              }} 
+                              style={{ flex: 1, background: 'none', border: 'none', color: 'white', padding: '8px 0', cursor: 'pointer', borderRadius: '10px' }}
+                            >
+                              <Minus size={16} style={{ margin: '0 auto' }} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
+                                updateItemQuantity(item.id, parseFloat((item.quantity + step).toFixed(2)));
+                              }} 
+                              style={{ flex: 1, background: 'none', border: 'none', color: 'white', padding: '8px 0', cursor: 'pointer', borderRadius: '10px' }}
+                            >
+                              <Plus size={16} style={{ margin: '0 auto' }} />
                             </button>
                           </div>
+
                         </div>
                       );
                     })}
@@ -460,6 +493,20 @@ export default function Dashboard() {
           onClose={() => {
             setShowAddModal(false);
             setAiProductData(null);
+          }}
+        />
+      )}
+
+      {selectedProduct && (
+        <ProductDetailModal
+          item={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onUpdateQuantity={(id, qty) => {
+            updateItemQuantity(id, qty);
+            setSelectedProduct({ ...selectedProduct, quantity: qty });
+          }}
+          onDelete={(id, name) => {
+            handleDeleteWithStats(id, name);
           }}
         />
       )}

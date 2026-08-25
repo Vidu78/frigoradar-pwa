@@ -16,6 +16,10 @@ interface AddItemModalProps {
     unit?: string;
     purchase_date?: string;
     imageUrl?: string;
+    brand?: string;
+    ingredients?: string;
+    nutriscore?: string;
+    nutritional_info?: any;
   } | null;
   initialInputMode?: 'manual' | 'photo';
   onSave: (data: any) => void;
@@ -221,7 +225,11 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       is_frozen: location === 'FREEZER',
       health_score: (window as any).__aiHealthScore || initialData?.health_score || null,
       category: category,
-      image_url: scannedImageUrl || initialData?.imageUrl || null
+      image_url: scannedImageUrl || initialData?.imageUrl || null,
+      brand: initialData?.brand || null,
+      ingredients: initialData?.ingredients || null,
+      nutriscore: initialData?.nutriscore || null,
+      nutritional_info: initialData?.nutritional_info || null
     });
     // Pulizia variabile temporanea
     delete (window as any).__aiHealthScore;

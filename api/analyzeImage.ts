@@ -68,11 +68,15 @@ REGOLE IMPORTANTI DI TOLLERANZA E LETTURA:
 SCHEMA DI OUTPUT JSON RICHIESTO:
 {
   "name": "Nome del prodotto",
+  "brand": "Marca dell'azienda produttrice (se visibile), altrimenti null",
   "category": "Categoria dell'alimento",
   "storage_type": "FRIDGE | FREEZER | PANTRY",
   "expiration_date": "YYYY-MM-DD (letta o stimata con tolleranza)",
   "default_shelf_life_days": 7,
-  "health_score": "Sano | Moderato | Poco Sano | Sconosciuto"
+  "health_score": "Sano | Moderato | Poco Sano | Sconosciuto",
+  "ingredients": "Lista degli ingredienti (se visibili o deducibili dal prodotto), altrimenti null",
+  "nutritional_info": { "calories_per_100g": "valore numerico estratto o deducibile, altrimenti null" },
+  "nutriscore": "A | B | C | D | E | null"
 }
 `;
 

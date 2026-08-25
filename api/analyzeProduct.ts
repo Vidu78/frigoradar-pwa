@@ -55,7 +55,10 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
   "category": "Macro categoria semantica",
   "storage_type": "FRIDGE | FREEZER | PANTRY",
   "default_shelf_life_days": 5,
-  "health_score": "Sano | Moderato | Poco Sano | Sconosciuto"
+  "health_score": "Sano | Moderato | Poco Sano | Sconosciuto",
+  "ingredients": "Lista degli ingredienti separati da virgola (se deducibile o noti), altrimenti null",
+  "nutritional_info": { "calories_per_100g": "valore numerico o null" },
+  "nutriscore": "A | B | C | D | E | null"
 }
 `;
 

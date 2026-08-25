@@ -15,6 +15,10 @@ export interface InventoryItem {
   health_score?: string | null;
   image_url?: string | null;
   category?: string | null;
+  brand?: string | null;
+  ingredients?: string | null;
+  nutritional_info?: any | null;
+  nutriscore?: string | null;
   purchase_date?: string | null;
   created_at: string;
 }
