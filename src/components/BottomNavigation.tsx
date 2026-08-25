@@ -69,7 +69,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
       <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
         
         {/* Left Side */}
-        <div style={{ flex: 1, display: 'flex' }}>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'space-evenly' }}>
           <button
             onClick={() => onTabChange('fridge')}
             style={{
@@ -117,7 +117,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onScanClick }
         </div>
 
         {/* Right Side */}
-        <div style={{ flex: 1, display: 'flex' }}>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'space-evenly' }}>
           <button
             onClick={() => onTabChange('recipes')}
             style={{
