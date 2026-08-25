@@ -5,6 +5,8 @@ import { useAuthStore } from '../store/authStore';
 import { ShoppingCart, CheckCircle2, Circle, Plus, Trash2, ArrowRight, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddItemModal from '../components/AddItemModal';
+import LoyaltyWalletModal from '../components/LoyaltyWalletModal';
+import { CreditCard } from 'lucide-react';
 
 export default function ShoppingList() {
   const navigate = useNavigate();
@@ -14,7 +16,11 @@ export default function ShoppingList() {
   const [newItemName, setNewItemName] = useState('');
   
   // State for magic flow
+  // State for magic flow
   const [transferItem, setTransferItem] = useState<{ id: string, name: string } | null>(null);
+  
+  // Wallet State
+  const [showWallet, setShowWallet] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -52,12 +58,18 @@ export default function ShoppingList() {
         <div style={{ background: 'var(--primary)', padding: '10px', borderRadius: '14px', color: 'black' }}>
           <ShoppingCart size={24} />
         </div>
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>Lista Spesa</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
             {items.filter(i => !i.checked).length} articoli da comprare
           </p>
         </div>
+        <button 
+          onClick={() => setShowWallet(true)}
+          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '10px 14px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          <CreditCard size={18} /> Carte
+        </button>
       </div>
 
       {!isPro && (
@@ -147,12 +159,14 @@ export default function ShoppingList() {
       </div>
 
       {transferItem && (
-        <AddItemModal 
+        <AddItemModal
           initialData={{ name: transferItem.name }}
           onSave={handleTransferSubmit}
           onClose={() => setTransferItem(null)}
         />
       )}
+
+      {showWallet && <LoyaltyWalletModal onClose={() => setShowWallet(false)} />}
     </div>
   );
 }
