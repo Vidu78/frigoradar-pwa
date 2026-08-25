@@ -20,6 +20,7 @@ import AddItemModal from './components/AddItemModal';
 import ReceiptScannerModal from './components/ReceiptScannerModal';
 import { useInventoryStore } from './store/inventoryStore';
 import PremiumDialog from './components/PremiumDialog';
+import ReloadPrompt from './components/ReloadPrompt';
 
 const AppContainer = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
@@ -280,8 +281,14 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/loyalty" element={
+          <ProtectedRoute>
+            <LoyaltyWallet />
+          </ProtectedRoute>
+        } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <ReloadPrompt />
     </Router>
   );
 }
