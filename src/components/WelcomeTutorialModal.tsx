@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layers, ScanBarcode, ChefHat, Receipt, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Layers, ScanBarcode, ChefHat, Receipt, ChevronRight, CheckCircle2, CreditCard } from 'lucide-react';
 
 interface WelcomeTutorialModalProps {
   onComplete: () => void;
@@ -36,6 +36,13 @@ export default function WelcomeTutorialModal({ onComplete }: WelcomeTutorialModa
       icon: <ChefHat size={48} color="#FF453A" />,
       color: "rgba(255, 69, 58, 0.2)",
       primary: "#FF453A"
+    },
+    {
+      title: "Carte Fedeltà & Sconti AI",
+      description: "Quando l'AI legge uno scontrino, cattura anche i tuoi Punti Fedeltà e salva i Buoni Sconto stampati. Puoi anche fotografare i coupon di carta per non perderli mai più!",
+      icon: <CreditCard size={48} color="#FFD700" />,
+      color: "rgba(255, 215, 0, 0.2)",
+      primary: "#FFD700"
     }
   ];
 

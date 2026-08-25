@@ -11,6 +11,7 @@ import ProUpgradePage from './pages/ProUpgradePage';
 import Onboarding from './pages/Onboarding';
 import FamilySharing from './pages/FamilySharing';
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
+import WelcomeTutorialModal from './components/WelcomeTutorialModal';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
 import { Download, X, Receipt, Camera, Plus as PlusIcon } from 'lucide-react';
@@ -222,8 +223,34 @@ function App() {
     }
   }, [initialize]);
 
+  const [showWelcomeTutorial, setShowWelcomeTutorial] = useState(false);
+
+  useEffect(() => {
+    const handleOpenTutorial = () => setShowWelcomeTutorial(true);
+    document.addEventListener('openTutorial', handleOpenTutorial);
+    
+    // Mostra il tutorial al primo avvio per utenti loggati
+    const { session } = useAuthStore.getState();
+    if (session) {
+      const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
+      if (!hasSeenTutorial) {
+        setShowWelcomeTutorial(true);
+      }
+    }
+    
+    return () => {
+      document.removeEventListener('openTutorial', handleOpenTutorial);
+    };
+  }, []);
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('frigoradar_tutorial_seen', 'true');
+    setShowWelcomeTutorial(false);
+  };
+
   return (
     <Router>
+      {showWelcomeTutorial && <WelcomeTutorialModal onComplete={handleTutorialComplete} />}
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route 
