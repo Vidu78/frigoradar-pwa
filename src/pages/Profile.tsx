@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe } from 'lucide-react';
+import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X } from 'lucide-react';
 import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +20,12 @@ export default function Profile() {
   const [success, setSuccess] = useState(false);
   const [registeringPasskey, setRegisteringPasskey] = useState(false);
   const [passkeySuccess, setPasskeySuccess] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  
+  // Per il test delle notifiche
+  const [pushStatus, setPushStatus] = useState<string>('Non configurato');
 
   const handleRegisterPasskey = async () => {
     setRegisteringPasskey(true);
@@ -67,6 +73,61 @@ export default function Profile() {
     setLoading(false);
   };
 
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const handlePushRequest = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        setPushStatus('Permesso accordato! Registrazione sul server...');
+        
+        const registration = await navigator.serviceWorker.ready;
+        const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        
+        if (!VAPID_PUBLIC_KEY) {
+          setPushStatus('Errore: VAPID_PUBLIC_KEY mancante nel file .env');
+          return;
+        }
+
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+
+        const subJson = subscription.toJSON();
+        
+        const { error } = await supabase.from('push_subscriptions').upsert({
+          user_id: session?.user?.id,
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys?.p256dh,
+          auth: subJson.keys?.auth
+        }, { onConflict: 'user_id, endpoint' });
+
+        if (error) {
+          console.error(error);
+          setPushStatus('Errore salvataggio nel database.');
+        } else {
+          setPushStatus('Notifiche attivate con successo!');
+        }
+
+      } else {
+        setPushStatus('Permesso negato. Devi abilitarlo dal browser.');
+      }
+    } catch (e) {
+      console.error(e);
+      setPushStatus('Errore durante la registrazione.');
+    }
+  };
+
   return (
     <div style={{ padding: '20px', color: 'white', paddingBottom: '120px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
@@ -95,7 +156,7 @@ export default function Profile() {
       <div className="glass-panel" style={{ padding: '8px', borderRadius: '24px', marginBottom: '24px' }}>
         
         {/* Notifiche */}
-        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <button onClick={() => setShowNotificationsModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(50, 215, 75, 0.1)', padding: '10px', borderRadius: '12px' }}><Bell size={20} color="#32D74B" /></div>
             <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.notifications')}</span>
@@ -116,7 +177,7 @@ export default function Profile() {
         </button>
 
         {/* Preferenze */}
-        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <button onClick={() => setShowPreferencesModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '10px', borderRadius: '12px' }}><Palette size={20} color="#FFD700" /></div>
             <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.preferences')}</span>
@@ -125,7 +186,7 @@ export default function Profile() {
         </button>
 
         {/* Supporto */}
-        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <button onClick={() => window.location.href = 'mailto:info@frigoradar.com'} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 69, 58, 0.1)', padding: '10px', borderRadius: '12px' }}><LifeBuoy size={20} color="#FF453A" /></div>
             <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.support')}</span>
@@ -134,7 +195,7 @@ export default function Profile() {
         </button>
 
         {/* Impostazioni */}
-        <button style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer' }}>
+        <button onClick={() => setShowSettingsModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px', borderRadius: '12px' }}><Settings size={20} color="white" /></div>
             <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.settings')}</span>
@@ -224,6 +285,63 @@ export default function Profile() {
           </>
         )}
       </button>
+
+      {/* --- MODALS --- */}
+      {/* NOTIFICATIONS MODAL */}
+      {showNotificationsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
+            <button onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ marginTop: 0, marginBottom: '16px' }}>{t('profile.notifications')}</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Ricevi avvisi per i prodotti in scadenza.</p>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px', marginBottom: '24px', fontSize: '0.9rem' }}>
+              Stato: <strong style={{ color: 'var(--primary)' }}>{pushStatus}</strong>
+            </div>
+            <button onClick={handlePushRequest} className="btn-primary" style={{ width: '100%' }}>Attiva Notifiche Push</button>
+          </div>
+        </div>
+      )}
+
+      {/* PREFERENCES MODAL */}
+      {showPreferencesModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
+            <button onClick={() => setShowPreferencesModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.preferences')}</h2>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <span>Lingua</span>
+              <button onClick={toggleLanguage} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer' }}>
+                {i18n.language.toUpperCase()}
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
+              <span>Tema</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Sincronizzato col sistema</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SETTINGS MODAL */}
+      {showSettingsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
+            <button onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.settings')}</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Gestisci le impostazioni avanzate del tuo account.</p>
+            
+            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', cursor: 'pointer', marginBottom: '12px' }}>
+              Esporta Dati (CSV)
+            </button>
+            
+            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,69,58,0.5)', background: 'rgba(255,69,58,0.1)', color: '#FF453A', cursor: 'pointer' }}>
+              Elimina Account
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -236,7 +236,7 @@ export default function Dashboard() {
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>{t('dashboard.title')}</h1>
           <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem' }}>
-            {session?.user?.email?.split('@')[0]}
+            {session?.user?.user_metadata?.display_name || session?.user?.email?.split('@')[0]}
           </p>
         </div>
         <button onClick={signOut} className="btn-secondary" style={{ padding: '10px' }}>
