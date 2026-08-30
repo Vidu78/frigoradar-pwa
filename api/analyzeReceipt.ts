@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { guard } from '../lib/guard';
+import { guard } from '../lib/guard.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
