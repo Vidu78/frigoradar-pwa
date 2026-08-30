@@ -6,28 +6,21 @@ import { useDialogStore } from '../store/dialogStore';
 
 export default function ProUpgradePage() {
   const navigate = useNavigate();
-  const { upgradeToPro, isPro } = useAuthStore();
+  const { isPro } = useAuthStore();
   const { showDialog } = useDialogStore();
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
+    // ponytail: il pulsante non tocca piu' il piano. Lo fara' il webhook Stripe.
     setLoading(true);
-    try {
-      await upgradeToPro();
-      // Redirect alla home o resta qui
-      setTimeout(() => navigate('/'), 1500);
-    } catch (err) {
-      console.error(err);
-      console.error(err);
-      showDialog({
-        title: 'Errore',
-        message: 'Errore durante l\'aggiornamento. Riprova più tardi.',
-        type: 'danger',
-        isAlert: true,
-        confirmText: 'Ok'
-      });
-      setLoading(false);
-    }
+    showDialog({
+      title: 'Quasi pronto',
+      message: 'I pagamenti stanno per essere attivati. Ti avvisiamo appena il piano PRO diventa acquistabile.',
+      type: 'info',
+      isAlert: true,
+      confirmText: 'Ok'
+    });
+    setLoading(false);
   };
 
   return (

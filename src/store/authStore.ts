@@ -11,11 +11,23 @@ interface AuthState {
   loading: boolean;
   initialize: () => void;
   signOut: () => Promise<void>;
-  upgradeToPro: () => Promise<void>;
   updateStats: (type: 'SAVED' | 'WASTED', amount: number) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   completeOnboarding: (prefs: any) => Promise<void>;
 }
+
+// Il piano vive su households.plan, scrivibile solo dal service role.
+// Prima stava in user_metadata, cioe' l'utente poteva farsi PRO da solo.
+const loadPlan = async (session: Session | null): Promise<boolean> => {
+  if (!session) return false;
+  const householdId = session.user.user_metadata?.family_id || session.user.id;
+  const { data } = await supabase
+    .from('households')
+    .select('plan')
+    .eq('id', householdId)
+    .maybeSingle();
+  return data?.plan === 'pro';
+};
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
@@ -28,7 +40,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     supabase.auth.getSession().then(({ data: { session } }) => {
       set({ 
         session, 
-        isPro: session?.user?.user_metadata?.is_pro === true,
+        isPro: false,
         hasCompletedOnboarding: session?.user?.user_metadata?.has_completed_onboarding === true,
         preferences: session?.user?.user_metadata?.onboarding_preferences || null,
         stats: {
@@ -37,12 +49,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         },
         loading: false 
       });
+      void loadPlan(session).then((isPro) => set({ isPro }));
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
       set({ 
         session, 
-        isPro: session?.user?.user_metadata?.is_pro === true,
+        isPro: false,
         hasCompletedOnboarding: session?.user?.user_metadata?.has_completed_onboarding === true,
         preferences: session?.user?.user_metadata?.onboarding_preferences || null,
         stats: {
@@ -51,23 +64,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         },
         loading: false 
       });
+      void loadPlan(session).then((isPro) => set({ isPro }));
     });
   },
   signOut: async () => {
     // signOut notifica onAuthStateChange con session=null → ProtectedRoute redirige a /auth
     await supabase.auth.signOut();
-  },
-  upgradeToPro: async () => {
-    const { session } = get();
-    if (!session) return;
-    
-    const { error } = await supabase.auth.updateUser({
-      data: { is_pro: true }
-    });
-    
-    if (error) throw error;
-    
-    set({ isPro: true });
   },
   updateStats: async (type, amount) => {
     const { session, stats } = get();

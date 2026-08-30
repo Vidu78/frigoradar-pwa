@@ -179,9 +179,13 @@ export default function Profile() {
 
           const subJson = subscription.toJSON();
           
+          // La tabella ha endpoint/p256dh/auth: scrivere un campo "subscription"
+          // faceva fallire l'insert, quindi nessuna notifica e' mai partita.
           const { error } = await supabase.from('push_subscriptions').upsert({
             user_id: session?.user?.id,
-            subscription: subJson
+            endpoint: subJson.endpoint,
+            p256dh: subJson.keys?.p256dh,
+            auth: subJson.keys?.auth
           }, { onConflict: 'user_id' });
 
           if (error) {

@@ -31,6 +31,12 @@ export default function FamilySharing() {
     setError('');
     setSuccess('');
     try {
+      // Prima si revoca l'appartenenza (il metadata da solo non conta piu' nulla)
+      if (currentFamilyId && currentFamilyId !== userId) {
+        const { error: rpcError } = await supabase.rpc('leave_household', { hid: currentFamilyId });
+        if (rpcError) throw rpcError;
+      }
+
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
           family_id: userId,
@@ -59,27 +65,9 @@ export default function FamilySharing() {
     if (isSharing) {
       await leaveFamily();
     } else if (previousFamilyId && previousFamilyId !== userId) {
-      // Re-iscrizione rapida all'ultimo frigo condiviso
-      setLoading(true);
-      setError('');
-      try {
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            family_id: previousFamilyId,
-            family_sharing_enabled: true
-          }
-        });
-
-        if (updateError) throw updateError;
-
-        await fetchItems();
-        showToast("Condivisione riattivata con successo!", "success");
-        setSuccess("Riconnesso al frigorifero condiviso!");
-      } catch (err: any) {
-        setError(err.message || "Impossibile riattivare la condivisione.");
-      } finally {
-        setLoading(false);
-      }
+      // Uscire da una famiglia ora revoca davvero l'accesso: per rientrare
+      // serve un codice nuovo, non basta riscrivere il metadata.
+      showToast("Per rientrare nel frigo condiviso chiedi un nuovo codice d'invito.", "info");
     } else {
       showToast("Genera o inserisci un codice d'invito per attivare la condivisione", "info");
     }
@@ -120,26 +108,22 @@ export default function FamilySharing() {
     setError('');
     setSuccess('');
     try {
-      const { data, error: fetchError } = await supabase
-        .from('family_invites')
-        .select('family_id')
-        .eq('code', joinCode.toUpperCase())
-        .single();
+      // I codici non sono piu' leggibili da chiunque: l'ingresso passa da una
+      // funzione server che valida il codice e scrive l'appartenenza reale.
+      const { data: familyId, error: rpcError } = await supabase
+        .rpc('join_household', { invite_code: joinCode.toUpperCase() });
 
-      if (fetchError || !data) throw new Error("Codice non valido o scaduto.");
+      if (rpcError || !familyId) throw new Error(rpcError?.message || "Codice non valido o scaduto.");
 
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
-          family_id: data.family_id,
-          previous_family_id: data.family_id,
+          family_id: familyId,
+          previous_family_id: familyId,
           family_sharing_enabled: true
         }
       });
 
       if (updateError) throw updateError;
-      
-      // Elimina il codice usato
-      await supabase.from('family_invites').delete().eq('code', joinCode.toUpperCase());
       
       await fetchItems();
       showToast("Frigorifero sincronizzato con successo!", "success");

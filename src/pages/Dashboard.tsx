@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authHeaders } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
@@ -129,7 +130,7 @@ export default function Dashboard() {
       try {
         const aiRes = await fetchWithTimeout('/api/analyzeProduct', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await authHeaders(),
           body: JSON.stringify({ barcode: decodedText, query: rawName })
         }, 4000);
         

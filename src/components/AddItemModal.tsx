@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authHeaders } from '../lib/api';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
@@ -204,7 +205,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       
       const res = await fetch('/api/analyzeImage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ image: base64String })
       });
       
@@ -287,7 +288,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       });
       const res = await fetch('/api/analyzeImage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ image: base64, mode: 'produce_weight' })
       });
       if (res.ok) {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authHeaders } from '../lib/api';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useAuthStore } from '../store/authStore';
 import { useDialogStore } from '../store/dialogStore';
@@ -33,7 +34,7 @@ export default function AiRecipes() {
 
       const res = await fetch('/api/generateRecipe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ items: payload, peopleCount, difficulty, priority })
       });
 

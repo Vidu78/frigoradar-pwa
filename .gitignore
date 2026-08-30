@@ -25,3 +25,11 @@ dist-ssr
 
 .vercel
 .env*
+
+# file di lavoro locali
+vercel_logs.txt
+lint_results.txt
+scratch/
+scratch_analyze.mjs
+test_api.js
+list_models.mjs
