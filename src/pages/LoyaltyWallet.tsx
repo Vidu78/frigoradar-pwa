@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { StorageLink } from '../components/StorageImage';
 import { useLoyaltyStore } from '../store/loyaltyStore';
 import { X, Plus, Trash2, CreditCard, Camera, Tag } from 'lucide-react';
 import Barcode from 'react-barcode';
@@ -417,9 +418,9 @@ export default function LoyaltyWallet() {
                               </div>
                               {disc.discount_amount && <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '6px' }}>{disc.description}</div>}
                               {disc.image_url && (
-                                <a href={disc.image_url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '12px', fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+                                <StorageLink value={disc.image_url} bucket="receipts" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '12px', fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
                                   <Camera size={14} /> Vedi Foto Originale
-                                </a>
+                                </StorageLink>
                               )}
                             </div>
                           ))}

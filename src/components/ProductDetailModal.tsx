@@ -4,6 +4,7 @@ import { getExpirationStatus } from '../utils/expirationEngine';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import { supabase } from '../lib/supabase';
 import { useToastStore } from '../store/toastStore';
+import { useStorageUrl } from './StorageImage';
 
 interface ProductDetailModalProps {
   item: any;
@@ -16,6 +17,7 @@ interface ProductDetailModalProps {
 
 export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete, onRefreshItem, onUpdateProduct }: ProductDetailModalProps) {
   const { showToast } = useToastStore();
+  const imageUrl = useStorageUrl(item.image_url, 'product_images');
   const [showScanner, setShowScanner] = useState(false);
   const expInfo = getExpirationStatus(item.expiration_date);
 
@@ -89,10 +91,10 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
         
         {/* Header con Immagine Sfocata */}
         <div style={{ position: 'relative', height: '220px', width: '100%', overflow: 'hidden', borderTopLeftRadius: '32px', borderTopRightRadius: '32px' }}>
-          {item.image_url ? (
+          {imageUrl ? (
             <>
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${item.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(20px)', opacity: 0.5, transform: 'scale(1.1)' }} />
-              <img src={item.image_url} alt={item.custom_name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 1 }} />
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(20px)', opacity: 0.5, transform: 'scale(1.1)' }} />
+              <img src={imageUrl} alt={item.custom_name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', zIndex: 1 }} />
             </>
           ) : (
             <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { StorageImage } from '../components/StorageImage';
 import { authHeaders } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
@@ -464,7 +465,7 @@ export default function Dashboard() {
                           
                           <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
                             {item.image_url ? (
-                              <img src={item.image_url} alt={item.custom_name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <StorageImage value={item.image_url} bucket="product_images" alt={item.custom_name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {item.location === 'FREEZER' ? <Box size={32} color="#64C8FF" opacity={0.6} /> : 

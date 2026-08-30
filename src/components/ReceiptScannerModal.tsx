@@ -121,7 +121,6 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
               .upload(fileName, file);
               
             if (!uploadError && uploadData) {
-              const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(fileName);
               const totalAmount = data.items.reduce((acc: number, item: any) => acc + (item.price || 0) * (item.quantity || 1), 0);
               
               await supabase.from('receipts').insert({
@@ -129,7 +128,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
                 store_name: "Scontrino Scansionato",
                 total_amount: totalAmount,
                 items_count: data.items.length,
-                image_url: urlData.publicUrl
+                image_url: fileName
               });
             }
           }

@@ -177,8 +177,6 @@ export const useLoyaltyStore = create<LoyaltyState>((set, get) => ({
         
       if (uploadError) throw uploadError;
       
-      const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(fileName);
-      
       const { data, error } = await supabase.from('loyalty_discounts').insert([{
         user_id: session.user.id,
         family_id: familyId,
@@ -186,7 +184,7 @@ export const useLoyaltyStore = create<LoyaltyState>((set, get) => ({
         store_name: storeName,
         description,
         expiration_date: expiration,
-        image_url: urlData.publicUrl
+        image_url: fileName
       }]).select().single();
       
       if (!error && data) {

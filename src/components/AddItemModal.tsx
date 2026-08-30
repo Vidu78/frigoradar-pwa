@@ -4,6 +4,7 @@ import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search } from 
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 import { useTranslation } from 'react-i18next';
 
 interface AddItemModalProps {
@@ -190,12 +191,15 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       showToast(t('add_item.uploading', 'Salvataggio foto in cloud...'), "info");
       try {
         const blob = dataURLtoBlob(base64String);
-        const fileName = `product_${Date.now()}.jpg`;
+        // Prefisso household: la policy dello storage autorizza per cartella,
+        // cosi' la foto la vede la famiglia e nessun altro.
+        const session = useAuthStore.getState().session;
+        const familyId = session?.user?.user_metadata?.family_id || session?.user?.id;
+        const fileName = `${familyId}/${crypto.randomUUID()}.jpg`;
         const { data: uploadData, error: uploadError } = await supabase.storage.from('product_images').upload(fileName, blob, { contentType: 'image/jpeg', cacheControl: '3600' });
         
         if (!uploadError && uploadData) {
-          const { data: publicUrlData } = supabase.storage.from('product_images').getPublicUrl(fileName);
-          setScannedImageUrl(publicUrlData.publicUrl);
+          setScannedImageUrl(fileName);
         }
       } catch (uploadEx) {
         console.warn("Upload immagine fallito:", uploadEx);

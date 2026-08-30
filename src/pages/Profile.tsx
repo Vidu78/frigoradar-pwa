@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { StorageImage } from '../components/StorageImage';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { User, CheckCircle2, Loader2, LogOut, ChevronRight, Settings, Users, Bell, Palette, LifeBuoy, Globe, X, Receipt } from 'lucide-react';
@@ -457,7 +458,7 @@ export default function Profile() {
                 receipts.map(r => (
                   <div key={r.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                     {r.image_url ? (
-                      <img src={r.image_url} alt="Scontrino" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer' }} onClick={() => window.open(r.image_url, '_blank')} />
+                      <StorageImage value={r.image_url} bucket="receipts" alt="Scontrino" openOnClick style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer' }} />
                     ) : (
                       <div style={{ width: '60px', height: '60px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Receipt size={24} opacity={0.5} /></div>
                     )}
