@@ -33,7 +33,7 @@ on conflict (id) do nothing;
 
 -- ognuno e' owner della propria household
 insert into public.household_members (household_id, user_id, role)
-select u.id, u.id, 'owner'
+select u.id, u.id, 'admin'
 from auth.users u
 on conflict (household_id, user_id) do nothing;
 
@@ -106,7 +106,7 @@ security definer
 set search_path = public
 as $fn$
   delete from public.household_members
-  where household_id = hid and user_id = auth.uid() and role <> 'owner';
+  where household_id = hid and user_id = auth.uid() and role <> 'admin';
 $fn$;
 
 revoke all on function public.leave_household(uuid) from public;
@@ -124,7 +124,7 @@ begin
   insert into public.households (id, name) values (new.id, 'Casa')
   on conflict (id) do nothing;
   insert into public.household_members (household_id, user_id, role)
-  values (new.id, new.id, 'owner')
+  values (new.id, new.id, 'admin')
   on conflict (household_id, user_id) do nothing;
   return new;
 end;
@@ -163,7 +163,7 @@ create policy "Only service role updates household" on public.households
 create policy "Members read members" on public.household_members
   for select using (public.is_household_member(household_id));
 create policy "Members leave" on public.household_members
-  for delete using (user_id = auth.uid() and role <> 'owner');
+  for delete using (user_id = auth.uid() and role <> 'admin');
 
 -- inventario, spesa e consumi: appartenenza reale
 create policy "Household reads inventory" on public.inventory_items
