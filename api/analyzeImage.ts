@@ -1,15 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { guard } from '../lib/guard.js';
+import { guard, consumaCredito } from '../lib/guard.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!(await guard(req, res, 'scan'))) return;
+  if (!(await guard(req, res))) return;
 
   const { image } = req.body; // base64 string
   
   if (!image) {
     return res.status(400).json({ error: 'Devi fornire l\'immagine in formato base64.' });
   }
+
+  if (!(await consumaCredito(req, res, 'scan'))) return;
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;

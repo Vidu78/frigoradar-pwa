@@ -15,7 +15,7 @@ const MAX_BODY_BYTES = 4_000_000;
 
 type Credito = 'scan' | 'recipe' | 'nessuno';
 
-export async function guard(req: VercelRequest, res: VercelResponse, credito: Credito = 'nessuno') {
+export async function guard(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return null;
@@ -50,7 +50,20 @@ export async function guard(req: VercelRequest, res: VercelResponse, credito: Cr
     return null;
   }
 
-  if (credito === 'nessuno') return data.user;
+  return data.user;
+}
+
+// Va chiamata DOPO aver validato il corpo della richiesta: una foto mancante
+// o un JSON storto non deve costare un credito all'utente.
+export async function consumaCredito(
+  req: VercelRequest,
+  res: VercelResponse,
+  credito: Exclude<Credito, 'nessuno'>
+): Promise<boolean> {
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
 
   // Il conteggio sta nel database, non nel client: e' l'unico posto che
   // l'utente non puo' riscrivere. La funzione azzera da sola a inizio settimana.
@@ -61,7 +74,7 @@ export async function guard(req: VercelRequest, res: VercelResponse, credito: Cr
   if (erroreCredito) {
     console.error('consume_ai_credit:', erroreCredito);
     res.status(500).json({ error: 'Impossibile verificare il piano.' });
-    return null;
+    return false;
   }
 
   if (!esito?.allowed) {
@@ -74,8 +87,8 @@ export async function guard(req: VercelRequest, res: VercelResponse, credito: Cr
       limit: esito?.limit ?? null,
       resets_at: esito?.resets_at ?? null,
     });
-    return null;
+    return false;
   }
 
-  return data.user;
+  return true;
 }

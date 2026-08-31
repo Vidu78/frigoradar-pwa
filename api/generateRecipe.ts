@@ -1,15 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { guard } from '../lib/guard.js';
+import { guard, consumaCredito } from '../lib/guard.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!(await guard(req, res, 'recipe'))) return;
+  if (!(await guard(req, res))) return;
 
   const { items, peopleCount, difficulty, priority } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Nessun ingrediente fornito.' });
   }
+
+  if (!(await consumaCredito(req, res, 'recipe'))) return;
 
   // Limite di sicurezza: max 50 ingredienti per prevenire abuso di token
   const safeItems = items.slice(0, 50);
