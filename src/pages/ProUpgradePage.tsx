@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { authHeaders } from '../lib/api';
-import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star, Home } from 'lucide-react';
+import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star, Home, Settings } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
 
@@ -33,6 +33,25 @@ export default function ProUpgradePage() {
     return () => { vivo = false; };
   }, [searchParams, refreshPlan, setSearchParams]);
 
+
+  const apriGestione = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/billingPortal', { method: 'POST', headers: await authHeaders() });
+      const dati = await res.json().catch(() => ({}));
+      if (res.ok && dati.url) {
+        window.location.assign(dati.url);
+        return;
+      }
+      showDialog({
+        title: 'Errore',
+        message: dati.error || 'Non riesco ad aprire la gestione abbonamento.',
+        type: 'danger', isAlert: true, confirmText: 'Ok'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUpgrade = async (piano: 'mensile' | 'annuale' = 'mensile') => {
     setLoading(true);
@@ -150,7 +169,21 @@ export default function ProUpgradePage() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px', background: 'rgba(50, 215, 75, 0.1)', borderRadius: '20px', border: '1px solid rgba(50, 215, 75, 0.3)' }}>
           <CheckCircle2 size={40} color="#32D74B" />
           <h3 style={{ margin: 0, color: '#32D74B' }}>Sei già un utente PRO!</h3>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>Goditi tutte le funzioni premium sbloccate.</p>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+            Da "Gestisci abbonamento" puoi passare da mensile ad annuale, cambiare carta o disdire.
+          </p>
+          <button
+            onClick={apriGestione}
+            disabled={loading}
+            style={{
+              marginTop: '8px', width: '100%', padding: '14px', borderRadius: '14px',
+              border: '1px solid rgba(255,255,255,0.2)', background: 'transparent',
+              color: 'white', fontSize: '0.95rem', fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
+            }}
+          >
+            <Settings size={18} /> Gestisci abbonamento
+          </button>
           <button
             onClick={() => navigate('/')}
             style={{

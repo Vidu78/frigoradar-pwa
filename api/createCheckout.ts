@@ -35,12 +35,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const householdId = (utente.user_metadata?.family_id as string) || utente.id;
   const { data: household } = await supabase
     .from('households')
-    .select('id, stripe_customer_id')
+    .select('id, plan, stripe_customer_id')
     .eq('id', householdId)
     .maybeSingle();
 
   if (!household) {
     return res.status(400).json({ error: 'Nessun frigo associato a questo account.' });
+  }
+
+  // Senza questo controllo una chiamata diretta creerebbe un secondo
+  // abbonamento sullo stesso frigo, con doppio addebito ogni mese.
+  if (household.plan === 'pro') {
+    return res.status(409).json({
+      error: 'Hai gia un abbonamento attivo.',
+      reason: 'already_pro',
+    });
   }
 
   const stripe = new Stripe(chiave);
