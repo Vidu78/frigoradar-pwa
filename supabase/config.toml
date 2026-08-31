@@ -1,0 +1,6 @@
+project_id = "ngcjpcdemuyxvgjqauzu"
+
+# La funzione la chiama solo il cron, con la chiave di servizio:
+# senza questa riga resterebbe aperta a chiunque conosca l'indirizzo.
+[functions.check_expirations]
+verify_jwt = true
