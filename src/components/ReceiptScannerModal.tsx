@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authHeaders } from '../lib/api';
+import { authHeaders, limiteRaggiunto } from '../lib/api';
 import { X, Camera, Loader2, Check, Receipt, AlertTriangle } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
 import { addDays } from 'date-fns';
@@ -76,7 +76,9 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
         headers: await authHeaders(),
         body: JSON.stringify({ image: base64String })
       });
-      
+
+      if (await limiteRaggiunto(res)) return;
+
       if (res.ok) {
         const data = await res.json();
         if (data.items && Array.isArray(data.items) && data.items.length > 0) {

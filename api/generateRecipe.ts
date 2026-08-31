@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard } from '../lib/guard.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!(await guard(req, res))) return;
+  if (!(await guard(req, res, 'recipe'))) return;
 
   const { items, peopleCount, difficulty, priority } = req.body;
 

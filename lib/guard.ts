@@ -13,7 +13,9 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPA
 // per piano, il posto giusto e' households.plan.
 const MAX_BODY_BYTES = 4_000_000;
 
-export async function guard(req: VercelRequest, res: VercelResponse) {
+type Credito = 'scan' | 'recipe' | 'nessuno';
+
+export async function guard(req: VercelRequest, res: VercelResponse, credito: Credito = 'nessuno') {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return null;
@@ -37,10 +39,41 @@ export async function guard(req: VercelRequest, res: VercelResponse) {
     return null;
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Il client parla col DB come l'utente: le policy valgono anche qui.
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data?.user) {
     res.status(401).json({ error: 'Sessione non valida.' });
+    return null;
+  }
+
+  if (credito === 'nessuno') return data.user;
+
+  // Il conteggio sta nel database, non nel client: e' l'unico posto che
+  // l'utente non puo' riscrivere. La funzione azzera da sola a inizio settimana.
+  const { data: esito, error: erroreCredito } = await supabase.rpc('consume_ai_credit', {
+    kind: credito,
+  });
+
+  if (erroreCredito) {
+    console.error('consume_ai_credit:', erroreCredito);
+    res.status(500).json({ error: 'Impossibile verificare il piano.' });
+    return null;
+  }
+
+  if (!esito?.allowed) {
+    // 402 = serve il piano PRO. Il client mostra il paywall, non un errore.
+    res.status(402).json({
+      error: credito === 'recipe'
+        ? 'Hai usato la ricetta AI di questa settimana.'
+        : 'Hai usato le scansioni AI di questa settimana.',
+      reason: esito?.reason ?? 'quota',
+      limit: esito?.limit ?? null,
+      resets_at: esito?.resets_at ?? null,
+    });
     return null;
   }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authHeaders } from '../lib/api';
+import { authHeaders, limiteRaggiunto } from '../lib/api';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search, AlertTriangle } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
@@ -214,7 +214,9 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         headers: await authHeaders(),
         body: JSON.stringify({ image: base64String })
       });
-      
+
+      if (await limiteRaggiunto(res)) return;
+
       if (res.ok) {
         const aiData = await res.json();
         if (aiData.expiration_date) {

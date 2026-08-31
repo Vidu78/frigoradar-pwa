@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authHeaders } from '../lib/api';
+import { authHeaders, limiteRaggiunto } from '../lib/api';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useAuthStore } from '../store/authStore';
 import { useDialogStore } from '../store/dialogStore';
@@ -37,6 +37,8 @@ export default function AiRecipes() {
         headers: await authHeaders(),
         body: JSON.stringify({ items: payload, peopleCount, difficulty, priority })
       });
+
+      if (await limiteRaggiunto(res)) return;
 
       if (res.ok) {
         const data = await res.json();
