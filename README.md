@@ -37,6 +37,7 @@ Su Vercel (server, mai nel bundle):
 |---|---|
 | `GEMINI_API_KEY` | chiamate a Gemini dagli handler in `api/` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | verifica del JWT in `lib/guard.ts` |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | checkout e webhook abbonamenti |
 
 Secrets della edge function (`supabase secrets set`):
 `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
@@ -67,7 +68,7 @@ serve `npm run build && npm run preview`**, non `npm run dev`.
 
 ```
 api/              handler serverless Vercel (Gemini)
-lib/guard.ts      verifica del JWT Supabase, condivisa dagli handler
+lib/guard.ts      verifica del JWT Supabase e crediti, condivisa dagli handler
 src/pages/        una schermata per file, caricate con React.lazy da App.tsx
 src/components/   modali e componenti condivisi
 src/store/        stato Zustand (auth, inventario, spesa, fedeltà, toast)
