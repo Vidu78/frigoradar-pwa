@@ -1,15 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { authHeaders } from '../lib/api';
-import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star, Home } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
 
 export default function ProUpgradePage() {
   const navigate = useNavigate();
-  const { isPro } = useAuthStore();
+  const { isPro, refreshPlan } = useAuthStore();
   const { showDialog } = useDialogStore();
   const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [attesaPagamento, setAttesaPagamento] = useState(false);
+
+  // Al ritorno da Stripe il piano lo scrive il webhook, che puo' arrivare un
+  // istante dopo: si ricontrolla per qualche secondo invece di dire di no.
+  useEffect(() => {
+    if (searchParams.get('pagamento') !== 'ok') return;
+    let vivo = true;
+    setAttesaPagamento(true);
+
+    (async () => {
+      for (let tentativo = 0; tentativo < 10 && vivo; tentativo++) {
+        if (await refreshPlan()) break;
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      if (!vivo) return;
+      setAttesaPagamento(false);
+      setSearchParams({}, { replace: true });
+    })();
+
+    return () => { vivo = false; };
+  }, [searchParams, refreshPlan, setSearchParams]);
+
 
   const handleUpgrade = async (piano: 'mensile' | 'annuale' = 'mensile') => {
     setLoading(true);
@@ -58,17 +81,6 @@ export default function ProUpgradePage() {
           style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         >
           <ChevronLeft size={24} />
-        </button>
-        <button
-          onClick={() => handleUpgrade('annuale')}
-          disabled={loading}
-          style={{
-            width: '100%', marginTop: '12px', padding: '12px', borderRadius: '12px',
-            border: '1px solid rgba(255,215,0,0.35)', background: 'transparent',
-            color: '#FFD700', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer'
-          }}
-        >
-          Oppure 39,99 €/anno — risparmi il 33%
         </button>
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#FFD700', textShadow: '0 0 20px rgba(255,215,0,0.3)' }}>FrigoRadar PRO</h1>
@@ -127,13 +139,31 @@ export default function ProUpgradePage() {
       </div>
 
       {/* CTA */}
-      {isPro ? (
+      {attesaPagamento ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px' }}>
+          <Loader2 size={32} className="animate-spin" color="#FFD700" />
+          <p style={{ margin: 0, color: 'var(--text-muted)', textAlign: 'center' }}>
+            Pagamento ricevuto, sto attivando il tuo PRO...
+          </p>
+        </div>
+      ) : isPro ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px', background: 'rgba(50, 215, 75, 0.1)', borderRadius: '20px', border: '1px solid rgba(50, 215, 75, 0.3)' }}>
           <CheckCircle2 size={40} color="#32D74B" />
           <h3 style={{ margin: 0, color: '#32D74B' }}>Sei già un utente PRO!</h3>
           <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>Goditi tutte le funzioni premium sbloccate.</p>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              marginTop: '8px', width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
+              background: '#32D74B', color: 'black', fontSize: '1rem', fontWeight: 800,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
+            }}
+          >
+            <Home size={20} /> Torna al frigo
+          </button>
         </div>
       ) : (
+        <>
         <button 
           onClick={() => handleUpgrade('mensile')}
           disabled={loading}
@@ -149,6 +179,18 @@ export default function ProUpgradePage() {
         >
           {loading ? <Loader2 size={24} className="animate-spin" /> : 'Passa a PRO — 4,99 €/mese'}
         </button>
+        <button
+          onClick={() => handleUpgrade('annuale')}
+          disabled={loading}
+          style={{
+            width: '100%', marginTop: '12px', padding: '12px', borderRadius: '12px',
+            border: '1px solid rgba(255,215,0,0.35)', background: 'transparent',
+            color: '#FFD700', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer'
+          }}
+        >
+          Oppure 39,99 €/anno — risparmi il 33%
+        </button>
+        </>
       )}
 
     </div>

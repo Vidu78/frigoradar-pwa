@@ -11,6 +11,7 @@ interface AuthState {
   loading: boolean;
   initialize: () => void;
   signOut: () => Promise<void>;
+  refreshPlan: () => Promise<boolean>;
   updateStats: (type: 'SAVED' | 'WASTED', amount: number) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   completeOnboarding: (prefs: any) => Promise<void>;
@@ -66,6 +67,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       void loadPlan(session).then((isPro) => set({ isPro }));
     });
+  },
+  refreshPlan: async () => {
+    const { session } = get();
+    const isPro = await loadPlan(session);
+    set({ isPro });
+    return isPro;
   },
   signOut: async () => {
     // signOut notifica onAuthStateChange con session=null → ProtectedRoute redirige a /auth
