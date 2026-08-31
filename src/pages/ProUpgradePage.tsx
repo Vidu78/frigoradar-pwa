@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { authHeaders } from '../lib/api';
 import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
@@ -10,17 +11,41 @@ export default function ProUpgradePage() {
   const { showDialog } = useDialogStore();
   const [loading, setLoading] = useState(false);
 
-  const handleUpgrade = async () => {
-    // ponytail: il pulsante non tocca piu' il piano. Lo fara' il webhook Stripe.
+  const handleUpgrade = async (piano: 'mensile' | 'annuale' = 'mensile') => {
     setLoading(true);
-    showDialog({
-      title: 'Quasi pronto',
-      message: 'I pagamenti stanno per essere attivati. Ti avvisiamo appena il piano PRO diventa acquistabile.',
-      type: 'info',
-      isAlert: true,
-      confirmText: 'Ok'
-    });
-    setLoading(false);
+    try {
+      const res = await fetch('/api/createCheckout', {
+        method: 'POST',
+        headers: await authHeaders(),
+        body: JSON.stringify({ piano })
+      });
+
+      const dati = await res.json().catch(() => ({}));
+
+      if (res.ok && dati.url) {
+        window.location.assign(dati.url);
+        return;
+      }
+
+      showDialog({
+        title: res.status === 503 ? 'Quasi pronto' : 'Errore',
+        message: dati.error || 'Non riesco ad aprire il pagamento. Riprova piu tardi.',
+        type: res.status === 503 ? 'info' : 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
+    } catch (err) {
+      console.error(err);
+      showDialog({
+        title: 'Errore di connessione',
+        message: 'Controlla la rete e riprova.',
+        type: 'danger',
+        isAlert: true,
+        confirmText: 'Ok'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,6 +58,17 @@ export default function ProUpgradePage() {
           style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         >
           <ChevronLeft size={24} />
+        </button>
+        <button
+          onClick={() => handleUpgrade('annuale')}
+          disabled={loading}
+          style={{
+            width: '100%', marginTop: '12px', padding: '12px', borderRadius: '12px',
+            border: '1px solid rgba(255,215,0,0.35)', background: 'transparent',
+            color: '#FFD700', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer'
+          }}
+        >
+          Oppure 39,99 €/anno — risparmi il 33%
         </button>
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#FFD700', textShadow: '0 0 20px rgba(255,215,0,0.3)' }}>FrigoRadar PRO</h1>
@@ -99,7 +135,7 @@ export default function ProUpgradePage() {
         </div>
       ) : (
         <button 
-          onClick={handleUpgrade}
+          onClick={() => handleUpgrade('mensile')}
           disabled={loading}
           style={{
             width: '100%', padding: '18px', borderRadius: '16px', border: 'none',
@@ -111,7 +147,7 @@ export default function ProUpgradePage() {
             transform: loading ? 'scale(0.98)' : 'scale(1)'
           }}
         >
-          {loading ? <Loader2 size={24} className="animate-spin" /> : 'Sblocca Gratis (Modalità Test)'}
+          {loading ? <Loader2 size={24} className="animate-spin" /> : 'Passa a PRO — 4,99 €/mese'}
         </button>
       )}
 
