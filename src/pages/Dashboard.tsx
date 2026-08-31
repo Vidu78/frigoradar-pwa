@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { StorageImage } from '../components/StorageImage';
 import { authHeaders } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { LogOut, ScanBarcode, Refrigerator, Search, Plus, Minus, Loader2, Info, Box, Camera, Receipt } from 'lucide-react';
-import BarcodeScannerModal from '../components/BarcodeScannerModal';
-import AddItemModal from '../components/AddItemModal';
-import ProductDetailModal from '../components/ProductDetailModal';
-import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
-import BarcodeAssociationModal from '../components/BarcodeAssociationModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
+
+// main ha reso lazy le schermate in App.tsx, ma i modali restano importati
+// staticamente: BarcodeScannerModal trascina html5-qrcode (~108 KB gzip) nel
+// chunk del frigo, dove serve solo a chi apre lo scanner.
+const BarcodeScannerModal = lazy(() => import('../components/BarcodeScannerModal'));
+const AddItemModal = lazy(() => import('../components/AddItemModal'));
+const ProductDetailModal = lazy(() => import('../components/ProductDetailModal'));
+const WelcomeTutorialModal = lazy(() => import('../components/WelcomeTutorialModal'));
+const BarcodeAssociationModal = lazy(() => import('../components/BarcodeAssociationModal'));
 import { useToastStore } from '../store/toastStore';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -17,7 +21,7 @@ import { supabase } from '../lib/supabase';
 const categoryEmojis: Record<string, string> = {
   'Carni e Salumi': '🥩',
   'Verdure e Frutta': '🥦',
-  'Latticini e Ovuova': '🥛',
+  'Latticini e Uova': '🥛',
   'Pesce e Frutti di Mare': '🐟',
   'Pane e Pasta': '🍞',
   'Conserve e Sughi': '🥫',
@@ -525,73 +529,75 @@ export default function Dashboard() {
         )}
       </div>
 
-      {showScanner && (
-        <BarcodeScannerModal 
-          onSuccess={handleScan}
-          onClose={() => setShowScanner(false)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showScanner && (
+          <BarcodeScannerModal 
+            onSuccess={handleScan}
+            onClose={() => setShowScanner(false)}
+          />
+        )}
 
-      {showAssociationModal && aiProductData && (
-        <BarcodeAssociationModal
-          scannedData={aiProductData}
-          candidates={items.filter(i => !(i as any).barcode)}
-          onClose={() => {
-            setShowAssociationModal(false);
-            setAiProductData(null);
-          }}
-          onAddNew={() => {
-            setShowAssociationModal(false);
-            setInitialInputMode('manual');
-            setShowAddModal(true);
-          }}
-          onAssociate={async (itemId, updates) => {
-            try {
-              const { error } = await supabase.from('inventory_items').update(updates).eq('id', itemId);
-              if (error) throw error;
-              showToast('Prodotto associato con successo!', 'success');
+        {showAssociationModal && aiProductData && (
+          <BarcodeAssociationModal
+            scannedData={aiProductData}
+            candidates={items.filter(i => !(i as any).barcode)}
+            onClose={() => {
               setShowAssociationModal(false);
               setAiProductData(null);
-              fetchItems();
-            } catch (err) {
-              console.error(err);
-              showToast("Errore durante l'associazione.", "error");
-            }
-          }}
-        />
-      )}
+            }}
+            onAddNew={() => {
+              setShowAssociationModal(false);
+              setInitialInputMode('manual');
+              setShowAddModal(true);
+            }}
+            onAssociate={async (itemId, updates) => {
+              try {
+                const { error } = await supabase.from('inventory_items').update(updates).eq('id', itemId);
+                if (error) throw error;
+                showToast('Prodotto associato con successo!', 'success');
+                setShowAssociationModal(false);
+                setAiProductData(null);
+                fetchItems();
+              } catch (err) {
+                console.error(err);
+                showToast("Errore durante l'associazione.", "error");
+              }
+            }}
+          />
+        )}
 
-      {showAddModal && (
-        <AddItemModal 
-          initialData={aiProductData}
-          initialInputMode={initialInputMode}
-          onSave={handleSaveItem}
-          onClose={() => {
-            setShowAddModal(false);
-            setAiProductData(null);
-          }}
-        />
-      )}
+        {showAddModal && (
+          <AddItemModal 
+            initialData={aiProductData}
+            initialInputMode={initialInputMode}
+            onSave={handleSaveItem}
+            onClose={() => {
+              setShowAddModal(false);
+              setAiProductData(null);
+            }}
+          />
+        )}
 
-      {selectedProduct && (
-        <ProductDetailModal
-          item={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onUpdateQuantity={(id, qty) => {
-            updateItemQuantity(id, qty);
-            setSelectedProduct({ ...selectedProduct, quantity: qty });
-          }}
-          onUpdateProduct={(updatedItem) => setSelectedProduct(updatedItem)}
-          onDelete={(id) => {
-            handleDeleteWithStats(id);
-          }}
-          onRefreshItem={fetchItems}
-        />
-      )}
+        {selectedProduct && (
+          <ProductDetailModal
+            item={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onUpdateQuantity={(id, qty) => {
+              updateItemQuantity(id, qty);
+              setSelectedProduct({ ...selectedProduct, quantity: qty });
+            }}
+            onUpdateProduct={(updatedItem) => setSelectedProduct(updatedItem)}
+            onDelete={(id) => {
+              handleDeleteWithStats(id);
+            }}
+            onRefreshItem={fetchItems}
+          />
+        )}
 
-      {showWelcomeTutorial && (
-        <WelcomeTutorialModal onComplete={handleTutorialComplete} />
-      )}
+        {showWelcomeTutorial && (
+          <WelcomeTutorialModal onComplete={handleTutorialComplete} />
+        )}
+      </Suspense>
 
       <style>{`
         @keyframes pulseRed {
