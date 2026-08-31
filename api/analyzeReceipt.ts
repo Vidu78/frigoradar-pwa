@@ -98,6 +98,7 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
 
   } catch (error: any) {
     console.error('Gemini Receipt Error:', error);
-    return res.status(500).json({ error: 'Errore durante l\'analisi dello scontrino', details: error.message });
+    // Il messaggio dell'SDK resta nei log: puo contenere dettagli interni.
+    return res.status(500).json({ error: 'Errore durante l\'analisi dello scontrino' });
   }
 }

@@ -1,13 +1,42 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
+import { clientsClaim } from 'workbox-core';
 
 declare let self: ServiceWorkerGlobalScope;
 
-// L'injection point di VitePWA
-const precacheManifest = self.__WB_MANIFEST;
-if (precacheManifest) {
-  precacheAndRoute(precacheManifest);
-}
+// Sostituito a build time da vite-plugin-pwa con l'elenco dei file da
+// precaricare, ciascuno con la propria revisione.
+//
+// Finché vite.config.ts dichiarava `injectionPoint: undefined` la sostituzione
+// non avveniva: `self.__WB_MANIFEST` restava tale, a runtime valeva undefined e
+// non veniva precaricato nulla. Da lì discendeva anche il fatto che sw.js fosse
+// identico a ogni build, quindi il browser non rilevava mai un aggiornamento e
+// il prompt di ReloadPrompt non compariva.
+precacheAndRoute(self.__WB_MANIFEST);
+
+// Rimuove le precache lasciate da versioni precedenti di Workbox.
+cleanupOutdatedCaches();
+
+// SPA: ogni navigazione viene servita dall'app shell in precache, così i deep
+// link (/pro, /loyalty) funzionano anche offline. Le chiamate API sono escluse.
+registerRoute(
+  new NavigationRoute(createHandlerBoundToURL('index.html'), {
+    denylist: [/^\/api\//]
+  })
+);
+
+// Con registerType: 'prompt' il nuovo service worker resta in waiting finché
+// l'utente non conferma. ReloadPrompt chiama updateServiceWorker(true), che
+// invia questo messaggio: senza il listener il pulsante "Aggiorna" non
+// attiverebbe la nuova versione.
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+clientsClaim();
 
 // Listen for Push events
 self.addEventListener('push', (event) => {
@@ -18,7 +47,7 @@ self.addEventListener('push', (event) => {
       const options = {
         body: data.body || 'Nuova notifica!',
         icon: '/pwa-192x192.png',
-        badge: '/masked-icon.svg',
+        badge: '/pwa-192x192.png',
         data: data.url || '/',
         vibrate: [200, 100, 200]
       };
@@ -38,7 +67,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const urlToOpen = event.notification.data || '/';
-  
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
       for (let i = 0; i < windowClients.length; i++) {

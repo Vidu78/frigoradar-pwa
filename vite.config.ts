@@ -10,14 +10,14 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'prompt',
-      injectManifest: {
-        injectionPoint: undefined
-      },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      // Nessun injectManifest.injectionPoint: il default e `self.__WB_MANIFEST`,
+      // ed e cio che rende sw.ts capace di precaricare l'app shell.
+      includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
         name: 'FrigoRadar',
         short_name: 'FrigoRadar',
         description: 'Gestisci il tuo frigorifero in modo intelligente.',
+        lang: 'it',
         theme_color: '#051A18',
         background_color: '#051A18',
         display: 'standalone',

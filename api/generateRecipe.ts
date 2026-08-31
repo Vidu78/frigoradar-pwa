@@ -79,6 +79,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 
   } catch (error: any) {
     console.error('Gemini Recipe Error:', error);
-    return res.status(500).json({ error: 'Errore durante la generazione della ricetta', details: error.message });
+    // Il messaggio dell'SDK resta nei log: puo contenere dettagli interni.
+    return res.status(500).json({ error: 'Errore durante la generazione della ricetta' });
   }
 }

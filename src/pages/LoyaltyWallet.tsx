@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { StorageLink } from '../components/StorageImage';
 import { useLoyaltyStore } from '../store/loyaltyStore';
 import { X, Plus, Trash2, CreditCard, Camera, Tag } from 'lucide-react';
-import Barcode from 'react-barcode';
-import BarcodeScanner from '../components/BarcodeScanner';
+
+// react-barcode e html5-qrcode servono solo dentro il portafoglio fedelta.
+const Barcode = lazy(() => import('react-barcode'));
+const BarcodeScanner = lazy(() => import('../components/BarcodeScanner'));
 import { useToastStore } from '../store/toastStore';
 import { useDialogStore } from '../store/dialogStore';
 
@@ -82,7 +84,9 @@ export default function LoyaltyWallet() {
               <X size={24} />
             </button>
           </div>
-          <BarcodeScanner onScan={handleScan} onClose={() => setIsScanning(false)} />
+          <Suspense fallback={null}>
+            <BarcodeScanner onScan={handleScan} onClose={() => setIsScanning(false)} />
+          </Suspense>
           <div style={{ position: 'absolute', bottom: 40, left: 0, right: 0, textAlign: 'center', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
             <p>Inquadra il codice a barre della tua carta fedeltà</p>
           </div>
@@ -172,7 +176,9 @@ export default function LoyaltyWallet() {
           {/* Barcode preview */}
           {scannedBarcode && (
             <div style={{ background: 'white', borderRadius: '16px', padding: '16px', textAlign: 'center', marginBottom: '4px', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
-              <Barcode value={scannedBarcode} background="transparent" width={1.8} height={65} />
+              <Suspense fallback={null}>
+                <Barcode value={scannedBarcode} background="transparent" width={1.8} height={65} />
+              </Suspense>
             </div>
           )}
         </div>
@@ -360,16 +366,18 @@ export default function LoyaltyWallet() {
                         <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#333', position: 'absolute', top: 20, left: 20 }}>{card.store_name}</div>
                         
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', transform: 'scale(1.1)', marginTop: '10px' }}>
-                          <Barcode 
-                            value={card.barcode_value} 
-                            background="transparent" 
-                            lineColor="black"
-                            width={2} 
-                            height={70} 
-                            displayValue={true}
-                            fontSize={16}
-                            margin={0}
-                          />
+                          <Suspense fallback={null}>
+                            <Barcode 
+                              value={card.barcode_value} 
+                              background="transparent" 
+                              lineColor="black"
+                              width={2} 
+                              height={70} 
+                              displayValue={true}
+                              fontSize={16}
+                              margin={0}
+                            />
+                          </Suspense>
                         </div>
                       </div>
                     </div>

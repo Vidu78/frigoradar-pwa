@@ -43,9 +43,21 @@ interface InventoryState {
 }
 
 export const useInventoryStore = create<InventoryState>((set, get) => {
-  const initialPendingRecipe = localStorage.getItem('pendingRecipe') 
-    ? JSON.parse(localStorage.getItem('pendingRecipe') as string) 
-    : null;
+  // Gira a livello di modulo, prima che React monti: un JSON.parse non protetto
+  // qui rende l'app irrecuperabile senza svuotare a mano lo storage.
+  const readPendingRecipe = (): PendingRecipe | null => {
+    const raw = localStorage.getItem('pendingRecipe');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as PendingRecipe;
+    } catch {
+      console.warn('pendingRecipe illeggibile, lo scarto.');
+      localStorage.removeItem('pendingRecipe');
+      return null;
+    }
+  };
+
+  const initialPendingRecipe = readPendingRecipe();
 
   return {
     items: [],
