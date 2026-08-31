@@ -43,7 +43,7 @@ export default function Toast() {
         {message}
       </p>
       
-      <button 
+      <button aria-label="Chiudi" 
         onClick={hideToast} 
         style={{ 
           background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', 

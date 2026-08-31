@@ -102,7 +102,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             </div>
           )}
           
-          <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', padding: '10px', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
+          <button aria-label="Chiudi" onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', padding: '10px', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
             <X size={24} />
           </button>
 

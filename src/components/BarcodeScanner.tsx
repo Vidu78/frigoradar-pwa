@@ -256,7 +256,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>
           {/* Pulsante chiudi */}
-          <button
+          <button aria-label="Chiudi"
             onClick={onClose}
             style={{
               background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)',

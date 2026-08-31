@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
-import AuthPage from './pages/AuthPage';
-import Dashboard from './pages/Dashboard';
-import AiRecipes from './pages/AiRecipes';
-import ShoppingList from './pages/ShoppingList';
-import Profile from './pages/Profile';
-import ProUpgradePage from './pages/ProUpgradePage';
-import Onboarding from './pages/Onboarding';
-import FamilySharing from './pages/FamilySharing';
-import LoyaltyWallet from './pages/LoyaltyWallet';
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AiRecipes = lazy(() => import('./pages/AiRecipes'));
+const ShoppingList = lazy(() => import('./pages/ShoppingList'));
+const Profile = lazy(() => import('./pages/Profile'));
+const ProUpgradePage = lazy(() => import('./pages/ProUpgradePage'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
+const FamilySharing = lazy(() => import('./pages/FamilySharing'));
+const LoyaltyWallet = lazy(() => import('./pages/LoyaltyWallet'));
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
 import WelcomeTutorialModal from './components/WelcomeTutorialModal';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
 import { Download, X, Receipt, Camera, Plus as PlusIcon } from 'lucide-react';
-import AddItemModal from './components/AddItemModal';
-import ReceiptScannerModal from './components/ReceiptScannerModal';
+const AddItemModal = lazy(() => import('./components/AddItemModal'));
+const ReceiptScannerModal = lazy(() => import('./components/ReceiptScannerModal'));
 import { useInventoryStore } from './store/inventoryStore';
 import PremiumDialog from './components/PremiumDialog';
 import ReloadPrompt from './components/ReloadPrompt';
@@ -66,7 +66,7 @@ const AppContainer = () => {
   };
 
   return (
-    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100dvh', width: '100vw', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <Toast />
       
       {/* PWA Install Banner */}
@@ -79,7 +79,7 @@ const AppContainer = () => {
               <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Per un'esperienza più veloce</span>
             </div>
           </div>
-          <button onClick={() => setDeferredPrompt(null)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: 'black', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <button aria-label="Chiudi" onClick={() => setDeferredPrompt(null)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: 'black', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <X size={16} />
           </button>
         </div>
@@ -182,7 +182,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Loader2 className="animate-spin" size={40} color="#00FFAA" />
       </div>
     );
@@ -255,6 +255,11 @@ function App() {
     <Router>
       {showWelcomeTutorial && <WelcomeTutorialModal onComplete={handleTutorialComplete} />}
       <PremiumDialog />
+      <Suspense fallback={
+        <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Loader2 className="animate-spin" size={40} color="#00FFAA" />
+        </div>
+      }>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route 
@@ -288,6 +293,7 @@ function App() {
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
       <ReloadPrompt />
     </Router>
   );

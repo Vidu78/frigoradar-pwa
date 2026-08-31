@@ -392,7 +392,7 @@ export default function Profile() {
       {showNotificationsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label="Chiudi" onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '16px' }}>{t('profile.notifications')}</h2>
             <p style={{ color: 'var(--text-muted)' }}>Ricevi avvisi intelligenti per i prodotti che stanno per scadere nel tuo frigorifero.</p>
             
@@ -446,7 +446,7 @@ export default function Profile() {
       {showReceiptsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', maxHeight: '80vh', borderRadius: '24px', padding: '24px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-            <button onClick={() => setShowReceiptsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label="Chiudi" onClick={() => setShowReceiptsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><Receipt size={24} color="#FF9F0A"/> I tuoi Scontrini</h2>
             
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -481,7 +481,7 @@ export default function Profile() {
       {showPreferencesModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => setShowPreferencesModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label="Chiudi" onClick={() => setShowPreferencesModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.preferences')}</h2>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -516,7 +516,7 @@ export default function Profile() {
       {showSettingsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label="Chiudi" onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.settings')}</h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Gestisci le impostazioni avanzate del tuo account.</p>
             

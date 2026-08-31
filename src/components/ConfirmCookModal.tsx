@@ -83,7 +83,7 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
           <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600, color: 'white' }}>
             Hai cucinato?
           </h3>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>

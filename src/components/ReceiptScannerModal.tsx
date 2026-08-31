@@ -256,7 +256,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
             <Receipt size={24} color="var(--primary)" />
             {step === 'camera' ? 'Scansiona Scontrino' : 'Carrello in Ingresso'}
           </h3>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>

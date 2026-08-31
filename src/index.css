@@ -25,7 +25,7 @@ body {
   background-image: 
     radial-gradient(circle at 15% 50%, rgba(46, 204, 113, 0.05), transparent 25%),
     radial-gradient(circle at 85% 30%, rgba(11, 61, 59, 0.2), transparent 25%);
-  min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -33,7 +33,7 @@ body {
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ==== PREMIUM SMART FRIDGE DESIGN ==== */
@@ -263,5 +263,22 @@ body {
   /* Rimpiccioliamo leggermente i controlli LED sul termostato */
   .smart-screen h1 {
     font-size: 1.6rem !important;
+  }
+}
+
+/* Chi naviga da tastiera deve vedere dove si trova */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Chi ha chiesto meno animazioni al sistema non deve subire glow e slide */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

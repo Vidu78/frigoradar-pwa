@@ -285,7 +285,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
           }}>
             {current.emoji}
           </div>
-          <button
+          <button aria-label="Chiudi"
             onClick={onComplete}
             style={{
               background: 'rgba(255,255,255,0.06)', border: 'none', color: 'rgba(255,255,255,0.4)',

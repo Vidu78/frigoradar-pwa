@@ -64,7 +64,7 @@ export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScann
         overflow: 'hidden'
       }}>
         <div style={{ padding: '24px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer', backdropFilter: 'blur(5px)', zIndex: 10 }}>
+          <button aria-label="Chiudi" onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer', backdropFilter: 'blur(5px)', zIndex: 10 }}>
             <X size={20} />
           </button>
           

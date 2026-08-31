@@ -40,7 +40,7 @@ export default function BarcodeAssociationModal({ scannedData, candidates, onClo
       }}>
         <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Prodotto Trovato</h3>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
         </div>
 
         <div style={{ padding: '20px' }}>

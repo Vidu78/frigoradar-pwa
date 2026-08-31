@@ -42,7 +42,7 @@ export default function ReloadPrompt() {
         <RefreshCw size={16} />
         Aggiorna
       </button>
-      <button onClick={() => setNeedRefresh(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+      <button aria-label="Chiudi" onClick={() => setNeedRefresh(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
         <X size={20} />
       </button>
 

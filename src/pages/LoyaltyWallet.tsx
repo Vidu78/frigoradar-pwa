@@ -78,7 +78,7 @@ export default function LoyaltyWallet() {
       <div className="modal-overlay">
         <div className="modal-content" style={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
           <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100 }}>
-            <button onClick={() => setIsScanning(false)} className="icon-button" style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <button aria-label="Chiudi" onClick={() => setIsScanning(false)} className="icon-button" style={{ background: 'rgba(0,0,0,0.5)' }}>
               <X size={24} />
             </button>
           </div>
@@ -101,7 +101,7 @@ export default function LoyaltyWallet() {
       }}>
         {/* HEADER */}
         <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button 
+          <button aria-label="Chiudi" 
             onClick={() => { setScannedBarcode(null); setIsAddingManual(false); setCustomStoreName(''); }}
             style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
           >
@@ -482,7 +482,7 @@ export function LoyaltyWalletModal({ onClose }: { onClose: () => void }) {
     <div className="modal-overlay">
       <div className="modal-content" style={{ background: 'var(--bg-color)', height: '85vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px 0 0' }}>
-          <button onClick={onClose} className="icon-button"><X size={24} /></button>
+          <button aria-label="Chiudi" onClick={onClose} className="icon-button"><X size={24} /></button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
           <LoyaltyWallet />

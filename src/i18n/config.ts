@@ -35,4 +35,13 @@ i18n
     }
   });
 
+// Senza questo l'arabo resta impaginato da sinistra e <html lang> mente a Google
+const applicaLingua = (lng: string) => {
+  document.documentElement.lang = lng;
+  document.documentElement.dir = lng.startsWith('ar') ? 'rtl' : 'ltr';
+};
+
+applicaLingua(i18n.resolvedLanguage || 'it');
+i18n.on('languageChanged', applicaLingua);
+
 export default i18n;
