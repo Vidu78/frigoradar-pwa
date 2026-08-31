@@ -5,7 +5,7 @@ import { guard, consumaCredito } from '../lib/guard.js';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
 
-  const { image } = req.body; // base64 string
+  const { image, mode } = req.body; // base64 string
   
   if (!image) {
     return res.status(400).json({ error: 'Devi fornire l\'immagine in formato base64.' });
@@ -35,7 +35,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const today = new Date().toISOString().split('T')[0];
 
-    const prompt = `
+    // AddItemModal invia mode: 'produce_weight' per le etichette del banco
+    // ortofrutta e si aspetta weight_kg / produce_name. Finche questo campo
+    // veniva ignorato, la lettura del peso mostrava sempre "non leggibile".
+    const producePrompt = `
+AGISCI COME: Esperto di OCR applicato alle etichette con codice a barre del banco ortofrutta della GDO italiana.
+COMPITO: Nella foto c'e l'etichetta adesiva stampata dalla bilancia del supermercato. Estrai il peso e il prodotto.
+
+REGOLE:
+1. PESO: cerca il valore accanto a "kg", "Kg", "PESO", "P.NETTO" o simili. Restituiscilo in CHILOGRAMMI come numero decimale (es. 0.412). Se leggi grammi, converti (412 g -> 0.412). Se il peso non e leggibile, usa null: non inventarlo.
+2. PRODOTTO: il nome dell'ortofrutta stampato sull'etichetta (es. "Banane", "Pomodori Ciliegino"). Se non leggibile, null.
+3. NO MARKDOWN: solo JSON puro.
+
+SCHEMA DI OUTPUT JSON OBBLIGATORIO:
+{
+  "weight_kg": 0.412,
+  "produce_name": "Banane"
+}
+`;
+
+    const defaultPrompt = `
 AGISCI COME: Esperto di Visione Artificiale e OCR applicato al retail alimentare.
 COMPITO: Analizza la foto fornita. Può essere la foto dell'intero prodotto o un dettaglio ravvicinato della data di scadenza. 
 
@@ -71,6 +90,8 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
 `;
 
     // Esegui la chiamata con configurazione per forzare output JSON nativo
+    const prompt = mode === 'produce_weight' ? producePrompt : defaultPrompt;
+
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }, imagePart] }],
       generationConfig: {
@@ -89,6 +110,7 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
 
   } catch (error: any) {
     console.error('Gemini Image Error:', error);
-    return res.status(500).json({ error: 'Errore durante l\'analisi dell\'immagine', details: error.message });
+    // Il messaggio dell'SDK resta nei log: puo contenere dettagli interni.
+    return res.status(500).json({ error: 'Errore durante l\'analisi dell\'immagine' });
   }
 }

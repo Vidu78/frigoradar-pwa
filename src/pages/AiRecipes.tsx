@@ -48,7 +48,7 @@ export default function AiRecipes() {
         console.error("API Error:", res.status, errData);
         showDialog({
           title: 'Errore Server',
-          message: `Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'} Dettagli: ${errData?.details || ''}`,
+          message: `${errData?.error || 'Errore del server. Riprova più tardi.'} (codice ${res.status})`,
           type: 'danger',
           isAlert: true,
           confirmText: 'Ok'
