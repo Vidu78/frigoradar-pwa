@@ -43,6 +43,7 @@ REGOLE IMPORTANTI DI TOLLERANZA E LETTURA:
    - Sii estremamente tollerante: se l'immagine è sfocata, riflessa, parzialmente tagliata, o di sbieco, fai del tuo meglio per intuire e ricostruire la data corretta.
    - Se l'anno è espresso a due cifre (es. "25", "26"), convertilo a 4 cifre ("2025", "2026").
    - Se la data è totalmente invisibile, illeggibile o assente, NON dare errore e NON scrivere null o "sconosciuto". Calcola invece una data stimata ragionevole basandoti sul tipo di prodotto identificato (es. Latticini: +7gg, Carne/Pesce freschi: +3gg, Pane: +5gg, Conserve/Scatolame: +365gg, Succhi: +30gg) a partire da OGGI (${today}).
+   - IL CAMPO "date_source" DEVE VALERE "letta" SOLO SE HAI EFFETTIVAMENTE VISTO LA DATA SULLA CONFEZIONE. In ogni altro caso (data ricostruita, dedotta o calcolata dal tipo di prodotto) DEVE VALERE "stimata". Non barare: l'utente vede questa distinzione e ci decide se fidarsi.
    - IL CAMPO "expiration_date" DEVE SEMPRE ED ESCLUSIVAMENTE CONTENERE UNA DATA VALIDA NEL FORMATO "YYYY-MM-DD". Non usare mai parole o formati alternativi.
 
 2. NOME PRODOTTO: Identifica il nome dell'alimento. Se la foto mostra solo la data su sfondo bianco/neutro e non è possibile capire il prodotto, usa il nome generico "Prodotto da Foto".
@@ -58,6 +59,7 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
   "category": "Categoria dell'alimento",
   "storage_type": "FRIDGE | FREEZER | PANTRY",
   "expiration_date": "YYYY-MM-DD (letta o stimata con tolleranza)",
+  "date_source": "letta | stimata",
   "default_shelf_life_days": 7,
   "health_score": "Sano | Moderato | Poco Sano | Sconosciuto",
   "ingredients": "Lista degli ingredienti (se visibili o deducibili dal prodotto), altrimenti null",

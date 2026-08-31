@@ -32,11 +32,16 @@ serve(async (_req) => {
     const dateStr = inTwoDays.toISOString().split('T')[0];
 
     // Prendiamo gli item in scadenza (location = FRIDGE o PANTRY, il FREEZER scade tardi)
+    // Senza questo filtro lo stesso prodotto verrebbe rinotificato a ogni giro,
+    // e in due giorni l'utente disattiva le notifiche.
+    const soglia = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
+
     const { data: items, error: itemsError } = await supabase
       .from('inventory_items')
       .select('id, user_id, custom_name, expiration_date')
       .lte('expiration_date', dateStr)
-      .not('expiration_date', 'is', null);
+      .not('expiration_date', 'is', null)
+      .or(`last_notified_at.is.null,last_notified_at.lt.${soglia}`);
 
     if (itemsError) throw itemsError;
 
@@ -68,6 +73,7 @@ serve(async (_req) => {
     // 3. Invia notifiche push
     let successCount = 0;
     let failCount = 0;
+    const notificati: string[] = [];
 
     const promises = subscriptions.map(async (sub) => {
       const userItems = itemsByUser[sub.user_id];
@@ -93,6 +99,7 @@ serve(async (_req) => {
       try {
         await webpush.sendNotification(pushSubscription, payload);
         successCount++;
+        for (const it of userItems) notificati.push(it.id);
       } catch (err: any) {
         console.error("Errore invio notifica:", err);
         // Se la sottoscrizione è scaduta (410), eliminala dal DB
@@ -105,8 +112,16 @@ serve(async (_req) => {
 
     await Promise.all(promises);
 
+    // Si segna solo cio' che e' partito davvero: se l'invio fallisce, riprova domani.
+    if (notificati.length > 0) {
+      await supabase
+        .from('inventory_items')
+        .update({ last_notified_at: new Date().toISOString() })
+        .in('id', notificati);
+    }
+
     return new Response(
-      JSON.stringify({ message: `Notifiche inviate: ${successCount} con successo, ${failCount} fallite.` }),
+      JSON.stringify({ message: `Notifiche inviate: ${successCount} con successo, ${failCount} fallite, ${notificati.length} prodotti segnati.` }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {

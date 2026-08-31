@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authHeaders } from '../lib/api';
-import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search } from 'lucide-react';
+import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search, AlertTriangle } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
@@ -88,6 +88,8 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   const [unit, setUnit] = useState(initialData?.unit || 'pz');
   const [isExpiryEdited, setIsExpiryEdited] = useState(false);
+  // L'AI inventa una data quando non riesce a leggerla: va detto all'utente
+  const [isExpiryEstimated, setIsExpiryEstimated] = useState(false);
   
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
   const defaultExp = initialData?.expiration_date 
@@ -217,6 +219,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         const aiData = await res.json();
         if (aiData.expiration_date) {
           setExpiry(aiData.expiration_date);
+          setIsExpiryEstimated(aiData.date_source === 'stimata');
           showToast(t('add_item.ai_success', "Dati letti con successo dall'AI!"), "success");
         } else {
           showToast(t('add_item.ai_no_date', "Scadenza non trovata. Impostata scadenza stimata."), "info");
@@ -657,12 +660,19 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                     onChange={(e) => {
                       setExpiry(e.target.value);
                       setIsExpiryEdited(true);
+                      setIsExpiryEstimated(false);
                     }}
                     className="input-field"
                     style={{ paddingLeft: '34px', fontSize: '0.85rem' }}
                     required
                   />
                 </div>
+                {isExpiryEstimated && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginTop: '6px', fontSize: '0.75rem', color: '#FF9F0A', lineHeight: 1.35 }}>
+                    <AlertTriangle size={13} style={{ flexShrink: 0, marginTop: '1px' }} />
+                    <span>Data <strong>stimata</strong>: sulla foto non era leggibile. Controllala prima di salvare.</span>
+                  </div>
+                )}
                 
                 {/* Pulsante Fotocamera per data AI */}
                 <label 
