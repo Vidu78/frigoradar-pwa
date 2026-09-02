@@ -8,6 +8,7 @@ const AiRecipes = lazy(() => import('./pages/AiRecipes'));
 const ShoppingList = lazy(() => import('./pages/ShoppingList'));
 const Profile = lazy(() => import('./pages/Profile'));
 const ProUpgradePage = lazy(() => import('./pages/ProUpgradePage'));
+const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const FamilySharing = lazy(() => import('./pages/FamilySharing'));
 const LoyaltyWallet = lazy(() => import('./pages/LoyaltyWallet'));
@@ -262,6 +263,7 @@ function App() {
       }>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route 
           path="/onboarding" 
           element={
