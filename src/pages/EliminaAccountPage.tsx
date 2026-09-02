@@ -28,6 +28,15 @@ export default function EliminaAccountPage() {
           30 giorni, come previsto dal GDPR.
         </p>
 
+        <h2 style={h2}>Cancellare solo una parte dei dati</h2>
+        <p style={p}>
+          Non sei obbligato a chiudere l'account per liberarti di qualcosa. Dall'app puoi eliminare
+          in ogni momento i singoli prodotti, le foto caricate, le carte fedelta' e la lista della
+          spesa, e disattivare le notifiche da <strong>Profilo</strong>. Se preferisci che sia
+          cancellato un altro dato in particolare, scrivi a{' '}
+          <a href="mailto:privacy@frigoradar.it" style={a}>privacy@frigoradar.it</a>: l'account resta attivo.
+        </p>
+
         <h2 style={h2}>Che cosa viene cancellato</h2>
         <ul style={p}>
           <li>L'account e l'indirizzo email</li>
