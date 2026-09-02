@@ -5,6 +5,10 @@ import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
 
+// ponytail: dentro la app Android (TWA) Google Play pretende il suo billing,
+// quindi li' l'acquisto Stripe non si mostra affatto.
+const inAppAndroid = document.referrer.startsWith('android-app://');
+
 export default function ProUpgradePage() {
   const navigate = useNavigate();
   const { isPro, refreshPlan } = useAuthStore();
@@ -194,6 +198,12 @@ export default function ProUpgradePage() {
           >
             <Home size={20} /> Torna al frigo
           </button>
+        </div>
+      ) : inAppAndroid ? (
+        <div style={{ padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+          <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.5' }}>
+            L'abbonamento PRO non e' disponibile in questa versione dell'app.
+          </p>
         </div>
       ) : (
         <>
