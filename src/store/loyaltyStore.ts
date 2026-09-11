@@ -9,6 +9,18 @@ export interface LoyaltyCard {
   color: string;
   points_balance: number;
   created_at: string;
+  /** id del catalogo src/data/loyaltyBrands.ts; null per le carte vecchie o "Altro" */
+  brand_id?: string | null;
+  /** formato letto dallo scanner (EAN13, CODE128, QR...); null = da dedurre dal valore */
+  barcode_format?: string | null;
+}
+
+export interface NewLoyaltyCard {
+  store_name: string;
+  barcode_value: string;
+  color: string;
+  brand_id?: string | null;
+  barcode_format?: string | null;
 }
 
 export interface LoyaltyDiscount {
@@ -30,7 +42,7 @@ interface LoyaltyState {
   error: string | null;
   fetchCards: () => Promise<void>;
   fetchDiscounts: () => Promise<void>;
-  addCard: (store_name: string, barcode_value: string, color: string) => Promise<void>;
+  addCard: (card: NewLoyaltyCard) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
   updatePoints: (cardId: string, points: number) => Promise<void>;
   addDiscounts: (discounts: any[], cardId: string, storeName: string) => Promise<void>;
@@ -80,25 +92,33 @@ export const useLoyaltyStore = create<LoyaltyState>((set, get) => ({
     }
   },
 
-  addCard: async (store_name, barcode_value, color) => {
+  addCard: async (card) => {
     const { session } = useAuthStore.getState();
     if (!session) return;
     set({ loading: true, error: null });
     try {
       const familyId = session.user.user_metadata?.family_id || session.user.id;
-      
-      const { data, error } = await supabase
+      const base = {
+        user_id: session.user.id,
+        family_id: familyId,
+        store_name: card.store_name,
+        barcode_value: card.barcode_value,
+        color: card.color
+      };
+      const extra = { brand_id: card.brand_id ?? null, barcode_format: card.barcode_format ?? null };
+
+      let { data, error } = await supabase
         .from('loyalty_cards')
-        .insert([{ 
-          user_id: session.user.id, 
-          family_id: familyId, 
-          store_name, 
-          barcode_value, 
-          color 
-        }])
+        .insert([{ ...base, ...extra }])
         .select()
         .single();
-        
+
+      // PGRST204 = colonna sconosciuta: la migrazione brand_id/barcode_format non e' ancora
+      // stata eseguita su Supabase. Salviamo comunque la carta senza i due campi.
+      if (error && error.code === 'PGRST204') {
+        ({ data, error } = await supabase.from('loyalty_cards').insert([base]).select().single());
+      }
+
       if (error) throw error;
       set({ cards: [data as LoyaltyCard, ...get().cards] });
     } catch (err: any) {

@@ -4,7 +4,7 @@ import { X, FlipHorizontal2, ScanBarcode, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface BarcodeScannerProps {
-  onScan: (decodedText: string) => void;
+  onScan: (decodedText: string, format?: string) => void;
   onClose: () => void;
 }
 
@@ -80,7 +80,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           if (results.length > 0 && results[0].rawValue) {
             isScanning.current = false;
             setDetected(true);
-            setTimeout(() => onScan(results[0].rawValue), 300);
+            setTimeout(() => onScan(results[0].rawValue, results[0].format), 300);
             return;
           }
         } catch { /* frame non ancora pronto, ignora */ }
