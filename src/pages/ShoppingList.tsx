@@ -7,9 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import AddItemModal from '../components/AddItemModal';
 import { LoyaltyWalletModal } from './LoyaltyWallet';
 import { CreditCard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ShoppingList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isPro } = useAuthStore();
   const { items, fetchItems, addItem, toggleItemCheck, removeItem } = useShoppingStore();
   const { addItem: addToInventory } = useInventoryStore();
@@ -59,7 +61,7 @@ export default function ShoppingList() {
           <ShoppingCart size={24} />
         </div>
         <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>Lista Spesa</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>{t('shopping.title')}</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
             {items.filter(i => !i.checked).length} articoli da comprare
           </p>
@@ -68,7 +70,7 @@ export default function ShoppingList() {
           onClick={() => setShowWallet(true)}
           style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '10px 14px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          <CreditCard size={18} /> Carte
+          <CreditCard size={18} /> {t('nav.loyalty')}
         </button>
       </div>
 
@@ -77,13 +79,13 @@ export default function ShoppingList() {
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255,215,0,0.4)' }}>
             <Lock size={40} color="black" />
           </div>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>Funzione Premium</h2>
-          <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>Sblocca FrigoRadar PRO per usare la Lista della Spesa Intelligente.</p>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>{t('common.premium_feature')}</h2>
+          <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>{t('shopping.premium_sub')}</p>
           <button 
             onClick={() => navigate('/pro')}
             style={{ padding: '16px 32px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', color: 'black', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(255, 215, 0, 0.4)' }}
           >
-            Scopri FrigoRadar PRO
+            {t('common.discover_pro')}
           </button>
         </div>
       )}
@@ -94,7 +96,7 @@ export default function ShoppingList() {
           type="text" 
           value={newItemName}
           onChange={e => setNewItemName(e.target.value)}
-          placeholder="Cosa ti serve?" 
+          placeholder={t('shopping.add_placeholder')} 
           style={{
             flex: 1, padding: '16px', borderRadius: '16px',
             background: 'var(--bg-panel)', border: '1px solid var(--border)',
@@ -138,7 +140,7 @@ export default function ShoppingList() {
                   display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer'
                 }}
               >
-                In Frigo <ArrowRight size={14} />
+                {t('shopping.to_fridge')} <ArrowRight size={14} />
               </button>
             )}
 
@@ -153,7 +155,7 @@ export default function ShoppingList() {
         {items.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
             <ShoppingCart size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
-            <p>La tua lista della spesa è vuota.</p>
+            <p>{t('shopping.empty')}</p>
           </div>
         )}
       </div>

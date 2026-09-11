@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useInventoryStore, type PendingRecipe } from '../store/inventoryStore';
 import { X, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmCookModalProps {
   recipe: PendingRecipe;
@@ -8,6 +9,7 @@ interface ConfirmCookModalProps {
 }
 
 export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalProps) {
+  const { t } = useTranslation();
   const { consumeRecipeIngredients, setPendingRecipe } = useInventoryStore();
   
   // Create a local state for editing ingredients before confirming
@@ -56,8 +58,8 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(50, 215, 75, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
             <CheckCircle2 size={48} color="#32D74B" />
           </div>
-          <h2 style={{ color: 'white', margin: 0 }}>Ingredienti Scalati!</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Lo storico consumi è stato aggiornato.</p>
+          <h2 style={{ color: 'white', margin: 0 }}>{t('cook.done_title')}</h2>
+          <p style={{ color: 'var(--text-muted)' }}>{t('cook.done_sub')}</p>
         </div>
       </div>
     );
@@ -81,9 +83,9 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600, color: 'white' }}>
-            Hai cucinato?
+            {t('cook.title')}
           </h3>
-          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+          <button aria-label={t('common.close')} onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>
@@ -92,7 +94,7 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
           {recipe.title}
         </p>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>
-          Conferma le quantità realmente utilizzate per decurtarle dal frigo.
+          {t('cook.sub')}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px', maxHeight: '40vh', overflowY: 'auto' }}>
@@ -124,7 +126,7 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
               cursor: 'pointer'
             }}
           >
-            Annulla
+            {t('common.cancel')}
           </button>
           <button 
             onClick={handleConfirm}
@@ -135,7 +137,7 @@ export default function ConfirmCookModal({ recipe, onClose }: ConfirmCookModalPr
               cursor: 'pointer', display: 'flex', justifyContent: 'center'
             }}
           >
-            {saving ? 'Salvataggio...' : 'Conferma Consumo'}
+            {saving ? t('common.saving') : t('cook.confirm')}
           </button>
         </div>
 

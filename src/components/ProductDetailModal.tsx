@@ -5,6 +5,8 @@ import BarcodeScannerModal from './BarcodeScannerModal';
 import { supabase } from '../lib/supabase';
 import { useToastStore } from '../store/toastStore';
 import { useStorageUrl } from './StorageImage';
+import { useTranslation } from 'react-i18next';
+import { healthLabel } from '../utils/labels';
 
 interface ProductDetailModalProps {
   item: any;
@@ -16,6 +18,7 @@ interface ProductDetailModalProps {
 }
 
 export default function ProductDetailModal({ item, onClose, onUpdateQuantity, onDelete, onRefreshItem, onUpdateProduct }: ProductDetailModalProps) {
+  const { t } = useTranslation();
   const { showToast } = useToastStore();
   const imageUrl = useStorageUrl(item.image_url, 'product_images');
   const [showScanner, setShowScanner] = useState(false);
@@ -59,16 +62,16 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
           await supabase.from('inventory_items').update(updates).eq('id', item.id);
           onRefreshItem(); // Aggiorna elenco globale
           onUpdateProduct({ ...item, ...updates }); // Aggiorna UI locale istantaneamente
-          showToast('Dati prodotto aggiornati con successo!', 'success');
+          showToast(t('product.updated'), 'success');
         } else {
-          showToast('Prodotto trovato, ma nessun dato nutrizionale utile estratto.', 'info');
+          showToast(t('product.no_nutrition'), 'info');
         }
       } else {
-        showToast('Prodotto non trovato nel database mondiale.', 'error');
+        showToast(t('product.not_found'), 'error');
       }
     } catch (e) {
       console.error(e);
-      showToast('Errore durante la scansione del codice.', 'error');
+      showToast(t('product.scan_error'), 'error');
     }
   };
 
@@ -102,7 +105,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             </div>
           )}
           
-          <button aria-label="Chiudi" onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', padding: '10px', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
+          <button aria-label={t('common.close')} onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', padding: '10px', cursor: 'pointer', backdropFilter: 'blur(5px)' }}>
             <X size={24} />
           </button>
 
@@ -132,7 +135,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
 
           {/* Quick Actions (Quantità) */}
           <div style={{ background: 'var(--bg-panel)', borderRadius: '24px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid var(--border)' }}>
-            <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '1rem' }}>Quantità nel Frigo</span>
+            <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '1rem' }}>{t('product.quantity')}</span>
             <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.3)', borderRadius: '20px', padding: '4px' }}>
               <button onClick={handleDecrement} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Minus size={20} />
@@ -150,21 +153,21 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
           {/* Scheda Nutrizionale */}
           <div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck size={20} color="var(--primary)" /> Specifiche & Salute
+              <ShieldCheck size={20} color="var(--primary)" /> {t('product.specs')}
             </h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {/* Nutriscore / Health Score */}
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Heart size={24} color={item.health_score === 'Sano' ? '#32D74B' : (item.health_score === 'Moderato' ? '#FF9F0A' : '#FF453A')} />
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>Impatto Salute</span>
-                <span style={{ color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>{item.nutriscore ? `NutriScore ${item.nutriscore}` : (item.health_score || 'Sconosciuto')}</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>{t('product.health')}</span>
+                <span style={{ color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>{item.nutriscore ? `NutriScore ${item.nutriscore}` : healthLabel(item.health_score, t)}</span>
               </div>
 
               {/* Calorie */}
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Flame size={24} color="#FF9F0A" />
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>Calorie / 100g</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>{t('product.calories')}</span>
                 <span style={{ color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>{calories ? `${calories} kcal` : 'N.D.'}</span>
               </div>
             </div>
@@ -172,7 +175,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             {/* Ingredienti */}
             {item.ingredients && (
               <div style={{ marginTop: '16px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>Ingredienti / Composizione</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>{t('product.ingredients')}</span>
                 <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
                   {item.ingredients}
                 </p>
@@ -184,9 +187,9 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <AlertTriangle size={20} color="#FF9F0A" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <div>
-                    <h4 style={{ color: '#FF9F0A', margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Dati Nutrizionali Assenti</h4>
+                    <h4 style={{ color: '#FF9F0A', margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>{t('product.no_data_title')}</h4>
                     <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem', lineHeight: '1.4' }}>
-                      Scansiona il codice a barre per compilare automaticamente i valori nutrizionali, il NutriScore e gli ingredienti tramite OpenFoodFacts.
+                      {t('product.no_data_sub')}
                     </p>
                   </div>
                 </div>
@@ -195,7 +198,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
                   style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#FF9F0A', color: 'black', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
                   <ScanBarcode size={20} />
-                  Scansiona Codice a Barre
+                  {t('product.scan_barcode')}
                 </button>
               </div>
             )}
@@ -209,7 +212,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
               }}
               style={{ width: '100%', background: 'rgba(255, 69, 58, 0.1)', border: '1px solid rgba(255, 69, 58, 0.2)', color: '#FF453A', padding: '16px', borderRadius: '20px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
             >
-              Elimina / Consumato
+              {t('product.delete')}
             </button>
           </div>
 

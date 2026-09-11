@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useInventoryStore } from '../store/inventoryStore';
 import { UtensilsCrossed } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ConfirmCookModal from './ConfirmCookModal';
 
 export default function PendingRecipeBanner() {
+  const { t } = useTranslation();
   const { pendingRecipe } = useInventoryStore();
   const [showModal, setShowModal] = useState(false);
 
@@ -35,9 +37,9 @@ export default function PendingRecipeBanner() {
           <UtensilsCrossed size={20} color="black" />
         </div>
         <div style={{ flex: 1 }}>
-          <h4 style={{ margin: 0, color: 'black', fontSize: '1rem', fontWeight: 700 }}>Hai cucinato?</h4>
+          <h4 style={{ margin: 0, color: 'black', fontSize: '1rem', fontWeight: 700 }}>{t('cook.title')}</h4>
           <p style={{ margin: 0, color: 'rgba(0,0,0,0.7)', fontSize: '0.85rem', fontWeight: 500 }}>
-            Conferma gli ingredienti di "{pendingRecipe.title}"
+            {t('cook.banner_sub', { title: pendingRecipe.title })}
           </p>
         </div>
       </div>

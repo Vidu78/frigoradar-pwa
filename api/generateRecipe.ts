@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard, consumaCredito } from '../lib/guard.js';
+import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
 
-  const { items, peopleCount, difficulty, priority } = req.body;
+  const { items, peopleCount, difficulty, priority, language } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Nessun ingrediente fornito.' });
@@ -59,6 +60,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
     "Fase 3: Spiegazione dettagliata della finitura e impiattamento da Chef..."
   ]
 }
+${istruzioneLingua(language)}
 `;
 
     const result = await model.generateContent({

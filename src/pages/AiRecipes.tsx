@@ -5,8 +5,10 @@ import { useAuthStore } from '../store/authStore';
 import { useDialogStore } from '../store/dialogStore';
 import { Sparkles, Users, Clock, Flame, CheckCircle2, ChevronRight, Utensils, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function AiRecipes() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { items, setPendingRecipe } = useInventoryStore();
   const { isPro } = useAuthStore();
@@ -27,7 +29,7 @@ export default function AiRecipes() {
     try {
       const payload = items.map(i => ({
         original_id: i.id,
-        name: i.custom_name || 'Prodotto',
+        name: i.custom_name || t('recipes.product'),
         quantity: i.quantity,
         expiration_date: i.expiration_date
       }));
@@ -35,7 +37,7 @@ export default function AiRecipes() {
       const res = await fetch('/api/generateRecipe', {
         method: 'POST',
         headers: await authHeaders(),
-        body: JSON.stringify({ items: payload, peopleCount, difficulty, priority })
+        body: JSON.stringify({ items: payload, peopleCount, difficulty, priority, language: i18n.language })
       });
 
       if (await limiteRaggiunto(res)) return;
@@ -47,8 +49,8 @@ export default function AiRecipes() {
         const errData = await res.json().catch(() => null);
         console.error("API Error:", res.status, errData);
         showDialog({
-          title: 'Errore Server',
-          message: `Errore del server: ${res.status}. ${errData?.error || 'Riprova più tardi.'} Dettagli: ${errData?.details || ''}`,
+          title: t('common.server_error'),
+          message: t('common.server_error_msg', { status: res.status, error: errData?.error || '', details: errData?.details || '' }),
           type: 'danger',
           isAlert: true,
           confirmText: 'Ok'
@@ -57,8 +59,8 @@ export default function AiRecipes() {
     } catch (error) {
       console.error("Fetch Error:", error);
       showDialog({
-        title: 'Errore di connessione',
-        message: 'Controlla la tua rete e riprova.',
+        title: t('common.connection_error'),
+        message: t('common.connection_error_msg'),
         type: 'danger',
         isAlert: true,
         confirmText: 'Ok'
@@ -83,9 +85,9 @@ export default function AiRecipes() {
           <Sparkles size={24} />
         </div>
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>Chef AI</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>{t('recipes.title')}</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-            Ricette anti-spreco su misura
+            {t('recipes.subtitle')}
           </p>
         </div>
       </div>
@@ -95,13 +97,13 @@ export default function AiRecipes() {
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255,215,0,0.4)' }}>
             <Lock size={40} color="black" />
           </div>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>Funzione Premium</h2>
-          <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>Sblocca FrigoRadar PRO per usare lo Chef AI e generare ricette illimitate.</p>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>{t('common.premium_feature')}</h2>
+          <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>{t('recipes.premium_sub')}</p>
           <button 
             onClick={() => navigate('/pro')}
             style={{ padding: '16px 32px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', color: 'black', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(255, 215, 0, 0.4)' }}
           >
-            Scopri FrigoRadar PRO
+            {t('common.discover_pro')}
           </button>
         </div>
       )}
@@ -109,12 +111,12 @@ export default function AiRecipes() {
       {/* INPUTS */}
       {!recipe && !loading && !cooked && (
         <div style={{ background: 'var(--bg-panel)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Impostazioni</h3>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>{t('recipes.settings')}</h3>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
               <Users size={20} />
-              <span>Persone</span>
+              <span>{t('recipes.people')}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <button onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem' }}>-</button>
@@ -125,7 +127,7 @@ export default function AiRecipes() {
 
           {/* Priorità ingredienti */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Priorità alimenti</label>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('recipes.priority')}</label>
             <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)' }}>
               <button 
                 type="button" 
@@ -137,7 +139,7 @@ export default function AiRecipes() {
                   transition: 'all 0.2s'
                 }}
               >
-                ⏰ In Scadenza
+                ⏰ {t('recipes.priority_expiring')}
               </button>
               <button 
                 type="button" 
@@ -149,14 +151,14 @@ export default function AiRecipes() {
                   transition: 'all 0.2s'
                 }}
               >
-                🥗 Tutti
+                🥗 {t('recipes.priority_all')}
               </button>
             </div>
           </div>
 
           {/* Livello Ricetta */}
           <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Livello Ricetta</label>
+            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('recipes.level')}</label>
             <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border)' }}>
               <button 
                 type="button" 
@@ -168,7 +170,7 @@ export default function AiRecipes() {
                   transition: 'all 0.2s'
                 }}
               >
-                🥗 Facile
+                🥗 {t('recipes.level_easy')}
               </button>
               <button 
                 type="button" 
@@ -180,7 +182,7 @@ export default function AiRecipes() {
                   transition: 'all 0.2s'
                 }}
               >
-                🍝 Medio
+                🍝 {t('recipes.level_medium')}
               </button>
               <button 
                 type="button" 
@@ -192,7 +194,7 @@ export default function AiRecipes() {
                   transition: 'all 0.2s'
                 }}
               >
-                ⭐️ Stellato
+                ⭐️ {t('recipes.level_star')}
               </button>
             </div>
           </div>
@@ -207,7 +209,7 @@ export default function AiRecipes() {
               cursor: 'pointer', boxShadow: '0 4px 20px rgba(255, 215, 0, 0.3)'
             }}
           >
-            <Utensils size={20} /> Genera Ricetta Magica
+            <Utensils size={20} /> {t('recipes.generate')}
           </button>
         </div>
       )}
@@ -216,7 +218,7 @@ export default function AiRecipes() {
       {loading && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', gap: '16px' }}>
           <Sparkles size={48} color="#FFD700" style={{ animation: 'pulse 1.5s infinite' }} />
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Lo Chef sta pensando...</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>{t('recipes.generating')}</p>
         </div>
       )}
 
@@ -252,7 +254,7 @@ export default function AiRecipes() {
             </div>
 
             <div style={{ padding: '24px' }}>
-              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>Ingredienti dal Frigo</h4>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>{t('recipes.from_fridge')}</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0' }}>
                 {recipe.ingredients_used.map((ing: any, i: number) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed rgba(255,255,255,0.1)' }}>
@@ -262,12 +264,12 @@ export default function AiRecipes() {
                 ))}
               </ul>
 
-              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>Da aggiungere</h4>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>{t('recipes.to_buy')}</h4>
               <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', marginBottom: '24px' }}>
                 {recipe.extra_ingredients_needed.join(', ')}
               </p>
 
-              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>Preparazione</h4>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>{t('recipes.steps')}</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {recipe.steps.map((step: string, i: number) => (
                   <div key={i} style={{ display: 'flex', gap: '12px' }}>
@@ -292,7 +294,7 @@ export default function AiRecipes() {
               cursor: 'pointer', boxShadow: '0 4px 20px rgba(50, 215, 75, 0.3)'
             }}
           >
-            <CheckCircle2 size={20} /> Cucina Ora (Scala ingredienti)
+            <CheckCircle2 size={20} /> {t('recipes.cook_now')}
           </button>
         </div>
       )}
@@ -303,13 +305,13 @@ export default function AiRecipes() {
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(50, 215, 75, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CheckCircle2 size={48} color="#32D74B" />
           </div>
-          <h2 style={{ margin: 0 }}>Divertiti ai fornelli!</h2>
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>La ricetta è stata salvata in sospeso. Quando riaprirai l'app ti chiederemo di confermare gli ingredienti esatti per decurtarli dal frigo.</p>
+          <h2 style={{ margin: 0 }}>{t('recipes.enjoy')}</h2>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>{t('recipes.enjoy_sub')}</p>
           <button 
             onClick={() => { setRecipe(null); setCooked(false); }}
             style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            Prepara un'altra ricetta <ChevronRight size={16} />
+            {t('recipes.another')} <ChevronRight size={16} />
           </button>
         </div>
       )}

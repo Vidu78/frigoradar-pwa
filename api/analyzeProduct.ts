@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard } from '../lib/guard.js';
+import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
 
-  const { query, barcode } = req.body;
+  const { query, barcode, language } = req.body;
   
   if (!query && !barcode) {
     return res.status(400).json({ error: 'Devi fornire una query di testo o un barcode.' });
@@ -46,6 +47,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
   "nutritional_info": { "calories_per_100g": "valore numerico o null" },
   "nutriscore": "A | B | C | D | E | null"
 }
+${istruzioneLingua(language)}
 `;
 
     const result = await model.generateContent(prompt);

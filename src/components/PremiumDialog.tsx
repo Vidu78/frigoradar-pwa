@@ -1,7 +1,9 @@
 import { useDialogStore } from '../store/dialogStore';
 import { AlertCircle, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function PremiumDialog() {
+  const { t } = useTranslation();
   const { isOpen, options, closeDialog } = useDialogStore();
 
   if (!isOpen || !options) return null;
@@ -9,8 +11,8 @@ export default function PremiumDialog() {
   const {
     title,
     message,
-    confirmText = 'Conferma',
-    cancelText = 'Annulla',
+    confirmText = t('common.confirm'),
+    cancelText = t('common.cancel'),
     isAlert = false,
     type = 'warning'
   } = options;

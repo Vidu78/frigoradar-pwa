@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard, consumaCredito } from '../lib/guard.js';
+import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
 
-  const { image } = req.body; // base64 string
+  const { image, language, mode } = req.body; // base64 string
   
   if (!image) {
     return res.status(400).json({ error: 'Devi fornire l\'immagine in formato base64.' });
@@ -68,11 +69,22 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
   "nutritional_info": { "calories_per_100g": "valore numerico estratto o deducibile, altrimenti null" },
   "nutriscore": "A | B | C | D | E | null"
 }
+${istruzioneLingua(language)}
 `;
 
     // Esegui la chiamata con configurazione per forzare output JSON nativo
+    // Etichetta della bilancia del banco frutta/verdura: serve solo peso e prodotto.
+    // Il client mandava gia' mode: 'produce_weight' ma il server lo ignorava.
+    const promptPeso = `
+AGISCI COME: lettore OCR di etichette delle bilance del reparto ortofrutta.
+COMPITO: dalla foto dell'etichetta ricava il peso netto in chilogrammi (numero decimale, es. 0.548) e il nome dell'ortaggio o frutto.
+Se il peso e' in grammi convertilo in kg. Se non leggi il peso rispondi con null.
+SCHEMA DI OUTPUT JSON: { "weight_kg": 0.548, "produce_name": "Pomodori" }
+${istruzioneLingua(language)}
+`;
+
     const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }, imagePart] }],
+      contents: [{ role: 'user', parts: [{ text: mode === 'produce_weight' ? promptPeso : prompt }, imagePart] }],
       generationConfig: {
         responseMimeType: "application/json"
       }

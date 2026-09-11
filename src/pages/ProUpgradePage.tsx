@@ -4,12 +4,14 @@ import { authHeaders } from '../lib/api';
 import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star, Home, Settings } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
+import { useTranslation } from 'react-i18next';
 
 // ponytail: dentro la app Android (TWA) Google Play pretende il suo billing,
 // quindi li' l'acquisto Stripe non si mostra affatto.
 const inAppAndroid = document.referrer.startsWith('android-app://');
 
 export default function ProUpgradePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isPro, refreshPlan } = useAuthStore();
   const { showDialog } = useDialogStore();
@@ -48,8 +50,8 @@ export default function ProUpgradePage() {
         return;
       }
       showDialog({
-        title: 'Errore',
-        message: dati.error || 'Non riesco ad aprire la gestione abbonamento.',
+        title: t('common.error'),
+        message: dati.error || t('pro.portal_error'),
         type: 'danger', isAlert: true, confirmText: 'Ok'
       });
     } finally {
@@ -74,8 +76,8 @@ export default function ProUpgradePage() {
       }
 
       showDialog({
-        title: res.status === 503 ? 'Quasi pronto' : 'Errore',
-        message: dati.error || 'Non riesco ad aprire il pagamento. Riprova piu tardi.',
+        title: res.status === 503 ? t('pro.almost_ready') : t('common.error'),
+        message: dati.error || t('pro.checkout_error'),
         type: res.status === 503 ? 'info' : 'danger',
         isAlert: true,
         confirmText: 'Ok'
@@ -83,8 +85,8 @@ export default function ProUpgradePage() {
     } catch (err) {
       console.error(err);
       showDialog({
-        title: 'Errore di connessione',
-        message: 'Controlla la rete e riprova.',
+        title: t('common.connection_error'),
+        message: t('common.connection_error_msg'),
         type: 'danger',
         isAlert: true,
         confirmText: 'Ok'
@@ -106,8 +108,8 @@ export default function ProUpgradePage() {
           <ChevronLeft size={24} />
         </button>
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#FFD700', textShadow: '0 0 20px rgba(255,215,0,0.3)' }}>FrigoRadar PRO</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Sblocca il pieno potenziale</p>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#FFD700', textShadow: '0 0 20px rgba(255,215,0,0.3)' }}>{t('pro.title')}</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>{t('pro.subtitle')}</p>
         </div>
       </div>
 
@@ -119,9 +121,9 @@ export default function ProUpgradePage() {
         }}>
           <Star size={40} color="black" />
         </div>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Meno Sprechi, Meno Stress</h2>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{t('pro.headline')}</h2>
         <p style={{ color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '300px', margin: '0 auto' }}>
-          Passa a FrigoRadar PRO e lascia che l'Intelligenza Artificiale gestisca la tua cucina.
+          {t('pro.headline_sub')}
         </p>
       </div>
 
@@ -133,8 +135,8 @@ export default function ProUpgradePage() {
             <Sparkles size={24} color="#FFD700" />
           </div>
           <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Chef AI (Svuota Frigo)</h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Genera ricette magiche istantanee basate sugli ingredienti che ti stanno per scadere.</p>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{t('pro.feat_chef')}</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>{t('pro.feat_chef_sub')}</p>
           </div>
         </div>
 
@@ -143,8 +145,8 @@ export default function ProUpgradePage() {
             <ShoppingCart size={24} color="#FFD700" />
           </div>
           <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Smart Shopping</h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Compila la lista della spesa automaticamente e sposta i prodotti in frigo con un tocco.</p>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{t('pro.feat_shopping')}</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>{t('pro.feat_shopping_sub')}</p>
           </div>
         </div>
 
@@ -153,9 +155,9 @@ export default function ProUpgradePage() {
             <Users size={24} color="#FFD700" />
           </div>
           <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>Condivisione Familiare</h3>
-            <span style={{ fontSize: '0.7rem', background: '#FFD700', color: 'black', padding: '2px 6px', borderRadius: '8px', fontWeight: 700, marginBottom: '4px', display: 'inline-block' }}>IN ARRIVO</span>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>Sincronizza il frigo in tempo reale con il tuo partner o i tuoi coinquilini.</p>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{t('pro.feat_family')}</h3>
+            <span style={{ fontSize: '0.7rem', background: '#FFD700', color: 'black', padding: '2px 6px', borderRadius: '8px', fontWeight: 700, marginBottom: '4px', display: 'inline-block' }}>{t('common.coming_soon')}</span>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>{t('pro.feat_family_sub')}</p>
           </div>
         </div>
 
@@ -166,15 +168,15 @@ export default function ProUpgradePage() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px' }}>
           <Loader2 size={32} className="animate-spin" color="#FFD700" />
           <p style={{ margin: 0, color: 'var(--text-muted)', textAlign: 'center' }}>
-            Pagamento ricevuto, sto attivando il tuo PRO...
+            {t('pro.activating')}
           </p>
         </div>
       ) : isPro ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px', background: 'rgba(50, 215, 75, 0.1)', borderRadius: '20px', border: '1px solid rgba(50, 215, 75, 0.3)' }}>
           <CheckCircle2 size={40} color="#32D74B" />
-          <h3 style={{ margin: 0, color: '#32D74B' }}>Sei già un utente PRO!</h3>
+          <h3 style={{ margin: 0, color: '#32D74B' }}>{t('pro.already_pro')}</h3>
           <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-            Da "Gestisci abbonamento" puoi passare da mensile ad annuale, cambiare carta o disdire.
+            {t('pro.already_pro_sub')}
           </p>
           <button
             onClick={apriGestione}
@@ -186,7 +188,7 @@ export default function ProUpgradePage() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
             }}
           >
-            <Settings size={18} /> Gestisci abbonamento
+            <Settings size={18} /> {t('pro.manage')}
           </button>
           <button
             onClick={() => navigate('/')}
@@ -196,13 +198,13 @@ export default function ProUpgradePage() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
             }}
           >
-            <Home size={20} /> Torna al frigo
+            <Home size={20} /> {t('pro.back_to_fridge')}
           </button>
         </div>
       ) : inAppAndroid ? (
         <div style={{ padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
           <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.5' }}>
-            L'abbonamento PRO non e' disponibile in questa versione dell'app.
+            {t('pro.unavailable')}
           </p>
         </div>
       ) : (
@@ -220,7 +222,7 @@ export default function ProUpgradePage() {
             transform: loading ? 'scale(0.98)' : 'scale(1)'
           }}
         >
-          {loading ? <Loader2 size={24} className="animate-spin" /> : 'Passa a PRO — 4,99 €/mese'}
+          {loading ? <Loader2 size={24} className="animate-spin" /> : t('pro.cta_monthly')}
         </button>
         <button
           onClick={() => handleUpgrade('annuale')}
@@ -231,7 +233,7 @@ export default function ProUpgradePage() {
             color: '#FFD700', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer'
           }}
         >
-          Oppure 39,99 €/anno — risparmi il 33%
+          {t('pro.cta_yearly')}
         </button>
         </>
       )}

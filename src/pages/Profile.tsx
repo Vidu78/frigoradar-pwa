@@ -31,7 +31,7 @@ export default function Profile() {
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loadingReceipts, setLoadingReceipts] = useState(false);
 
-  const [pushStatus, setPushStatus] = useState('Verifica in corso...');
+  const [pushStatus, setPushStatus] = useState(t('profile.push_checking'));
   const [isPushEnabled, setIsPushEnabled] = useState(false);
   const [isTogglingPush, setIsTogglingPush] = useState(false);
 
@@ -42,10 +42,10 @@ export default function Profile() {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       setIsPushEnabled(!!subscription);
-      setPushStatus(subscription ? 'Notifiche attivate' : 'Notifiche disattivate');
+      setPushStatus(subscription ? t('profile.push_on') : t('profile.push_off'));
     } catch (err) {
       console.error(err);
-      setPushStatus('Errore di verifica');
+      setPushStatus(t('profile.push_check_error'));
     }
   };
 
@@ -83,8 +83,8 @@ export default function Profile() {
       console.error(err);
       console.error(err);
       showDialog({
-        title: 'Errore Passkey',
-        message: err.message || 'Impossibile registrare l\'impronta digitale. Assicurati di usare un browser supportato.',
+        title: t('profile.passkey_error'),
+        message: err.message || t('profile.passkey_error_msg'),
         type: 'danger',
         isAlert: true,
         confirmText: 'Ok'
@@ -115,8 +115,8 @@ export default function Profile() {
       console.error(err);
       console.error(err);
       showDialog({
-        title: 'Errore',
-        message: 'Errore durante l\'aggiornamento del profilo',
+        title: t('common.error'),
+        message: t('profile.update_error'),
         type: 'danger',
         isAlert: true,
         confirmText: 'Ok'
@@ -159,8 +159,8 @@ export default function Profile() {
           await supabase.from('push_subscriptions').delete().eq('user_id', session?.user?.id);
         }
         setIsPushEnabled(false);
-        setPushStatus('Notifiche disattivate');
-        showToast('Notifiche disattivate con successo', 'success');
+        setPushStatus(t('profile.push_off'));
+        showToast(t('profile.push_off_ok'), 'success');
       } else {
         // ATTIVA
         const permission = await Notification.requestPermission();
@@ -168,7 +168,7 @@ export default function Profile() {
           const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
           
           if (!VAPID_PUBLIC_KEY) {
-            setPushStatus('Errore: VAPID_PUBLIC_KEY mancante nel file .env');
+            setPushStatus('VAPID_PUBLIC_KEY missing');
             setIsTogglingPush(false);
             return;
           }
@@ -191,21 +191,21 @@ export default function Profile() {
 
           if (error) {
             console.error(error);
-            setPushStatus('Errore salvataggio nel database.');
+            setPushStatus(t('common.save_error'));
             // Revert unsubscribe just in case
             await subscription.unsubscribe();
           } else {
             setIsPushEnabled(true);
-            setPushStatus('Notifiche attivate con successo!');
-            showToast('Notifiche attivate con successo', 'success');
+            setPushStatus(t('profile.push_on'));
+            showToast(t('profile.push_on_ok'), 'success');
           }
         } else {
-          setPushStatus('Permesso negato. Devi abilitarlo dal browser.');
+          setPushStatus(t('profile.push_denied'));
         }
       }
     } catch (e) {
       console.error(e);
-      setPushStatus('Errore durante l\'operazione.');
+      setPushStatus(t('common.error'));
     } finally {
       setIsTogglingPush(false);
     }
@@ -226,7 +226,7 @@ export default function Profile() {
           <User size={24} />
         </div>
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>Profilo</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>{t('profile.title')}</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
             {session?.user?.email}
           </p>
@@ -253,7 +253,7 @@ export default function Profile() {
             <div style={{ background: 'rgba(0, 255, 170, 0.1)', padding: '10px', borderRadius: '12px' }}><Users size={20} color="#00FFAA" /></div>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.family')}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Condividi con i familiari</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('profile.family_sub')}</div>
             </div>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
@@ -263,7 +263,7 @@ export default function Profile() {
         <button onClick={() => setShowReceiptsModal(true)} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(255, 159, 10, 0.1)', padding: '10px', borderRadius: '12px' }}><Receipt size={20} color="#FF9F0A" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Storico Scontrini</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.receipts')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -272,7 +272,7 @@ export default function Profile() {
         <button onClick={openTutorial} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ background: 'rgba(52, 152, 219, 0.1)', padding: '10px', borderRadius: '12px' }}><LifeBuoy size={20} color="#3498DB" /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>Guida all'Uso</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 500 }}>{t('profile.guide')}</span>
           </div>
           <ChevronRight size={20} color="var(--text-muted)" />
         </button>
@@ -322,30 +322,30 @@ export default function Profile() {
             cursor: 'pointer', opacity: registeringPasskey ? 0.7 : 1
           }}
         >
-          {registeringPasskey ? <Loader2 size={20} className="animate-spin" /> : 'Registra Impronta / Face-ID'}
+          {registeringPasskey ? <Loader2 size={20} className="animate-spin" /> : t('profile.register_passkey')}
         </button>
 
         {passkeySuccess && (
           <div style={{ color: '#32D74B', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', justifyContent: 'center', marginTop: '12px' }}>
-            <CheckCircle2 size={16} /> Impronta registrata con successo!
+            <CheckCircle2 size={16} /> {t('profile.passkey_ok')}
           </div>
         )}
       </div>
 
       <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>Impostazioni Frigorifero</h3>
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>{t('profile.fridge_settings')}</h3>
         
         <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Nome Visualizzato (Es. "Famiglia Rossi")
+              {t('profile.display_name')}
             </label>
             <input 
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input-field"
-              placeholder="Inserisci un nome per il tuo frigo"
+              placeholder={t('profile.display_name_placeholder')}
               required
             />
           </div>
@@ -360,12 +360,12 @@ export default function Profile() {
               cursor: 'pointer', opacity: saving ? 0.7 : 1
             }}
           >
-            {saving ? <Loader2 size={20} className="animate-spin" /> : 'Salva Modifiche'}
+            {saving ? <Loader2 size={20} className="animate-spin" /> : t('profile.save_changes')}
           </button>
           
           {success && (
             <div style={{ color: '#32D74B', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', justifyContent: 'center' }}>
-              <CheckCircle2 size={16} /> Profilo aggiornato! (Ricarica l'app per vederlo)
+              <CheckCircle2 size={16} /> {t('profile.updated')}
             </div>
           )}
         </form>
@@ -392,9 +392,9 @@ export default function Profile() {
       {showNotificationsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button aria-label="Chiudi" onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label={t('common.close')} onClick={() => setShowNotificationsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '16px' }}>{t('profile.notifications')}</h2>
-            <p style={{ color: 'var(--text-muted)' }}>Ricevi avvisi intelligenti per i prodotti che stanno per scadere nel tuo frigorifero.</p>
+            <p style={{ color: 'var(--text-muted)' }}>{t('profile.notifications_sub')}</p>
             
             <div style={{ 
               background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', 
@@ -402,7 +402,7 @@ export default function Profile() {
               border: '1px solid rgba(255,255,255,0.1)'
             }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '4px' }}>Avvisi Scadenze</div>
+                <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '4px' }}>{t('profile.expiry_alerts')}</div>
                 <div style={{ fontSize: '0.85rem', color: isPushEnabled ? '#00FFAA' : 'var(--text-muted)' }}>
                   {pushStatus}
                 </div>
@@ -435,7 +435,7 @@ export default function Profile() {
             {isPushEnabled && (
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0 10px' }}>
                 <Bell size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-                Riceverai notifiche solo quando necessario per evitare sprechi.
+                {t('profile.push_hint')}
               </div>
             )}
           </div>
@@ -446,25 +446,25 @@ export default function Profile() {
       {showReceiptsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', maxHeight: '80vh', borderRadius: '24px', padding: '24px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-            <button aria-label="Chiudi" onClick={() => setShowReceiptsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
-            <h2 style={{ marginTop: 0, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><Receipt size={24} color="#FF9F0A"/> I tuoi Scontrini</h2>
+            <button aria-label={t('common.close')} onClick={() => setShowReceiptsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ marginTop: 0, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><Receipt size={24} color="#FF9F0A"/> {t('profile.my_receipts')}</h2>
             
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {loadingReceipts ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}><Loader2 className="animate-spin" /></div>
               ) : receipts.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>Nessuno scontrino salvato. Scansionane uno!</div>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>{t('profile.no_receipts')}</div>
               ) : (
                 receipts.map(r => (
                   <div key={r.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                     {r.image_url ? (
-                      <StorageImage value={r.image_url} bucket="receipts" alt="Scontrino" openOnClick style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer' }} />
+                      <StorageImage value={r.image_url} bucket="receipts" alt={t('dashboard.receipt')} openOnClick style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer' }} />
                     ) : (
                       <div style={{ width: '60px', height: '60px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Receipt size={24} opacity={0.5} /></div>
                     )}
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: '1rem' }}>{r.store_name || "Spesa"}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(r.created_at).toLocaleDateString()} • {r.items_count} prodotti</div>
+                      <div style={{ fontWeight: 600, fontSize: '1rem' }}>{r.store_name || t('nav.shopping')}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(r.created_at).toLocaleDateString(i18n.language)} • {t('profile.items_count', { count: r.items_count })}</div>
                     </div>
                     <div style={{ fontWeight: 800, color: 'white' }}>
                       €{r.total_amount ? r.total_amount.toFixed(2) : "0.00"}
@@ -481,11 +481,11 @@ export default function Profile() {
       {showPreferencesModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button aria-label="Chiudi" onClick={() => setShowPreferencesModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label={t('common.close')} onClick={() => setShowPreferencesModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.preferences')}</h2>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-              <span>Lingua</span>
+              <span>{t('profile.language')}</span>
               <select 
                 value={i18n.language.substring(0, 2)} 
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -505,8 +505,8 @@ export default function Profile() {
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
-              <span>Tema</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Sincronizzato col sistema</span>
+              <span>{t('profile.theme')}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('profile.theme_system')}</span>
             </div>
           </div>
         </div>
@@ -516,16 +516,16 @@ export default function Profile() {
       {showSettingsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--bg-panel-solid)', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <button aria-label="Chiudi" onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+            <button aria-label={t('common.close')} onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
             <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.settings')}</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Gestisci le impostazioni avanzate del tuo account.</p>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>{t('profile.settings_sub')}</p>
             
             <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', cursor: 'pointer', marginBottom: '12px' }}>
-              Esporta Dati (CSV)
+              {t('profile.export_csv')}
             </button>
             
             <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,69,58,0.5)', background: 'rgba(255,69,58,0.1)', color: '#FF453A', cursor: 'pointer' }}>
-              Elimina Account
+              {t('profile.delete_account')}
             </button>
           </div>
         </div>

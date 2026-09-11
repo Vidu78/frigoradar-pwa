@@ -6,6 +6,7 @@ import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { useTranslation } from 'react-i18next';
+import { categoryLabel, healthLabel } from '../utils/labels';
 
 interface AddItemModalProps {
   initialData?: {
@@ -44,40 +45,40 @@ const CATEGORIES = [
 
 // Prodotti sfusi a peso con emoji e scadenza stimata in giorni
 const PRODUCE_ITEMS = [
-  { name: 'Pomodori', emoji: '🍅', days: 7 },
-  { name: 'Zucchine', emoji: '🥒', days: 7 },
-  { name: 'Peperoni', emoji: '🫑', days: 10 },
-  { name: 'Cetrioli', emoji: '🥒', days: 7 },
-  { name: 'Melanzane', emoji: '🍆', days: 7 },
-  { name: 'Insalata', emoji: '🥬', days: 4 },
-  { name: 'Spinaci', emoji: '🌿', days: 4 },
-  { name: 'Broccoli', emoji: '🥦', days: 5 },
-  { name: 'Carote', emoji: '🥕', days: 21 },
-  { name: 'Patate', emoji: '🥔', days: 30 },
-  { name: 'Cipolle', emoji: '🧅', days: 30 },
-  { name: 'Aglio', emoji: '🧄', days: 30 },
-  { name: 'Pesche', emoji: '🍑', days: 5 },
-  { name: 'Anguria', emoji: '🍉', days: 7 },
-  { name: 'Melone', emoji: '🍈', days: 5 },
-  { name: 'Mirtilli', emoji: '🫐', days: 4 },
-  { name: 'Fragole', emoji: '🍓', days: 4 },
-  { name: 'Uva', emoji: '🍇', days: 7 },
-  { name: 'Ciliegie', emoji: '🍒', days: 5 },
-  { name: 'Arance', emoji: '🍊', days: 21 },
-  { name: 'Limoni', emoji: '🍋', days: 21 },
-  { name: 'Mele', emoji: '🍎', days: 21 },
-  { name: 'Pere', emoji: '🍐', days: 14 },
-  { name: 'Kiwi', emoji: '🥝', days: 14 },
-  { name: 'Banane', emoji: '🍌', days: 5 },
+  { id: 'tomatoes', name: 'Pomodori', emoji: '🍅', days: 7 },
+  { id: 'zucchini', name: 'Zucchine', emoji: '🥒', days: 7 },
+  { id: 'peppers', name: 'Peperoni', emoji: '🫑', days: 10 },
+  { id: 'cucumbers', name: 'Cetrioli', emoji: '🥒', days: 7 },
+  { id: 'eggplants', name: 'Melanzane', emoji: '🍆', days: 7 },
+  { id: 'lettuce', name: 'Insalata', emoji: '🥬', days: 4 },
+  { id: 'spinach', name: 'Spinaci', emoji: '🌿', days: 4 },
+  { id: 'broccoli', name: 'Broccoli', emoji: '🥦', days: 5 },
+  { id: 'carrots', name: 'Carote', emoji: '🥕', days: 21 },
+  { id: 'potatoes', name: 'Patate', emoji: '🥔', days: 30 },
+  { id: 'onions', name: 'Cipolle', emoji: '🧅', days: 30 },
+  { id: 'garlic', name: 'Aglio', emoji: '🧄', days: 30 },
+  { id: 'peaches', name: 'Pesche', emoji: '🍑', days: 5 },
+  { id: 'watermelon', name: 'Anguria', emoji: '🍉', days: 7 },
+  { id: 'melon', name: 'Melone', emoji: '🍈', days: 5 },
+  { id: 'blueberries', name: 'Mirtilli', emoji: '🫐', days: 4 },
+  { id: 'strawberries', name: 'Fragole', emoji: '🍓', days: 4 },
+  { id: 'grapes', name: 'Uva', emoji: '🍇', days: 7 },
+  { id: 'cherries', name: 'Ciliegie', emoji: '🍒', days: 5 },
+  { id: 'oranges', name: 'Arance', emoji: '🍊', days: 21 },
+  { id: 'lemons', name: 'Limoni', emoji: '🍋', days: 21 },
+  { id: 'apples', name: 'Mele', emoji: '🍎', days: 21 },
+  { id: 'pears', name: 'Pere', emoji: '🍐', days: 14 },
+  { id: 'kiwi', name: 'Kiwi', emoji: '🥝', days: 14 },
+  { id: 'bananas', name: 'Banane', emoji: '🍌', days: 5 },
 ];
 
 export default function AddItemModal({ initialData, initialInputMode, onSave, onClose }: AddItemModalProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { showToast } = useToastStore();
   const [inputMode, setInputMode] = useState<'manual' | 'photo' | 'produce'>(initialInputMode || 'manual');
   
   // Produce mode state
-  const [produceItem, setProduceItem] = useState<{ name: string; emoji: string; days: number } | null>(null);
+  const [produceItem, setProduceItem] = useState<{ id: string; name: string; emoji: string; days: number } | null>(null);
   const [produceWeight, setProduceWeight] = useState<string>('');
   const [produceSearch, setProduceSearch] = useState('');
   const [produceWeightScanning, setProduceWeightScanning] = useState(false);
@@ -212,7 +213,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       const res = await fetch('/api/analyzeImage', {
         method: 'POST',
         headers: await authHeaders(),
-        body: JSON.stringify({ image: base64String })
+        body: JSON.stringify({ image: base64String, language: i18n.language })
       });
 
       if (await limiteRaggiunto(res)) return;
@@ -253,7 +254,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       }
     } catch (error) {
       console.error("Errore analisi foto:", error);
-      showToast("Errore durante l'analisi della foto.", "error");
+      showToast(t('add_item.photo_error'), 'error');
     } finally {
       setScanning(false);
       e.target.value = '';
@@ -262,12 +263,12 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
 
   // Handler per il salvataggio diretto dei prodotti a peso (modalità produce)
   const handleProduceSave = () => {
-    if (!produceItem) { showToast('Seleziona un prodotto', 'error'); return; }
+    if (!produceItem) { showToast(t('add_item.produce_select'), 'error'); return; }
     const wkg = parseFloat(produceWeight);
-    if (!wkg || wkg <= 0) { showToast('Inserisci il peso', 'error'); return; }
+    if (!wkg || wkg <= 0) { showToast(t('add_item.produce_enter_weight'), 'error'); return; }
     const expiryDate = addDays(new Date(), produceItem.days).toISOString().split('T')[0];
     onSave({
-      custom_name: `${produceItem.emoji} ${produceItem.name}`,
+      custom_name: `${produceItem.emoji} ${t(`produce.${produceItem.id}`)}`,
       barcode: null,
       expiration_date: expiryDate,
       purchase_date: new Date().toISOString().split('T')[0],
@@ -287,7 +288,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
     const file = e.target.files?.[0];
     if (!file) return;
     setProduceWeightScanning(true);
-    showToast(t('add_item.analyzing', 'Analisi peso in corso...'), 'info');
+    showToast(t('add_item.analyzing_weight'), 'info');
     try {
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -298,22 +299,23 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
       const res = await fetch('/api/analyzeImage', {
         method: 'POST',
         headers: await authHeaders(),
-        body: JSON.stringify({ image: base64, mode: 'produce_weight' })
+        body: JSON.stringify({ image: base64, mode: 'produce_weight', language: i18n.language })
       });
       if (res.ok) {
         const data = await res.json();
         if (data.weight_kg) {
           setProduceWeight(String(data.weight_kg));
           if (data.produce_name && !produceItem) {
-            const match = PRODUCE_ITEMS.find(p => p.name.toLowerCase().includes(data.produce_name.toLowerCase()));
+            const wanted = String(data.produce_name).toLowerCase();
+            const match = PRODUCE_ITEMS.find(p => p.name.toLowerCase().includes(wanted) || t(`produce.${p.id}`).toLowerCase().includes(wanted));
             if (match) setProduceItem(match);
           }
-          showToast(`Peso letto: ${data.weight_kg} kg`, 'success');
+          showToast(t('add_item.weight_read', { kg: data.weight_kg }), 'success');
         } else {
-          showToast('Peso non leggibile. Inseriscilo manualmente.', 'info');
+          showToast(t('add_item.weight_unreadable'), 'info');
         }
       }
-    } catch { showToast('Errore lettura etichetta', 'error'); }
+    } catch { showToast(t('add_item.label_error'), 'error'); }
     finally { setProduceWeightScanning(false); e.target.value = ''; }
   };
 
@@ -371,7 +373,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
             <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 600 }}>
               {initialData?.barcode ? t('add_item.title_confirm', 'Conferma Prodotto') : t('add_item.title_add', 'Aggiungi Prodotto')}
             </h3>
-            <button aria-label="Chiudi" onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+            <button aria-label={t('common.close')} onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
               <X size={20} />
             </button>
           </div>
@@ -384,7 +386,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
         {initialData?.category && (
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <div style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              {initialData.category}
+              {categoryLabel(initialData.category, t)}
             </div>
             {initialData.health_score && initialData.health_score !== 'Sconosciuto' && (
               <div style={{ 
@@ -392,7 +394,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 color: initialData.health_score === 'Sano' ? '#32D74B' : (initialData.health_score === 'Moderato' ? '#FF9F0A' : '#FF453A'),
                 padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600 
               }}>
-                {initialData.health_score}
+                {healthLabel(initialData.health_score, t)}
               </div>
             )}
           </div>
@@ -498,7 +500,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
               {/* Griglia prodotti */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
                 {PRODUCE_ITEMS.filter(p =>
-                  !produceSearch || p.name.toLowerCase().includes(produceSearch.toLowerCase())
+                  !produceSearch || p.name.toLowerCase().includes(produceSearch.toLowerCase()) || t(`produce.${p.id}`).toLowerCase().includes(produceSearch.toLowerCase())
                 ).map(item => {
                   const isSel = produceItem?.name === item.name;
                   return (
@@ -519,7 +521,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                     >
                       <span style={{ fontSize: '1.5rem' }}>{item.emoji}</span>
                       <span style={{ color: isSel ? '#22C55E' : 'rgba(255,255,255,0.7)', fontSize: '0.65rem', fontWeight: 600, textAlign: 'center', lineHeight: 1.2 }}>
-                        {item.name}
+                        {t(`produce.${item.id}`)}
                       </span>
                     </button>
                   );
@@ -535,8 +537,8 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                     <span style={{ fontSize: '1.4rem' }}>{produceItem.emoji}</span>
                     <div>
-                      <div style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>{produceItem.name}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>Scadenza stimata: {produceItem.days} giorni</div>
+                      <div style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>{t(`produce.${produceItem.id}`)}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>{t('add_item.estimated_expiry', { count: produceItem.days })}</div>
                     </div>
                   </div>
 
@@ -628,7 +630,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
               style={{ background: 'var(--bg-panel)', color: 'white', border: '1px solid var(--border)', width: '100%', height: '45px', borderRadius: '12px', padding: '0 12px' }}
             >
               {CATEGORIES.map(cat => (
-                <option key={cat} value={cat} style={{ background: '#1c1c1e', color: 'white' }}>{cat}</option>
+                <option key={cat} value={cat} style={{ background: '#1c1c1e', color: 'white' }}>{categoryLabel(cat, t)}</option>
               ))}
             </select>
           </div>
@@ -672,7 +674,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                 {isExpiryEstimated && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginTop: '6px', fontSize: '0.75rem', color: '#FF9F0A', lineHeight: 1.35 }}>
                     <AlertTriangle size={13} style={{ flexShrink: 0, marginTop: '1px' }} />
-                    <span>Data <strong>stimata</strong>: sulla foto non era leggibile. Controllala prima di salvare.</span>
+                    <span>{t('add_item.estimated_date_warning')}</span>
                   </div>
                 )}
                 
@@ -744,7 +746,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
                   value={quantity}
                   onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
                   className="input-field"
-                  placeholder="es. 1.5"
+                  placeholder="1.5"
                   style={{ textAlign: 'center', fontWeight: 600, height: '48px' }}
                   required
                 />

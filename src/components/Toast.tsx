@@ -1,7 +1,9 @@
 import { useToastStore } from '../store/toastStore';
 import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function Toast() {
+  const { t } = useTranslation();
   const { message, type, hideToast } = useToastStore();
 
   if (!message) return null;
@@ -43,7 +45,7 @@ export default function Toast() {
         {message}
       </p>
       
-      <button aria-label="Chiudi" 
+      <button aria-label={t('common.close')} 
         onClick={hideToast} 
         style={{ 
           background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', 

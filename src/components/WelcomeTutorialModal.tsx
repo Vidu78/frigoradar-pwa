@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface GuidedTourProps {
   onComplete: () => void;
@@ -7,8 +8,6 @@ interface GuidedTourProps {
 
 interface TourStep {
   id: string;
-  title: string;
-  description: string;
   emoji: string;
   accent: string;
   // target element selector to spotlight (null = center screen)
@@ -22,8 +21,6 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
   {
     id: 'welcome',
-    title: 'Benvenuto su FrigoRadar! 👋',
-    description: 'Ti mostriamo in 30 secondi come usare l\'app al massimo. Puoi saltare in qualsiasi momento.',
     emoji: '🚀',
     accent: '#00FFAA',
     targetSelector: null,
@@ -31,8 +28,6 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'scan_receipt',
-    title: '📸 Scontrino → Frigo automatico',
-    description: 'Tocca il pulsante + al centro, poi scegli "Scansiona Scontrino". L\'AI leggerà tutti i prodotti e le scadenze in automatico.',
     emoji: '🧾',
     accent: '#FF9F0A',
     targetSelector: '[data-tour="fab-button"]',
@@ -40,8 +35,6 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'add_product',
-    title: '🛒 Aggiungi prodotti alla Spesa',
-    description: 'Nella scheda Spesa puoi aggiungere prodotti da comprare. L\'app suggerisce automaticamente quelli esauriti nel frigo.',
     emoji: '🛒',
     accent: '#64C8FF',
     targetSelector: '[data-tour="nav-shopping"]',
@@ -49,8 +42,6 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'recipes',
-    title: '👨‍🍳 Chef AI anti-spreco',
-    description: 'Tocca Chef AI: l\'intelligenza artificiale vede i prodotti in scadenza e crea ricette su misura, così non butti nulla.',
     emoji: '👨‍🍳',
     accent: '#FF453A',
     targetSelector: '[data-tour="nav-recipes"]',
@@ -58,8 +49,6 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'barcode',
-    title: '📷 Barcode → prodotto completo',
-    description: 'Tocca il + poi "Scansiona Barcode": l\'app aggiunge foto, calorie, ingredienti e categoria del prodotto in automatico.',
     emoji: '📷',
     accent: '#BF5AF2',
     targetSelector: '[data-tour="fab-button"]',
@@ -67,8 +56,6 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'loyalty',
-    title: '💳 Carte fedeltà digitali',
-    description: 'Nella scheda Carte trovi tutte le tue tessere fedeltà. Aggiungile una volta, usale al supermercato senza portarle fisicamente.',
     emoji: '💳',
     accent: '#FFD700',
     targetSelector: '[data-tour="nav-loyalty"]',
@@ -77,6 +64,7 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -285,7 +273,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
           }}>
             {current.emoji}
           </div>
-          <button aria-label="Chiudi"
+          <button aria-label={t('common.close')}
             onClick={onComplete}
             style={{
               background: 'rgba(255,255,255,0.06)', border: 'none', color: 'rgba(255,255,255,0.4)',
@@ -313,10 +301,10 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
 
         {/* Title & desc */}
         <h3 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 800, color: 'white', lineHeight: 1.3 }}>
-          {current.title}
+          {t(`tutorial.${current.id}_title`)}
         </h3>
         <p style={{ margin: '0 0 20px', color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem', lineHeight: '1.5' }}>
-          {current.description}
+          {t(`tutorial.${current.id}_desc`)}
         </p>
 
         {/* CTA */}
@@ -334,8 +322,8 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
           }}
         >
           {isLast
-            ? <><CheckCircle2 size={20} /> Inizia ad usare l'app</>
-            : <>Avanti <ChevronRight size={20} /></>}
+            ? <><CheckCircle2 size={20} /> {t('tutorial.start')}</>
+            : <>{t('common.next')} <ChevronRight size={20} /></>}
         </button>
 
         {/* Skip link */}
@@ -345,7 +333,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
             fontSize: '0.8rem', cursor: 'pointer', width: '100%', marginTop: '10px',
             padding: '4px'
           }}>
-            Salta il tutorial
+            {t('tutorial.skip')}
           </button>
         )}
       </div>

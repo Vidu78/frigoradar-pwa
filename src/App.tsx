@@ -1,4 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
@@ -26,6 +27,7 @@ import ReloadPrompt from './components/ReloadPrompt';
 import OfflineBanner from './components/OfflineBanner';
 
 const AppContainer = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showReceiptScanner, setShowReceiptScanner] = useState(false);
@@ -78,11 +80,11 @@ const AppContainer = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'black' }} onClick={handleInstallApp}>
             <Download size={20} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Installa FrigoRadar</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Per un'esperienza più veloce</span>
+              <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{t('app.install_title')}</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>{t('app.install_sub')}</span>
             </div>
           </div>
-          <button aria-label="Chiudi" onClick={() => setDeferredPrompt(null)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: 'black', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <button aria-label={t('common.close')} onClick={() => setDeferredPrompt(null)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: 'black', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <X size={16} />
           </button>
         </div>
@@ -115,7 +117,7 @@ const AppContainer = () => {
             borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
             animation: 'slideUp 0.3s ease-out', display: 'flex', flexDirection: 'column', gap: '12px'
           }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 16px 0', textAlign: 'center', fontSize: '1.1rem' }}>Scegli modalità di inserimento</h3>
+            <h3 style={{ margin: '0 0 16px 0', textAlign: 'center', fontSize: '1.1rem' }}>{t('app.add_mode_title')}</h3>
             
             <button onClick={() => { setShowActionSheet(false); setShowReceiptScanner(true); }} style={{
               background: 'rgba(255,255,255,0.05)', border: '1px solid var(--primary)', color: 'white',
@@ -123,8 +125,8 @@ const AppContainer = () => {
             }}>
               <div style={{ background: 'var(--primary)', padding: '10px', borderRadius: '50%', color: 'black' }}><Receipt size={24} /></div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Scontrino Spesa</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Analisi automatica e rapida</div>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>{t('app.mode_receipt')}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('app.mode_receipt_sub')}</div>
               </div>
             </button>
             
@@ -134,8 +136,8 @@ const AppContainer = () => {
             }}>
               <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '10px', borderRadius: '50%', color: '#2ECC71' }}><Camera size={24} /></div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Foto Prodotto</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Usa AI per un prodotto singolo</div>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>{t('app.mode_photo')}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('app.mode_photo_sub')}</div>
               </div>
             </button>
 
@@ -145,8 +147,8 @@ const AppContainer = () => {
             }}>
               <div style={{ background: 'rgba(255, 107, 91, 0.2)', padding: '10px', borderRadius: '50%', color: 'var(--accent)' }}><PlusIcon size={24} /></div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Manuale</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Inserimento classico</div>
+                <div style={{ fontWeight: 700, fontSize: '1rem' }}>{t('app.mode_manual')}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('app.mode_manual_sub')}</div>
               </div>
             </button>
           </div>

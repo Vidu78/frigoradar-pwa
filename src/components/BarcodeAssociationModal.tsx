@@ -1,5 +1,6 @@
 import { X, Plus, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BarcodeAssociationModalProps {
   scannedData: any;
@@ -10,6 +11,7 @@ interface BarcodeAssociationModalProps {
 }
 
 export default function BarcodeAssociationModal({ scannedData, candidates, onClose, onAddNew, onAssociate }: BarcodeAssociationModalProps) {
+  const { t } = useTranslation();
   const [associating, setAssociating] = useState<string | null>(null);
 
   const handleAssociate = async (itemId: string) => {
@@ -39,8 +41,8 @@ export default function BarcodeAssociationModal({ scannedData, candidates, onClo
         boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
       }}>
         <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Prodotto Trovato</h3>
-          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
+          <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>{t('barcode_assoc.title')}</h3>
+          <button aria-label={t('common.close')} onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={24} /></button>
         </div>
 
         <div style={{ padding: '20px' }}>
@@ -66,12 +68,12 @@ export default function BarcodeAssociationModal({ scannedData, candidates, onClo
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', marginBottom: '24px'
             }}
           >
-            <Plus size={20} /> Aggiungi come Nuovo Prodotto
+            <Plus size={20} /> {t('barcode_assoc.add_new')}
           </button>
 
           {candidates.length > 0 && (
             <>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '12px', fontWeight: 600 }}>Oppure associa a un prodotto in frigo:</div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '12px', fontWeight: 600 }}>{t('barcode_assoc.or_link')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto' }}>
                 {candidates.map(c => (
                   <button

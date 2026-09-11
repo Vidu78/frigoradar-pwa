@@ -4,8 +4,10 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
 import { Users, Copy, Check, ArrowRight, Unlink, ShieldCheck, UserCheck, Power } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function FamilySharing() {
+  const { t } = useTranslation();
   const { session } = useAuthStore();
   const { fetchItems } = useInventoryStore();
   const { showToast } = useToastStore();
@@ -49,12 +51,12 @@ export default function FamilySharing() {
 
       // Aggiorna l'inventario per caricare il frigo personale dell'utente
       await fetchItems();
-      showToast("Frigorifero dissociato! Ora stai usando il tuo frigorifero personale.", "success");
-      setSuccess("Dissociazione completata! Sei tornato al tuo frigo personale.");
+      showToast(t('family.left'), 'success');
+      setSuccess(t('family.left_msg'));
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Errore durante la dissociazione del frigorifero.");
-      showToast("Errore durante la dissociazione", "error");
+      setError(err.message || t('family.leave_error'));
+      showToast(t('family.leave_error'), 'error');
     } finally {
       setLoading(false);
     }
@@ -67,9 +69,9 @@ export default function FamilySharing() {
     } else if (previousFamilyId && previousFamilyId !== userId) {
       // Uscire da una famiglia ora revoca davvero l'accesso: per rientrare
       // serve un codice nuovo, non basta riscrivere il metadata.
-      showToast("Per rientrare nel frigo condiviso chiedi un nuovo codice d'invito.", "info");
+      showToast(t('family.rejoin_hint'), 'info');
     } else {
-      showToast("Genera o inserisci un codice d'invito per attivare la condivisione", "info");
+      showToast(t('family.enable_hint'), 'info');
     }
   };
 
@@ -85,9 +87,9 @@ export default function FamilySharing() {
       }]);
       if (insertError) throw insertError;
       setInviteCode(code);
-      showToast("Codice invito generato!", "success");
+      showToast(t('family.code_generated'), 'success');
     } catch (err: any) {
-      setError(err.message || "Errore durante la generazione dell'invito.");
+      setError(err.message || t('family.invite_error'));
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,7 @@ export default function FamilySharing() {
     if (inviteCode) {
       navigator.clipboard.writeText(inviteCode);
       setCopied(true);
-      showToast("Codice copiato negli appunti!", "success");
+      showToast(t('family.code_copied'), 'success');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -113,7 +115,7 @@ export default function FamilySharing() {
       const { data: familyId, error: rpcError } = await supabase
         .rpc('join_household', { invite_code: joinCode.toUpperCase() });
 
-      if (rpcError || !familyId) throw new Error(rpcError?.message || "Codice non valido o scaduto.");
+      if (rpcError || !familyId) throw new Error(rpcError?.message || t('family.invalid_code'));
 
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
@@ -126,8 +128,8 @@ export default function FamilySharing() {
       if (updateError) throw updateError;
       
       await fetchItems();
-      showToast("Frigorifero sincronizzato con successo!", "success");
-      setSuccess("Frigoriferi sincronizzati con successo!");
+      showToast(t('family.joined'), 'success');
+      setSuccess(t('family.joined'));
       setJoinCode('');
     } catch (err: any) {
       setError(err.message);
@@ -145,9 +147,9 @@ export default function FamilySharing() {
           <Users color="#00FFAA" size={28} />
         </div>
         <div>
-          <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 800, letterSpacing: '-0.5px' }}>Frigo Condiviso</h1>
+          <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 800, letterSpacing: '-0.5px' }}>{t('family.title')}</h1>
           <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
-            Gestisci la sincronizzazione in tempo reale con i tuoi familiari
+            {t('family.subtitle')}
           </p>
         </div>
       </div>
@@ -180,10 +182,10 @@ export default function FamilySharing() {
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: '16px', color: '#fff' }}>
-              {isSharing ? 'Condivisione Attiva' : 'Frigo Personale'}
+              {isSharing ? t('family.sharing_on') : t('family.sharing_off')}
             </div>
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>
-              {isSharing ? 'Sincronizzato in tempo reale' : 'Visibile solo a te'}
+              {isSharing ? t('family.sharing_on_sub') : t('family.sharing_off_sub')}
             </div>
           </div>
         </div>
@@ -192,7 +194,7 @@ export default function FamilySharing() {
         <button
           onClick={toggleSharing}
           disabled={loading || (!isSharing && !previousFamilyId)}
-          title={isSharing ? "Disattiva Condivisione" : "Attiva Condivisione"}
+          title={isSharing ? t('family.disable') : t('family.enable')}
           style={{
             width: '56px',
             height: '32px',
@@ -232,19 +234,19 @@ export default function FamilySharing() {
             <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', background: 'rgba(0, 255, 170, 0.1)', color: '#00FFAA', marginBottom: '12px' }}>
               <ShieldCheck size={32} />
             </div>
-            <h2 style={{ fontSize: '18px', color: '#00FFAA', margin: '0 0 8px 0', fontWeight: 700 }}>Stai condividendo il frigorifero!</h2>
+            <h2 style={{ fontSize: '18px', color: '#00FFAA', margin: '0 0 8px 0', fontWeight: 700 }}>{t('family.active_title')}</h2>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0, lineHeight: 1.5 }}>
-              Tutti i prodotti aggiunti o consumati vengono sincronizzati istantaneamente con tutti i membri della tua famiglia.
+              {t('family.active_sub')}
             </p>
           </div>
 
           {/* PULSANTE PER DISSOCIARE IL FRIGORIFERO */}
           <div style={{ background: 'rgba(255,69,58,0.05)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '24px', padding: '24px' }}>
             <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#FF453A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Unlink size={18} /> Dissocia Frigorifero
+              <Unlink size={18} /> {t('family.leave_title')}
             </h3>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: '0 0 18px 0', lineHeight: 1.4 }}>
-              Vuoi disconnetterti da questo frigo condiviso e tornare al tuo frigorifero privato? Potrai riconnetterti in qualsiasi momento.
+              {t('family.leave_sub')}
             </p>
             <button
               onClick={leaveFamily}
@@ -266,7 +268,7 @@ export default function FamilySharing() {
                 transition: 'all 0.2s'
               }}
             >
-              {loading ? 'Dissociazione in corso...' : 'Dissocia Ora dal Frigo Condiviso'}
+              {loading ? t('family.leaving') : t('family.leave_now')}
             </button>
           </div>
         </div>
@@ -275,9 +277,9 @@ export default function FamilySharing() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* SEZIONE 1: INVITA QUALCUNO */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '24px' }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>Invita qualcuno al tuo frigo</h3>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>{t('family.invite_title')}</h3>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: '0 0 20px 0', lineHeight: 1.4 }}>
-              Genera un codice d'invito monouso e invialo a chi vuoi per condividere la tua dispensa.
+              {t('family.invite_sub')}
             </p>
             
             {inviteCode ? (
@@ -295,20 +297,20 @@ export default function FamilySharing() {
                 disabled={loading}
                 style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)', border: 'none', borderRadius: '16px', color: '#000', fontWeight: 700, fontSize: '16px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,255,170,0.25)' }}
               >
-                Genera Codice Invito
+                {t('family.generate_code')}
               </button>
             )}
           </div>
 
           <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontWeight: 700, fontSize: '12px', letterSpacing: '1px' }}>
-            OPPURE
+            {t('auth.or')}
           </div>
 
           {/* SEZIONE 2: UNISCITI A UN FRIGO */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '24px' }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>Unisciti a un frigo esistente</h3>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>{t('family.join_title')}</h3>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: '0 0 20px 0', lineHeight: 1.4 }}>
-              Inserisci il codice di 6 caratteri ricevuto per collegarti al frigorifero di un altro membro.
+              {t('family.join_sub')}
             </p>
             
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -316,7 +318,7 @@ export default function FamilySharing() {
                 type="text" 
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="ES: A4X9B2"
+                placeholder={t('family.code_placeholder')}
                 maxLength={6}
                 style={{ flex: 1, background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '14px', padding: '0 16px', color: '#fff', fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: 700 }}
               />

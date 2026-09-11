@@ -256,7 +256,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>
           {/* Pulsante chiudi */}
-          <button aria-label="Chiudi"
+          <button aria-label={t('common.close')}
             onClick={onClose}
             style={{
               background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)',
@@ -281,7 +281,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
               borderRadius: '20px', padding: '2px 10px',
               color: '#00FFAA', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px'
             }}>
-              {ready ? (detected ? '✓ LETTO' : '● ATTIVO') : '○ AVVIO...'}
+              {ready ? (detected ? `✓ ${t('scanner.state_read')}` : `● ${t('scanner.state_active')}`) : `○ ${t('scanner.state_starting')}`}
             </div>
           </div>
 
@@ -323,10 +323,10 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             <Zap size={16} color={ready ? '#00FFAA' : 'rgba(255,255,255,0.3)'} />
             <span style={{ color: ready ? '#00FFAA' : 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>
               {detected
-                ? '✓ Codice rilevato!'
+                ? `✓ ${t('scanner.detected')}`
                 : ready
-                  ? t('scanner.tip', 'Inquadra il codice a barre')
-                  : t('scanner.searching', 'Avvio fotocamera...')}
+                  ? t('scanner.frame_hint')
+                  : t('scanner.starting_camera')}
             </span>
           </div>
         </div>

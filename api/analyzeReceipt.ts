@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard, consumaCredito } from '../lib/guard.js';
+import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!(await guard(req, res))) return;
 
-  const { image } = req.body; 
+  const { image, language } = req.body; 
   
   if (!image) {
     return res.status(400).json({ error: 'Devi fornire l\'immagine in formato base64.' });
@@ -79,6 +80,7 @@ SCHEMA DI OUTPUT JSON RICHIESTO:
     }
   ]
 }
+${istruzioneLingua(language)}
 `;
 
     const result = await model.generateContent({

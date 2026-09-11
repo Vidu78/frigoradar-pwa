@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X, Loader2, ScanLine } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface BarcodeScannerModalProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface BarcodeScannerModalProps {
 }
 
 export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScannerModalProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [hasCameraError, setHasCameraError] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -64,21 +66,21 @@ export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScann
         overflow: 'hidden'
       }}>
         <div style={{ padding: '24px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <button aria-label="Chiudi" onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer', backdropFilter: 'blur(5px)', zIndex: 10 }}>
+          <button aria-label={t('common.close')} onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer', backdropFilter: 'blur(5px)', zIndex: 10 }}>
             <X size={20} />
           </button>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <ScanLine color="var(--primary)" size={24} />
-            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'white' }}>Scansione Prodotto</h2>
+            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'white' }}>{t('scanner.product_title')}</h2>
           </div>
           
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '60px 0' }}>
               <Loader2 className="animate-spin" size={56} color="var(--primary)" />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ color: 'white', fontWeight: 600, fontSize: '1.1rem', marginBottom: '4px' }}>Ricerca nel database...</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Connessione a OpenFoodFacts in corso</div>
+                <div style={{ color: 'white', fontWeight: 600, fontSize: '1.1rem', marginBottom: '4px' }}>{t('scanner.db_search')}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('scanner.db_search_sub')}</div>
               </div>
             </div>
           ) : hasCameraError ? (
@@ -86,8 +88,8 @@ export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScann
                 <div style={{ background: 'rgba(255,69,58,0.1)', padding: '16px', borderRadius: '50%' }}>
                   <X size={32} color="#FF453A" />
                 </div>
-                <div style={{ color: 'white', fontWeight: 600 }}>Impossibile accedere alla fotocamera</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Verifica i permessi del browser per continuare.</div>
+                <div style={{ color: 'white', fontWeight: 600 }}>{t('scanner.camera_error')}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('scanner.camera_error_sub')}</div>
              </div>
           ) : (
             <div style={{ width: '100%', position: 'relative', borderRadius: '24px', overflow: 'hidden', background: '#000', border: '2px solid rgba(255,255,255,0.1)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -112,7 +114,7 @@ export default function BarcodeScannerModal({ onClose, onSuccess }: BarcodeScann
           
           {!loading && !hasCameraError && (
              <div style={{ marginTop: '24px', color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-               <ScanLine size={16} /> Inquadra il codice a barre nel riquadro
+               <ScanLine size={16} /> {t('scanner.frame_hint')}
              </div>
           )}
         </div>

@@ -58,7 +58,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
             }}
           >
             <ShoppingCart size={22} strokeWidth={activeTab === 'shopping' ? 2.5 : 2} />
-            <span style={{ fontSize: '10px', fontWeight: activeTab === 'shopping' ? 700 : 500 }}>Spesa</span>
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'shopping' ? 700 : 500 }}>{t('nav.shopping')}</span>
           </button>
         </div>
 
@@ -92,7 +92,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
             }}
           >
             <CreditCard size={20} strokeWidth={activeTab === 'loyalty' ? 2.5 : 2} />
-            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>Carte</span>
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'loyalty' ? 700 : 500 }}>{t('nav.loyalty')}</span>
           </button>
 
           <button
@@ -105,7 +105,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
             }}
           >
             <ChefHat size={20} strokeWidth={activeTab === 'recipes' ? 2.5 : 2} />
-            <span style={{ fontSize: '10px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>Chef AI</span>
+            <span style={{ fontSize: '10px', fontWeight: activeTab === 'recipes' ? 700 : 500 }}>{t('nav.recipes')}</span>
           </button>
 
           <button

@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import i18n from '../i18n/config';
 
 // Gli endpoint /api/* ora richiedono la sessione Supabase.
 export async function authHeaders(): Promise<Record<string, string>> {
@@ -18,11 +19,11 @@ export async function limiteRaggiunto(res: Response): Promise<boolean> {
   const { useDialogStore } = await import('../store/dialogStore');
 
   const vuolePro = await useDialogStore.getState().showDialog({
-    title: 'Crediti AI esauriti',
-    message: `${dati.error ?? 'Hai finito i crediti AI di questa settimana.'} Puoi continuare ad aggiungere prodotti col barcode o a mano: quelli non hanno limiti. Con PRO scansioni e ricette sono illimitate.`,
+    title: i18n.t('credits.title'),
+    message: `${dati.error ?? i18n.t('credits.exhausted')} ${i18n.t('credits.body')}`,
     type: 'info',
-    confirmText: 'Scopri PRO',
-    cancelText: 'Continua gratis',
+    confirmText: i18n.t('credits.discover_pro'),
+    cancelText: i18n.t('credits.continue_free'),
   });
 
   if (vuolePro) window.location.assign('/pro');

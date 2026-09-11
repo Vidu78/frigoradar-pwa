@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { ChevronRight, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/config';
 
 const SLIDES = [
   {
     emoji: '🧠',
     gradient: 'linear-gradient(135deg, #00FFAA22, #00997744)',
     accent: '#00FFAA',
-    title: 'Il Futuro del Frigo',
-    desc: 'FrigoRadar usa l\'AI per eliminare l\'inserimento manuale. Scatta una foto e il frigo si aggiorna da solo.',
-    badge: 'Intelligenza Artificiale',
+    id: 'future',
     visual: (
       <div style={{ position: 'relative', width: '100%', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontSize: '80px', filter: 'drop-shadow(0 0 30px #00FFAA88)', animation: 'float 3s ease-in-out infinite' }}>🧠</div>
@@ -30,15 +30,13 @@ const SLIDES = [
     emoji: '🧾',
     gradient: 'linear-gradient(135deg, #FF9F0A22, #FF9F0A44)',
     accent: '#FF9F0A',
-    title: 'Magia dello Scontrino',
-    desc: 'Scatta una foto alla ricevuta della spesa e l\'AI aggiungerà tutti i prodotti al frigo con le scadenze stimate.',
-    badge: 'Scan AI',
+    id: 'receipt',
     visual: (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px', gap: '20px' }}>
         <div style={{ fontSize: '70px', animation: 'float 3s ease-in-out infinite' }}>🧾</div>
         <div style={{ fontSize: '32px', color: '#FF9F0A', fontWeight: 900 }}>→</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {['🥛 Latte 7g', '🧀 Grana 14g', '🥩 Petto 3g'].map((item, i) => (
+          {[`🥛 ${i18n.t('onboarding.demo_milk')}`, `🧀 ${i18n.t('onboarding.demo_cheese')}`, `🥩 ${i18n.t('onboarding.demo_meat')}`].map((item, i) => (
             <div key={i} style={{
               background: 'rgba(255,159,10,0.12)', border: '1px solid rgba(255,159,10,0.3)',
               borderRadius: '8px', padding: '6px 12px', color: 'white', fontSize: '0.8rem', fontWeight: 600,
@@ -53,24 +51,22 @@ const SLIDES = [
     emoji: '📸',
     gradient: 'linear-gradient(135deg, #64C8FF22, #64C8FF44)',
     accent: '#64C8FF',
-    title: 'Foto AI & Barcode',
-    desc: 'Fotografia la data di scadenza: l\'AI la legge. Scansiona il barcode: prodotto aggiunto con foto, calorie e nutrienti.',
-    badge: 'Computer Vision',
+    id: 'photo',
     visual: (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px', gap: '16px' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '50px', marginBottom: '8px' }}>📷</div>
-          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>BARCODE</div>
+          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>{i18n.t('onboarding.demo_barcode')}</div>
         </div>
         <div style={{ width: '1px', height: '80px', background: 'rgba(255,255,255,0.1)' }} />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '50px', marginBottom: '8px' }}>🏷️</div>
-          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>SCADENZA</div>
+          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>{i18n.t('onboarding.demo_expiry')}</div>
         </div>
         <div style={{ width: '1px', height: '80px', background: 'rgba(255,255,255,0.1)' }} />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '50px', marginBottom: '8px' }}>🥦</div>
-          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>A PESO</div>
+          <div style={{ fontSize: '0.7rem', color: '#64C8FF', fontWeight: 700 }}>{i18n.t('onboarding.demo_weight')}</div>
         </div>
       </div>
     )
@@ -79,9 +75,7 @@ const SLIDES = [
     emoji: '👨‍🍳',
     gradient: 'linear-gradient(135deg, #FF453A22, #FF453A44)',
     accent: '#FF453A',
-    title: 'Chef AI Anti-Spreco',
-    desc: 'Lo Chef AI analizza i prodotti in scadenza nel tuo frigo e crea ricette stellate su misura — zero sprechi.',
-    badge: 'Gemini AI',
+    id: 'chef',
     visual: (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '160px', gap: '12px' }}>
         <div style={{ fontSize: '60px', animation: 'float 3s ease-in-out infinite' }}>👨‍🍳</div>
@@ -89,9 +83,9 @@ const SLIDES = [
           background: 'rgba(255,69,58,0.15)', border: '1px solid rgba(255,69,58,0.3)',
           borderRadius: '12px', padding: '10px 16px', maxWidth: '220px', textAlign: 'center'
         }}>
-          <div style={{ color: '#FF453A', fontWeight: 800, fontSize: '0.8rem', marginBottom: '4px' }}>💡 Idea Chef</div>
+          <div style={{ color: '#FF453A', fontWeight: 800, fontSize: '0.8rem', marginBottom: '4px' }}>💡 {i18n.t('onboarding.demo_idea')}</div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-            "Pasta con 🧀 Grana, 🍳 Uovo e 🥓 Pancetta — scade oggi!"
+            {i18n.t('onboarding.demo_recipe')}
           </div>
         </div>
       </div>
@@ -101,9 +95,7 @@ const SLIDES = [
     emoji: '💳',
     gradient: 'linear-gradient(135deg, #FFD70022, #FFD70044)',
     accent: '#FFD700',
-    title: 'Carte Fedeltà & Sconti',
-    desc: 'Scansiona la tua tessera e portala sempre con te. L\'AI rileva automaticamente punti e coupon dallo scontrino.',
-    badge: 'Wallet Digitale',
+    id: 'loyalty',
     visual: (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '160px', gap: '10px' }}>
         {[
@@ -131,9 +123,7 @@ const SLIDES = [
     emoji: '👨‍👩‍👧‍👦',
     gradient: 'linear-gradient(135deg, #BF5AF222, #BF5AF244)',
     accent: '#BF5AF2',
-    title: 'Frigo Condiviso',
-    desc: 'Condividi il frigo con familiari o coinquilini. Tutti vedono i prodotti in tempo reale, aggiungono articoli e collaborano sulla spesa.',
-    badge: 'Family Sharing',
+    id: 'family',
     visual: (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px', gap: '0px', position: 'relative' }}>
         {['👩', '🧑', '👦', '👧'].map((avatar, i) => (
@@ -152,8 +142,8 @@ const SLIDES = [
           marginLeft: '16px', background: 'rgba(191,90,242,0.15)', border: '1px solid rgba(191,90,242,0.4)',
           borderRadius: '12px', padding: '10px 14px'
         }}>
-          <div style={{ color: '#BF5AF2', fontWeight: 800, fontSize: '0.8rem' }}>🔗 Connessi</div>
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginTop: '2px' }}>4 persone · 1 frigo</div>
+          <div style={{ color: '#BF5AF2', fontWeight: 800, fontSize: '0.8rem' }}>🔗 {i18n.t('onboarding.demo_connected')}</div>
+          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginTop: '2px' }}>{i18n.t('onboarding.demo_people')}</div>
         </div>
       </div>
     )
@@ -161,6 +151,7 @@ const SLIDES = [
 ];
 
 export default function Onboarding() {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { completeOnboarding } = useAuthStore();
@@ -220,7 +211,7 @@ export default function Onboarding() {
           onClick={handleSkip}
           style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 600 }}
         >
-          Salta
+          {t('common.skip')}
         </button>
       </div>
 
@@ -234,7 +225,7 @@ export default function Onboarding() {
             borderRadius: '20px', padding: '4px 14px',
             color: slide.accent, fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.5px'
           }}>
-            ✦ {slide.badge}
+            ✦ {t(`onboarding.${slide.id}_badge`)}
           </div>
         </div>
 
@@ -252,10 +243,10 @@ export default function Onboarding() {
         {/* Text */}
         <div style={{ marginBottom: '32px', animation: 'slideUp 0.4s 0.05s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
           <h1 style={{ margin: '0 0 12px', fontSize: '1.9rem', fontWeight: 900, lineHeight: 1.1 }}>
-            {slide.title}
+            {t(`onboarding.${slide.id}_title`)}
           </h1>
           <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '1rem', lineHeight: '1.55' }}>
-            {slide.desc}
+            {t(`onboarding.${slide.id}_desc`)}
           </p>
         </div>
 
@@ -276,8 +267,8 @@ export default function Onboarding() {
           }}
         >
           {isLast
-            ? <><CheckCircle2 size={22} /> Inizia Subito</>
-            : <>Avanti <ChevronRight size={22} /></>}
+            ? <><CheckCircle2 size={22} /> {t('onboarding.start')}</>
+            : <>{t('common.next')} <ChevronRight size={22} /></>}
         </button>
 
         {/* Dots below button */}
@@ -297,7 +288,7 @@ export default function Onboarding() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(10px)' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px', animation: 'float 1s ease-in-out infinite' }}>🚀</div>
-            <h2 style={{ margin: 0, color: 'white' }}>Configurazione in corso...</h2>
+            <h2 style={{ margin: 0, color: 'white' }}>{t('onboarding.configuring')}</h2>
           </div>
         </div>
       )}

@@ -10,6 +10,8 @@ import ProductDetailModal from '../components/ProductDetailModal';
 import WelcomeTutorialModal from '../components/WelcomeTutorialModal';
 import BarcodeAssociationModal from '../components/BarcodeAssociationModal';
 import { getExpirationStatus } from '../utils/expirationEngine';
+import { categoryLabel } from '../utils/labels';
+import { Trans } from 'react-i18next';
 import { useToastStore } from '../store/toastStore';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -27,7 +29,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export default function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { session, signOut, updateStats } = useAuthStore();
   const { items, loading, fetchItems, addItem, deleteItem, updateItemQuantity } = useInventoryStore();
   const { showToast } = useToastStore();
@@ -75,7 +77,7 @@ export default function Dashboard() {
     // Assumiamo come consumato (SAVED) di default
     updateStats('SAVED', 2.5);
     await deleteItem(id);
-    showToast("Prodotto consumato e rimosso", "success");
+    showToast(t('dashboard.consumed'), 'success');
   };
 
   const handleScan = async (decodedText: string) => {
@@ -112,7 +114,9 @@ export default function Dashboard() {
         const resOFF = await fetchWithTimeout(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(decodedText)}.json`, {}, 3000);
         const dataOFF = await resOFF.json();
         if (dataOFF.status === 1 && dataOFF.product) {
-          rawName = dataOFF.product.product_name || dataOFF.product.generic_name || rawName;
+          // OpenFoodFacts ha il nome per lingua (product_name_it, product_name_fr...): usiamo quello dell'utente
+          const lang = i18n.language.split('-')[0];
+          rawName = dataOFF.product[`product_name_${lang}`] || dataOFF.product.product_name || dataOFF.product.generic_name || rawName;
           imageUrl = dataOFF.product.image_front_url || dataOFF.product.image_url;
           brand = dataOFF.product.brands || null;
           ingredients = dataOFF.product.ingredients_text || null;
@@ -132,7 +136,7 @@ export default function Dashboard() {
         const aiRes = await fetchWithTimeout('/api/analyzeProduct', {
           method: 'POST',
           headers: await authHeaders(),
-          body: JSON.stringify({ barcode: decodedText, query: rawName })
+          body: JSON.stringify({ barcode: decodedText, query: rawName, language: i18n.language })
         }, 4000);
         
         if (aiRes.ok) {
@@ -223,7 +227,7 @@ export default function Dashboard() {
         });
       } catch (retryError: any) {
         console.error("Salvataggio fallito:", retryError);
-        showToast(`Errore salvataggio Supabase: ${retryError.message || JSON.stringify(retryError)}`, 'error');
+        showToast(t('common.save_error') + ': ' + (retryError.message || JSON.stringify(retryError)), 'error');
       }
     }
     setAiProductData(null);
@@ -298,7 +302,7 @@ export default function Dashboard() {
           <div style={{ background: 'rgba(46, 204, 113, 0.2)', padding: '14px', borderRadius: '50%' }}>
             <Camera size={28} color="#2ECC71" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#2ECC71' }}>Foto AI</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#2ECC71' }}>{t('add_item.mode_photo')}</span>
         </div>
         
         <div 
@@ -312,7 +316,7 @@ export default function Dashboard() {
           <div style={{ background: 'rgba(255, 170, 0, 0.2)', padding: '14px', borderRadius: '50%' }}>
             <Receipt size={28} color="#FFAA00" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#FFAA00' }}>Scontrino</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#FFAA00' }}>{t('dashboard.receipt')}</span>
         </div>
       </div>
 
@@ -321,8 +325,8 @@ export default function Dashboard() {
         <div style={{ background: 'rgba(255, 69, 58, 0.15)', border: '1px solid rgba(255, 69, 58, 0.4)', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Info size={24} color="#FF453A" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ color: '#FF453A', fontWeight: 600, fontSize: '0.95rem' }}>Attenzione Scadenze</div>
-            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginTop: '2px' }}>Hai {urgentCount} {urgentCount === 1 ? 'prodotto' : 'prodotti'} in scadenza o scaduti.</div>
+            <div style={{ color: '#FF453A', fontWeight: 600, fontSize: '0.95rem' }}>{t('dashboard.expiry_alert')}</div>
+            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginTop: '2px' }}>{t('dashboard.expiry_alert_sub', { count: urgentCount })}</div>
           </div>
         </div>
       )}
@@ -354,7 +358,7 @@ export default function Dashboard() {
           }}
         >
           <Refrigerator size={16} />
-          <span style={{ fontSize: '0.9rem' }}>Frigo</span>
+          <span style={{ fontSize: '0.9rem' }}>{t('dashboard.fridge')}</span>
           <span style={{ background: activeTab === 'FRIDGE' ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: activeTab === 'FRIDGE' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
             {counts.FRIDGE}
           </span>
@@ -370,7 +374,7 @@ export default function Dashboard() {
           }}
         >
           <Box size={16} />
-          <span style={{ fontSize: '0.9rem' }}>Freezer</span>
+          <span style={{ fontSize: '0.9rem' }}>{t('dashboard.freezer')}</span>
           <span style={{ background: activeTab === 'FREEZER' ? '#64C8FF' : 'rgba(255,255,255,0.1)', color: activeTab === 'FREEZER' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
             {counts.FREEZER}
           </span>
@@ -386,7 +390,7 @@ export default function Dashboard() {
           }}
         >
           <Box size={16} />
-          <span style={{ fontSize: '0.9rem' }}>Dispensa</span>
+          <span style={{ fontSize: '0.9rem' }}>{t('dashboard.pantry')}</span>
           <span style={{ background: activeTab === 'PANTRY' ? '#FFAA00' : 'rgba(255,255,255,0.1)', color: activeTab === 'PANTRY' ? 'black' : 'inherit', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700 }}>
             {counts.PANTRY}
           </span>
@@ -402,9 +406,9 @@ export default function Dashboard() {
             <div style={{ width: '80px', height: '80px', background: 'rgba(0,255,170,0.1)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', boxShadow: '0 0 30px rgba(0,255,170,0.2)' }}>
               <Receipt size={40} color="#00FFAA" />
             </div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px 0', color: 'white' }}>Il Frigo è vuoto</h3>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px 0', color: 'white' }}>{t('dashboard.empty')}</h3>
             <p style={{ fontSize: '1rem', color: 'var(--text-muted)', margin: '0 0 32px 0', lineHeight: '1.5', maxWidth: '300px' }}>
-              Inizia da qui: <strong style={{color: 'white'}}>Fotografa uno scontrino.</strong> L'Intelligenza Artificiale smisterà i prodotti, calcolerà le scadenze e li riporrà al posto giusto.
+              <Trans i18nKey="dashboard.empty_hint" components={{ strong: <strong style={{ color: 'white' }} /> }} />
             </p>
             <button 
               onClick={() => {
@@ -420,7 +424,7 @@ export default function Dashboard() {
               }}
             >
               <Camera size={24} />
-              Scansiona Scontrino
+              {t('receipt.title')}
             </button>
           </div>
         ) : (
@@ -438,7 +442,7 @@ export default function Dashboard() {
                     border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)'
                   }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>{emoji}</span> {catName}
+                      <span>{emoji}</span> {categoryLabel(catName, t)}
                     </span>
                     <span style={{ 
                       fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,255,255,0.1)', 
@@ -549,13 +553,13 @@ export default function Dashboard() {
             try {
               const { error } = await supabase.from('inventory_items').update(updates).eq('id', itemId);
               if (error) throw error;
-              showToast('Prodotto associato con successo!', 'success');
+              showToast(t('dashboard.linked'), 'success');
               setShowAssociationModal(false);
               setAiProductData(null);
               fetchItems();
             } catch (err) {
               console.error(err);
-              showToast("Errore durante l'associazione.", "error");
+              showToast(t('dashboard.link_error'), 'error');
             }
           }}
         />

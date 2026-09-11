@@ -7,6 +7,8 @@ import AddItemModal from './AddItemModal';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { useLoyaltyStore } from '../store/loyaltyStore';
+import { useTranslation } from 'react-i18next';
+import { categoryLabel } from '../utils/labels';
 
 interface ReceiptScannerModalProps {
   onClose: () => void;
@@ -15,6 +17,7 @@ interface ReceiptScannerModalProps {
 
 export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScannerModalProps) {
   const { session } = useAuthStore();
+  const { t, i18n } = useTranslation();
   const { showToast } = useToastStore();
   const [scanning, setScanning] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -68,13 +71,13 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
     };
 
     try {
-      showToast("Analisi scontrino in corso...", "info");
+      showToast(t('receipt.analyzing'), 'info');
       const base64String = await compressImage(file);
       
       const res = await fetch('/api/analyzeReceipt', {
         method: 'POST',
         headers: await authHeaders(),
-        body: JSON.stringify({ image: base64String })
+        body: JSON.stringify({ image: base64String, language: i18n.language })
       });
 
       if (await limiteRaggiunto(res)) return;
@@ -90,7 +93,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           setItems(itemsWithState);
           setStep('review');
           setStep('review');
-          showToast(`Trovati ${itemsWithState.length} prodotti!`, "success");
+          showToast(t('receipt.found', { count: itemsWithState.length }), 'success');
           
           // Gestione Punti e Sconti Fedeltà
           if (data.store_name) {
@@ -106,11 +109,11 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
             if (match) {
               if (data.loyalty_points !== undefined && data.loyalty_points !== null) {
                 await loyaltyStore.updatePoints(match.id, data.loyalty_points);
-                showToast(`Aggiornati ${data.loyalty_points} punti ${match.store_name}!`, "success");
+                showToast(t('receipt.points_updated', { points: data.loyalty_points, store: match.store_name }), 'success');
               }
               if (data.discounts && Array.isArray(data.discounts) && data.discounts.length > 0) {
                 await loyaltyStore.addDiscounts(data.discounts, match.id, match.store_name);
-                showToast(`Trovati ${data.discounts.length} sconti per ${match.store_name}!`, "success");
+                showToast(t('receipt.discounts_found', { count: data.discounts.length, store: match.store_name }), 'success');
               }
             }
           }
@@ -127,7 +130,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
               
               await supabase.from('receipts').insert({
                 user_id: session.user.id,
-                store_name: "Scontrino Scansionato",
+                store_name: t('receipt.scanned_store'),
                 total_amount: totalAmount,
                 items_count: data.items.length,
                 image_url: fileName
@@ -136,14 +139,14 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           }
 
         } else {
-          showToast("Nessun prodotto alimentare trovato nello scontrino.", "error");
+          showToast(t('receipt.no_food'), 'error');
         }
       } else {
-        showToast("Errore durante l'analisi dello scontrino.", "error");
+        showToast(t('receipt.analyze_error'), 'error');
       }
     } catch (error) {
       console.error("Errore scanner scontrino:", error);
-      showToast("Errore di rete o del server.", "error");
+      showToast(t('common.network_error'), 'error');
     } finally {
       setScanning(false);
       e.target.value = '';
@@ -171,10 +174,10 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
       const newItems = [...items];
       newItems[index].status = 'saved';
       setItems(newItems);
-      showToast(`${item.name} salvato!`, "success");
+      showToast(t('receipt.item_saved', { name: item.name }), 'success');
     } catch (err) {
       console.error(err);
-      showToast("Errore durante il salvataggio", "error");
+      showToast(t('common.save_error'), 'error');
     }
   };
 
@@ -197,7 +200,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
       setEnrichingItemIndex(null);
     } catch (err) {
       console.error(err);
-      showToast("Errore durante il salvataggio", "error");
+      showToast(t('common.save_error'), 'error');
     }
   };
 
@@ -226,10 +229,10 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           savedCount++;
         }
       }
-      showToast(`${savedCount} prodotti importati con successo!`, 'success');
+      showToast(t('receipt.imported', { count: savedCount }), 'success');
     } catch (e) {
       console.error(e);
-      showToast("Errore durante l'importazione massiva", "error");
+      showToast(t('receipt.import_error'), 'error');
     } finally {
       setScanning(false);
     }
@@ -256,9 +259,9 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Receipt size={24} color="var(--primary)" />
-            {step === 'camera' ? 'Scansiona Scontrino' : 'Carrello in Ingresso'}
+            {step === 'camera' ? t('receipt.title') : t('receipt.cart_title')}
           </h3>
-          <button aria-label="Chiudi" onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
+          <button aria-label={t('common.close')} onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>
@@ -266,8 +269,8 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
         {step === 'camera' && (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
             <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-              <p>Scatta una foto al tuo scontrino della spesa.</p>
-              <p>L'Intelligenza Artificiale estrarrà i prodotti in pochi secondi!</p>
+              <p>{t('receipt.intro')}</p>
+              <p>{t('receipt.intro_sub')}</p>
             </div>
             
             <label 
@@ -286,12 +289,12 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
               {scanning ? (
                 <>
                   <Loader2 size={48} className="animate-spin" />
-                  <span style={{ fontWeight: 600 }}>Lettura in corso...</span>
+                  <span style={{ fontWeight: 600 }}>{t('receipt.reading')}</span>
                 </>
               ) : (
                 <>
                   <Camera size={48} />
-                  <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>Scatta Foto Scontrino</span>
+                  <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>{t('receipt.take_photo')}</span>
                 </>
               )}
             </label>
@@ -302,9 +305,9 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {allSaved && (
               <div style={{ background: 'rgba(50, 215, 75, 0.15)', border: '1px solid #32D74B', color: '#32D74B', padding: '16px', borderRadius: '16px', textAlign: 'center', marginBottom: '10px' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>🎉 Tutto salvato!</h4>
-                <p style={{ margin: 0, fontSize: '0.9rem' }}>Hai inserito tutti i prodotti nel frigorifero.</p>
-                <button onClick={onClose} style={{ marginTop: '12px', background: '#32D74B', color: 'black', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, cursor: 'pointer' }}>Chiudi</button>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>🎉 {t('receipt.all_saved')}</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>{t('receipt.all_saved_sub')}</p>
+                <button onClick={onClose} style={{ marginTop: '12px', background: '#32D74B', color: 'black', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, cursor: 'pointer' }}>{t('common.close')}</button>
               </div>
             )}
 
@@ -312,7 +315,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
                <>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 170, 0, 0.1)', color: '#FFAA00', padding: '12px', borderRadius: '12px', marginBottom: '8px' }}>
                    <AlertTriangle size={20} />
-                   <span style={{ fontSize: '0.85rem', lineHeight: '1.3' }}>Approva i prodotti a lunga conservazione (Pasta, Scatolame) o aggiungi la foto scadenza per i freschi (Carne, Latte).</span>
+                   <span style={{ fontSize: '0.85rem', lineHeight: '1.3' }}>{t('receipt.approve_hint')}</span>
                  </div>
                  
                  <button 
@@ -353,7 +356,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
                   <div style={{ flex: 1, paddingRight: '12px' }}>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'white' }}>{item.name || item.raw_name}</h4>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      {item.category} • {item.storage_type === 'FRIDGE' ? 'Frigo' : item.storage_type === 'FREEZER' ? 'Freezer' : 'Dispensa'}
+                      {categoryLabel(item.category, t)} • {item.storage_type === 'FRIDGE' ? t('dashboard.fridge') : item.storage_type === 'FREEZER' ? t('dashboard.freezer') : t('dashboard.pantry')}
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -370,19 +373,19 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
                       onClick={() => handleQuickSave(index)}
                       style={{ background: 'rgba(50, 215, 75, 0.15)', color: '#32D74B', border: '1px solid rgba(50, 215, 75, 0.3)', padding: '10px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}
                     >
-                      <Check size={18} /> Salva Rapido
+                      <Check size={18} /> {t('receipt.quick_save')}
                     </button>
                     <button 
                       onClick={() => setEnrichingItemIndex(index)}
                       style={{ background: 'var(--primary-glow)', color: 'var(--primary)', border: '1px solid var(--primary)', padding: '10px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}
                     >
-                      <Camera size={18} /> Foto Scadenza
+                      <Camera size={18} /> {t('receipt.expiry_photo')}
                     </button>
                   </div>
                 )}
                 {item.status === 'saved' && (
                   <div style={{ textAlign: 'center', color: '#32D74B', fontSize: '0.9rem', fontWeight: 600 }}>
-                    Salvato nel frigo!
+                    {t('receipt.saved_in_fridge')}
                   </div>
                 )}
               </div>

@@ -4,8 +4,10 @@ import { Mail, Refrigerator, Loader2, Lock, Fingerprint, Eye, EyeOff, ArrowRight
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useDialogStore } from '../store/dialogStore';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   const { session, signInWithGoogle } = useAuthStore();
   const navigate = useNavigate();
   const { showDialog } = useDialogStore();
@@ -39,15 +41,15 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         showDialog({
-          title: 'Email Inviata',
-          message: "Controlla la tua email per confermare l'account!",
+          title: t('auth.email_sent'),
+          message: t('auth.email_sent_msg'),
           type: 'info',
           isAlert: true,
           confirmText: 'Ok'
         });
       }
     } catch (err: any) {
-      setError(err.message || 'Errore durante l\'autenticazione');
+      setError(err.message || t('auth.error'));
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithPasskey();
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message || "Errore con l'impronta digitale. Riprova.");
+      setError(err.message || t('auth.passkey_error'));
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ export default function AuthPage() {
         {/* Lo Smart Display integrato nella porta */}
         <div className="smart-screen" style={{ padding: '20px 20px' }}>
           <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem' }}>
-            {isLogin ? 'Bentornato! Accedi per continuare.' : 'Crea il tuo account gratuito.'}
+            {isLogin ? t('auth.welcome_back') : t('auth.create_account')}
           </p>
 
           {error && (
@@ -120,15 +122,15 @@ export default function AuthPage() {
           <form onSubmit={handleEmailAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             <div className="input-group" style={{ marginBottom: 0 }}>
-              <label className="input-label">Email</label>
+              <label className="input-label">{t('auth.email')}</label>
               <div style={{ position: 'relative' }}>
                 <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" placeholder="es. mario@email.com" style={{ width: '100%', paddingLeft: '42px' }} />
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" placeholder={t('auth.email_placeholder')} style={{ width: '100%', paddingLeft: '42px' }} />
               </div>
             </div>
 
             <div className="input-group" style={{ marginBottom: '8px' }}>
-              <label className="input-label">Password</label>
+              <label className="input-label">{t('auth.password')}</label>
               <div style={{ position: 'relative' }}>
                 <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input 
@@ -151,13 +153,13 @@ export default function AuthPage() {
             </div>
 
             <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', marginTop: '8px' }}>
-              {loading ? <Loader2 className="animate-spin" /> : (isLogin ? 'Accedi' : 'Registrati')}
+              {loading ? <Loader2 className="animate-spin" /> : (isLogin ? t('auth.login') : t('auth.signup'))}
             </button>
           </form>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '20px 0' }}>
             <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>OPPURE</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('auth.or')}</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
           </div>
 
@@ -169,7 +171,7 @@ export default function AuthPage() {
                 setError(null);
                 await signInWithGoogle();
               } catch (err: any) {
-                setError(err.message || "Errore con l'accesso Google");
+                setError(err.message || t('auth.google_error'));
               } finally {
                 setLoading(false);
               }
@@ -186,26 +188,26 @@ export default function AuthPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continua con Google
+            {t('auth.google')}
           </button>
 
           {isLogin && (
             <button type="button" onClick={handlePasskey} className="btn-secondary" disabled={loading} style={{ width: '100%', padding: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
               <Fingerprint size={24} style={{ color: ledColor, filter: `drop-shadow(0 0 6px ${ledColor}60)` }} />
-              <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>Accedi con Impronta</span>
+              <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>{t('auth.passkey')}</span>
             </button>
           )}
 
           <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
             <button type="button" onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}>
-              {isLogin ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'} <ArrowRight size={14} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
+              {isLogin ? t('auth.no_account') : t('auth.have_account')} <ArrowRight size={14} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
             </button>
             
             {/* LED Controls */}
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '8px 16px', background: 'rgba(0,0,0,0.3)', borderRadius: '20px' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Illuminazione LED</span>
-              <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '24px', height: '24px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title="Colore MoodUP" />
-              <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '80px', accentColor: ledColor, height: '4px' }} title="Intensità LED" />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('auth.led')}</span>
+              <input type="color" value={ledColor} onChange={(e) => setLedColor(e.target.value)} style={{ width: '24px', height: '24px', padding: 0, border: 'none', borderRadius: '50%', background: 'transparent', cursor: 'pointer' }} title={t('auth.led_color')} />
+              <input type="range" min="0" max="100" value={ledIntensity} onChange={(e) => setLedIntensity(Number(e.target.value))} style={{ width: '80px', accentColor: ledColor, height: '4px' }} title={t('auth.led_intensity')} />
             </div>
           </div>
         </div>
