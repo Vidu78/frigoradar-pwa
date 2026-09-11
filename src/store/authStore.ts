@@ -77,6 +77,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     // signOut notifica onAuthStateChange con session=null → ProtectedRoute redirige a /auth
     await supabase.auth.signOut();
+    // La cache offline del SW (sw.ts) tiene l'ultimo inventario visto: non deve
+    // sopravvivere a un cambio di account sullo stesso telefono.
+    if ('caches' in window) {
+      await caches.delete('frigoradar-data').catch(() => {});
+    }
   },
   updateStats: async (type, amount) => {
     const { session, stats } = get();

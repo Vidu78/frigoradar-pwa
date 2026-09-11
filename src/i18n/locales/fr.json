@@ -135,6 +135,10 @@
     "back": "Retour",
     "next": "Suivant",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "offline": "Vous êtes hors ligne : dernière copie enregistrée, les modifications partiront au retour du réseau",
+    "update_title": "Mise à jour disponible",
+    "update_body": "Une nouvelle version de l'application est prête.",
+    "update_button": "Mettre à jour"
   }
 }

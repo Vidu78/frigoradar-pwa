@@ -23,6 +23,7 @@ const ReceiptScannerModal = lazy(() => import('./components/ReceiptScannerModal'
 import { useInventoryStore } from './store/inventoryStore';
 import PremiumDialog from './components/PremiumDialog';
 import ReloadPrompt from './components/ReloadPrompt';
+import OfflineBanner from './components/OfflineBanner';
 
 const AppContainer = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fridge');
@@ -298,6 +299,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </Suspense>
+      <OfflineBanner />
       <ReloadPrompt />
     </Router>
   );

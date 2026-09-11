@@ -1,8 +1,10 @@
 // @ts-ignore
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ReloadPrompt() {
+  const { t } = useTranslation();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
@@ -27,9 +29,9 @@ export default function ReloadPrompt() {
       animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
       <div style={{ color: 'white', flex: 1 }}>
-        <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: '#FF9F0A' }}>Aggiornamento Disponibile</h4>
+        <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: '#FF9F0A' }}>{t('common.update_title')}</h4>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
-          È disponibile una nuova versione dell'app.
+          {t('common.update_body')}
         </p>
       </div>
       <button 
@@ -40,9 +42,9 @@ export default function ReloadPrompt() {
         }}
       >
         <RefreshCw size={16} />
-        Aggiorna
+        {t('common.update_button')}
       </button>
-      <button aria-label="Chiudi" onClick={() => setNeedRefresh(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
+      <button aria-label={t('common.close')} onClick={() => setNeedRefresh(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
         <X size={20} />
       </button>
 

@@ -11,9 +11,12 @@ export default defineConfig({
       filename: 'sw.ts',
       registerType: 'prompt',
       injectManifest: {
-        injectionPoint: undefined
+        // Senza manifest iniettato il SW non precacheava nulla: senza rete la app
+        // (e la TWA Android) mostrava la pagina di errore di Chrome.
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.svg', 'icons.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'FrigoRadar',
         short_name: 'FrigoRadar',

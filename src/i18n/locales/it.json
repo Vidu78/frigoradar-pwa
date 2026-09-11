@@ -135,6 +135,10 @@
     "back": "Indietro",
     "next": "Avanti",
     "yes": "Sì",
-    "no": "No"
+    "no": "No",
+    "offline": "Sei offline: vedi l'ultima copia salvata, le modifiche partiranno quando torna la rete",
+    "update_title": "Aggiornamento disponibile",
+    "update_body": "È pronta una nuova versione dell'app.",
+    "update_button": "Aggiorna"
   }
 }

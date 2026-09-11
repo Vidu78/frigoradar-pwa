@@ -135,6 +135,10 @@
     "back": "Back",
     "next": "Next",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "offline": "You're offline: showing the last saved copy, changes will sync when you're back online",
+    "update_title": "Update available",
+    "update_body": "A new version of the app is ready.",
+    "update_button": "Update"
   }
 }

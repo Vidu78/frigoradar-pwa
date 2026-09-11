@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "it.frigoradar.twa",
+      "sha256_cert_fingerprints": [
+        "A4:76:2A:37:68:30:A6:9E:3A:37:5C:7B:F9:2E:DD:3C:85:46:28:32:1D:01:A1:14:AE:6B:A6:A8:14:94:94:3D"
+      ]
+    }
+  }
+]
