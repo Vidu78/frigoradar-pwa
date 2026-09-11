@@ -73,7 +73,12 @@
     "settings_sub": "Manage the advanced settings of your account.",
     "export_csv": "Export data (CSV)",
     "delete_account": "Delete account",
-    "items_count": "{{count}} products"
+    "items_count": "{{count}} products",
+    "delete_confirm_title": "Delete your account?",
+    "delete_confirm_msg": "Permanently deletes your account, inventory, photos, loyalty cards and shopping list. This can't be undone.",
+    "deleted_ok": "Account deleted. Sorry to see you go.",
+    "delete_error": "Couldn't delete the account. Try again or write to privacy@frigoradar.it.",
+    "export_empty": "The fridge is empty: nothing to export."
   },
   "stats": {
     "title": "Money Saved",

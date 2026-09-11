@@ -73,7 +73,12 @@
     "settings_sub": "Gérez les réglages avancés de votre compte.",
     "export_csv": "Exporter les données (CSV)",
     "delete_account": "Supprimer le compte",
-    "items_count": "{{count}} produits"
+    "items_count": "{{count}} produits",
+    "delete_confirm_title": "Supprimer le compte ?",
+    "delete_confirm_msg": "Supprime définitivement compte, inventaire, photos, cartes de fidélité et liste de courses. Irréversible.",
+    "deleted_ok": "Compte supprimé. Désolé de vous voir partir.",
+    "delete_error": "Impossible de supprimer le compte. Réessayez ou écrivez à privacy@frigoradar.it.",
+    "export_empty": "Le frigo est vide : rien à exporter."
   },
   "stats": {
     "title": "Argent économisé",

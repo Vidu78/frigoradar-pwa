@@ -73,7 +73,12 @@
     "settings_sub": "アカウントの詳細設定を管理します。",
     "export_csv": "データを書き出す（CSV）",
     "delete_account": "アカウントを削除",
-    "items_count": "{{count}} 件"
+    "items_count": "{{count}} 件",
+    "delete_confirm_title": "アカウントを削除しますか？",
+    "delete_confirm_msg": "アカウント、在庫、写真、ポイントカード、買い物リストを完全に削除します。元に戻せません。",
+    "deleted_ok": "アカウントを削除しました。またお会いできる日を。",
+    "delete_error": "アカウントを削除できませんでした。再試行するか privacy@frigoradar.it へご連絡ください。",
+    "export_empty": "冷蔵庫は空です。エクスポートするものがありません。"
   },
   "stats": {
     "title": "節約金額",

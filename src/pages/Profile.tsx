@@ -7,6 +7,9 @@ import SavingsStats from '../components/SavingsStats';
 import { useTranslation } from 'react-i18next';
 import { useDialogStore } from '../store/dialogStore';
 import { useToastStore } from '../store/toastStore';
+import { useInventoryStore } from '../store/inventoryStore';
+import { authHeaders } from '../lib/api';
+import { categoryLabel } from '../utils/labels';
 
 export default function Profile() {
   const { session, signOut } = useAuthStore();
@@ -130,6 +133,47 @@ export default function Profile() {
     setLoading(true);
     await signOut();
     setLoading(false);
+  };
+
+  // Export CSV lato client: sono i dati che l'utente vede gia' nel frigo, niente server.
+  const handleExportCsv = () => {
+    const items = useInventoryStore.getState().items;
+    if (items.length === 0) { showToast(t('profile.export_empty'), 'info'); return; }
+    const righe = [
+      ['name', 'category', 'location', 'quantity', 'unit', 'expiration_date', 'purchase_date', 'brand'],
+      ...items.map((i: any) => [i.custom_name, categoryLabel(i.category, t), i.location, i.quantity, i.unit, i.expiration_date, i.purchase_date, i.brand]),
+    ];
+    const csv = righe.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join(String.fromCharCode(10));
+    const url = URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF) + csv], { type: 'text/csv;charset=utf-8' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: `frigoradar-${new Date().toISOString().slice(0, 10)}.csv` });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Cancellazione completa via /api/deleteAccount (service role): dati, foto e utente auth.
+  const [deleting, setDeleting] = useState(false);
+  const handleDeleteAccount = async () => {
+    const ok = await showDialog({
+      title: t('profile.delete_confirm_title'),
+      message: t('profile.delete_confirm_msg'),
+      type: 'danger',
+      confirmText: t('profile.delete_account'),
+      cancelText: t('common.cancel'),
+    });
+    if (!ok) return;
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/deleteAccount', { method: 'POST', headers: await authHeaders() });
+      if (!res.ok) throw new Error(String(res.status));
+      showToast(t('profile.deleted_ok'), 'success');
+      localStorage.clear();
+      await signOut();
+    } catch (err) {
+      console.error(err);
+      showToast(t('profile.delete_error'), 'error');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const urlBase64ToUint8Array = (base64String: string) => {
@@ -520,12 +564,12 @@ export default function Profile() {
             <h2 style={{ marginTop: 0, marginBottom: '24px' }}>{t('profile.settings')}</h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>{t('profile.settings_sub')}</p>
             
-            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', cursor: 'pointer', marginBottom: '12px' }}>
+            <button onClick={handleExportCsv} style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', cursor: 'pointer', marginBottom: '12px' }}>
               {t('profile.export_csv')}
             </button>
             
-            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,69,58,0.5)', background: 'rgba(255,69,58,0.1)', color: '#FF453A', cursor: 'pointer' }}>
-              {t('profile.delete_account')}
+            <button onClick={handleDeleteAccount} disabled={deleting} style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,69,58,0.5)', background: 'rgba(255,69,58,0.1)', color: '#FF453A', cursor: 'pointer', opacity: deleting ? 0.6 : 1 }}>
+              {deleting ? <Loader2 size={18} className="animate-spin" /> : t('profile.delete_account')}
             </button>
           </div>
         </div>

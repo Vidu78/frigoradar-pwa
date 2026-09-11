@@ -17,7 +17,7 @@ incrociare con le righe reali di `feedback_tester` (dashboard Supabase) e citare
 | Avviso di aggiornamento solo in italiano | Testi in `common.update_*`, tradotti nelle 10 lingue |
 | Cambiando lingua molte schermate restano in italiano (login, onboarding, profilo, scontrino, ricette, frigo condiviso, PRO, feedback) e i prodotti non si traducono | Tutta la UI passa da i18n (499 chiavi × 10 lingue); categorie e giudizi salute tradotti a schermo (`utils/labels.ts`), frutta/verdura per chiave, nome prodotto OpenFoodFacts nella lingua dell'utente, prompt Gemini con la lingua dell'app (`lib/lingua.ts`) |
 | Serve un modo per mandare segnalazioni senza uscire dalla app | Pagina pubblica `/feedback` con versione e modello device (già live dal 02/09) |
-| Come cancello account e dati? | Pagina pubblica `/elimina-account` (già live dal 02/09) |
+| Come cancello account e dati? | Pagina pubblica `/elimina-account` (già live dal 02/09); il pulsante **Elimina account** in Profilo → Impostazioni ora cancella davvero tutto (`/api/deleteAccount`: dati, foto, utente) con conferma; **Esporta dati (CSV)** scarica l'inventario |
 
 Note tecniche:
 - la cache dati (`frigoradar-data`) viene svuotata al logout per non mostrare il frigo di un altro account sullo stesso telefono;

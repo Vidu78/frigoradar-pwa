@@ -73,7 +73,12 @@
     "settings_sub": "Gestiona los ajustes avanzados de tu cuenta.",
     "export_csv": "Exportar datos (CSV)",
     "delete_account": "Eliminar cuenta",
-    "items_count": "{{count}} productos"
+    "items_count": "{{count}} productos",
+    "delete_confirm_title": "¿Eliminar la cuenta?",
+    "delete_confirm_msg": "Elimina para siempre cuenta, inventario, fotos, tarjetas de fidelidad y lista de la compra. No se puede deshacer.",
+    "deleted_ok": "Cuenta eliminada. Sentimos verte marchar.",
+    "delete_error": "No se pudo eliminar la cuenta. Inténtalo de nuevo o escribe a privacy@frigoradar.it.",
+    "export_empty": "La nevera está vacía: nada que exportar."
   },
   "stats": {
     "title": "Dinero Ahorrado",

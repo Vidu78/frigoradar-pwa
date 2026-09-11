@@ -73,7 +73,12 @@
     "settings_sub": "管理账户的高级设置。",
     "export_csv": "导出数据（CSV）",
     "delete_account": "删除账户",
-    "items_count": "{{count}} 件商品"
+    "items_count": "{{count}} 件商品",
+    "delete_confirm_title": "删除账户？",
+    "delete_confirm_msg": "将永久删除账户、库存、照片、会员卡和购物清单，无法撤销。",
+    "deleted_ok": "账户已删除。很遗憾看到你离开。",
+    "delete_error": "无法删除账户。请重试或写信至 privacy@frigoradar.it。",
+    "export_empty": "冰箱是空的，没有可导出的内容。"
   },
   "stats": {
     "title": "节省金额",

@@ -73,7 +73,12 @@
     "settings_sub": "إدارة الإعدادات المتقدمة لحسابك.",
     "export_csv": "تصدير البيانات (CSV)",
     "delete_account": "حذف الحساب",
-    "items_count": "{{count}} منتجات"
+    "items_count": "{{count}} منتجات",
+    "delete_confirm_title": "حذف الحساب؟",
+    "delete_confirm_msg": "يحذف نهائيًا الحساب والمخزون والصور وبطاقات الولاء وقائمة التسوق. لا يمكن التراجع.",
+    "deleted_ok": "تم حذف الحساب. يؤسفنا رحيلك.",
+    "delete_error": "تعذّر حذف الحساب. أعد المحاولة أو اكتب إلى privacy@frigoradar.it.",
+    "export_empty": "الثلاجة فارغة: لا شيء للتصدير."
   },
   "stats": {
     "title": "المال الموفر",

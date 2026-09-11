@@ -73,7 +73,12 @@
     "settings_sub": "Verwalte die erweiterten Einstellungen deines Kontos.",
     "export_csv": "Daten exportieren (CSV)",
     "delete_account": "Konto löschen",
-    "items_count": "{{count}} Produkte"
+    "items_count": "{{count}} Produkte",
+    "delete_confirm_title": "Konto löschen?",
+    "delete_confirm_msg": "Löscht dauerhaft Konto, Bestand, Fotos, Kundenkarten und Einkaufsliste. Das lässt sich nicht rückgängig machen.",
+    "deleted_ok": "Konto gelöscht. Schade, dass du gehst.",
+    "delete_error": "Konto konnte nicht gelöscht werden. Versuch es erneut oder schreib an privacy@frigoradar.it.",
+    "export_empty": "Der Kühlschrank ist leer: nichts zu exportieren."
   },
   "stats": {
     "title": "Gesparte Kosten",
