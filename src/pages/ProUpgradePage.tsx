@@ -7,8 +7,11 @@ import { useDialogStore } from '../store/dialogStore';
 import { useTranslation } from 'react-i18next';
 
 // ponytail: dentro la app Android (TWA) Google Play pretende il suo billing,
-// quindi li' l'acquisto Stripe non si mostra affatto.
-const inAppAndroid = document.referrer.startsWith('android-app://');
+// quindi li' l'acquisto Stripe non si mostra affatto. Il referrer c'e' solo
+// all'avvio freddo (dopo il login Google diventa Supabase), percio' il flag
+// si tiene in sessionStorage: sopravvive al giro OAuth, non a Chrome.
+if (document.referrer.startsWith('android-app://')) sessionStorage.setItem('twa', '1');
+const inAppAndroid = sessionStorage.getItem('twa') === '1';
 
 export default function ProUpgradePage() {
   const { t } = useTranslation();
