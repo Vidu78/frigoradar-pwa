@@ -178,7 +178,7 @@ export default function Dashboard() {
       setAiProductData(scannedProductObj);
       setIsProcessingBarcode(false);
 
-      const unbarcodedItems = items.filter(i => !(i as any).barcode);
+      const unbarcodedItems = items.filter(i => !i.barcode);
       if (unbarcodedItems.length > 0) {
         setShowAssociationModal(true);
       } else {
@@ -201,6 +201,7 @@ export default function Dashboard() {
         is_frozen: data.is_frozen,
         health_score: data.health_score,
         category: data.category,
+        barcode: data.barcode || aiProductData?.barcode || null,
         image_url: data.image_url || aiProductData?.imageUrl || null,
         brand: aiProductData?.brand || null,
         ingredients: aiProductData?.ingredients || null,
@@ -220,6 +221,7 @@ export default function Dashboard() {
           is_frozen: data.is_frozen,
           health_score: data.health_score,
           category: data.category,
+          barcode: data.barcode || aiProductData?.barcode || null,
           brand: aiProductData?.brand || null,
           ingredients: aiProductData?.ingredients || null,
           nutriscore: aiProductData?.nutriscore || null,
@@ -539,7 +541,7 @@ export default function Dashboard() {
       {showAssociationModal && aiProductData && (
         <BarcodeAssociationModal
           scannedData={aiProductData}
-          candidates={items.filter(i => !(i as any).barcode)}
+          candidates={items.filter(i => !i.barcode)}
           onClose={() => {
             setShowAssociationModal(false);
             setAiProductData(null);

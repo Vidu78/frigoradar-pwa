@@ -16,6 +16,7 @@ export interface InventoryItem {
   image_url?: string | null;
   category?: string | null;
   brand?: string | null;
+  barcode?: string | null;
   ingredients?: string | null;
   nutritional_info?: any | null;
   nutriscore?: string | null;
