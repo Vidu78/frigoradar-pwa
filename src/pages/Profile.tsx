@@ -456,6 +456,9 @@ export default function Profile() {
               <button 
                 onClick={handleTogglePush}
                 disabled={isTogglingPush}
+                role="switch"
+                aria-checked={isPushEnabled}
+                aria-label={t('profile.expiry_alerts')}
                 style={{
                   position: 'relative', width: '56px', height: '32px', 
                   borderRadius: '32px', border: 'none',
