@@ -30,8 +30,16 @@ export async function generaTesto(
     const tentativi = nome === MODELLI[0] ? 2 : 1;
     for (let tentativo = 1; tentativo <= tentativi; tentativo++) {
       try {
+        const t0 = Date.now();
         const result = await model.generateContent(request);
-        if (esiti.length) console.error(`Gemini: risposto ${nome} dopo ${esiti.join(', ')}`);
+        // I token finiscono nel log: e' l'unico modo di sapere quanto costa
+        // davvero una chiamata, i "pensieri" del modello si pagano come output.
+        const u = result.response.usageMetadata;
+        console.error(
+          `Gemini ${nome}: ${Date.now() - t0}ms in=${u?.promptTokenCount ?? '?'} ` +
+          `out=${u?.candidatesTokenCount ?? '?'} think=${(u as any)?.thoughtsTokenCount ?? 0}` +
+          (esiti.length ? ` (dopo ${esiti.join(', ')})` : '')
+        );
         return result.response.text().trim();
       } catch (e: any) {
         const status: number | undefined = e?.status;
