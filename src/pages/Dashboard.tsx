@@ -52,8 +52,11 @@ export default function Dashboard() {
   useEffect(() => {
     if (session) {
       fetchItems();
-      const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
-      if (!hasSeenTutorial) {
+      // "Gia' visto" sta sull'account, non solo sul dispositivo: chi reinstalla
+      // la app o entra da un altro telefono non si rivede il tutorial da capo.
+      const visto = session.user?.user_metadata?.tutorial_seen === true
+        || localStorage.getItem('frigoradar_tutorial_seen') === 'true';
+      if (!visto) {
         // eslint-disable-next-line react/set-state-in-effect
         setShowWelcomeTutorial(true);
       }
@@ -68,7 +71,10 @@ export default function Dashboard() {
   }, [session, fetchItems]);
 
   const handleTutorialComplete = () => {
+    // localStorage risponde subito, il metadata segue l'account fra i dispositivi.
     localStorage.setItem('frigoradar_tutorial_seen', 'true');
+    void supabase.auth.updateUser({ data: { tutorial_seen: true } })
+      .catch(() => { /* resta il flag locale: il tutorial non si ripresenta ora */ });
     setShowWelcomeTutorial(false);
   };
 

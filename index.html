@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <!-- /favicon.ico mancava: la riscrittura SPA rispondeva index.html con
+         status 200, quindi browser e crawler ricevevano HTML al posto di un'icona. -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#051A18" />
     <title>FrigoRadar</title>
     <meta name="description" content="Tieni sotto controllo le scadenze del frigo, riduci gli sprechi e cucina con quello che hai." />

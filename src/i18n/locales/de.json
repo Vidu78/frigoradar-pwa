@@ -5,7 +5,8 @@
     "scanner": "Scanner",
     "profile": "Profil",
     "shopping": "Einkauf",
-    "loyalty": "Karten"
+    "loyalty": "Karten",
+    "family": "Familie"
   },
   "dashboard": {
     "title": "Mein Kühlschrank",

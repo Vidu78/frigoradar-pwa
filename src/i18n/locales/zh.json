@@ -5,7 +5,8 @@
     "scanner": "扫描仪",
     "profile": "个人资料",
     "shopping": "购物",
-    "loyalty": "会员卡"
+    "loyalty": "会员卡",
+    "family": "家庭"
   },
   "dashboard": {
     "title": "我的冰箱",

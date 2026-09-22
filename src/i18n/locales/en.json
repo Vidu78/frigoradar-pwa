@@ -5,7 +5,8 @@
     "scanner": "Scanner",
     "profile": "Profile",
     "shopping": "Shopping",
-    "loyalty": "Cards"
+    "loyalty": "Cards",
+    "family": "Family"
   },
   "dashboard": {
     "title": "My Fridge",

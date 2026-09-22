@@ -15,7 +15,6 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const FamilySharing = lazy(() => import('./pages/FamilySharing'));
 const LoyaltyWallet = lazy(() => import('./pages/LoyaltyWallet'));
 import BottomNavigation, { type TabType } from './components/BottomNavigation';
-import WelcomeTutorialModal from './components/WelcomeTutorialModal';
 import PendingRecipeBanner from './components/PendingRecipeBanner';
 import Toast from './components/Toast';
 import { Download, X, Receipt, Camera, Plus as PlusIcon } from 'lucide-react';
@@ -209,56 +208,21 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
-    const CURRENT_APP_VERSION = '3.6'; // Cambiare questo per forzare pulizia cache sui device
-    const storedVersion = localStorage.getItem('appVersion');
-    
-    if (storedVersion !== CURRENT_APP_VERSION) {
-      console.log(`Aggiornamento app rilevato alla versione ${CURRENT_APP_VERSION}. Pulizia cache in corso...`);
-      localStorage.setItem('appVersion', CURRENT_APP_VERSION);
-      
-      if (window.caches) {
-        window.caches.keys().then((names) => {
-          for (const name of names) {
-            window.caches.delete(name);
-          }
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        window.location.reload();
-      }
-    } else {
-      initialize();
-    }
+    // Qui prima c'era una "pulizia cache" che a ogni primo avvio cancellava
+    // TUTTE le cache e ricaricava la pagina. Cancellava anche il precache che
+    // il service worker stava scrivendo in quel momento: l'installazione non
+    // finiva mai, navigator.serviceWorker.ready non si risolveva e le notifiche
+    // push non partivano su nessun dispositivo. Le versioni vecchie le pulisce
+    // gia' il service worker con cleanupOutdatedCaches() + registerType autoUpdate.
+    initialize();
   }, [initialize]);
 
-  const [showWelcomeTutorial, setShowWelcomeTutorial] = useState(false);
-
-  useEffect(() => {
-    const handleOpenTutorial = () => setShowWelcomeTutorial(true);
-    document.addEventListener('openTutorial', handleOpenTutorial);
-    
-    // Mostra il tutorial al primo avvio per utenti loggati
-    const { session } = useAuthStore.getState();
-    const hasSeenTutorial = localStorage.getItem('frigoradar_tutorial_seen');
-    if (session && !hasSeenTutorial) {
-      // Async per evitare update sincrono nel render iniziale
-      setTimeout(() => setShowWelcomeTutorial(true), 0);
-    }
-    
-    return () => {
-      document.removeEventListener('openTutorial', handleOpenTutorial);
-    };
-  }, []);
-
-  const handleTutorialComplete = () => {
-    localStorage.setItem('frigoradar_tutorial_seen', 'true');
-    setShowWelcomeTutorial(false);
-  };
+  // Il tutorial vive nella Dashboard, dove stanno gli elementi che indica
+  // ([data-tour=...]). Qui ce n'era una seconda copia che partiva su qualunque
+  // rotta: puntava a bersagli inesistenti e ricompariva a ogni accesso.
 
   return (
     <Router>
-      {showWelcomeTutorial && <WelcomeTutorialModal onComplete={handleTutorialComplete} />}
       <PremiumDialog />
       <Suspense fallback={
         <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
