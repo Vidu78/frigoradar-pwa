@@ -4,9 +4,10 @@ import { GoogleGenerativeAI, type GenerateContentRequest } from '@google/generat
 // "high demand" sul flash piu' nuovo quando satura la capacita': con un solo
 // modello fisso le ricette restano morte per ore. Un nome inesistente (404)
 // costa una chiamata a vuoto e si passa al successivo.
+// Verificato il 22/09/2026: 3.6-flash e 3.5-flash rispondevano 503 in serie,
+// 3.5-flash-lite rispondeva; gemini-3.6-flash-lite non esiste (404).
 const MODELLI = [
   'gemini-3.6-flash',
-  'gemini-3.6-flash-lite',
   'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
   'gemini-3-flash',
