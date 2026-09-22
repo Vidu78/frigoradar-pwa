@@ -32,5 +32,11 @@
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cronNotifiche",
+      "schedule": "0 7 * * *"
+    }
   ]
 }
