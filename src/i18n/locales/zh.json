@@ -263,7 +263,9 @@
     "connection_error_msg": "请检查网络后重试。",
     "premium_feature": "高级功能",
     "discover_pro": "了解 FrigoRadar PRO",
-    "coming_soon": "即将推出"
+    "coming_soon": "即将推出",
+    "ai_busy": "AI 服务繁忙",
+    "ai_busy_msg": "AI 助手收到的请求过多。请几分钟后再试：您的额度没有被扣除。"
   },
   "app": {
     "install_title": "安装 FrigoRadar",

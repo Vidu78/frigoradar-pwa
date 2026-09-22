@@ -263,7 +263,9 @@
     "connection_error_msg": "接続を確認してもう一度お試しください。",
     "premium_feature": "プレミアム機能",
     "discover_pro": "FrigoRadar PRO を見る",
-    "coming_soon": "近日公開"
+    "coming_soon": "近日公開",
+    "ai_busy": "AIサービスが混雑しています",
+    "ai_busy_msg": "AIアシスタントへのリクエストが集中しています。数分後にもう一度お試しください。クレジットは消費されていません。"
   },
   "app": {
     "install_title": "FrigoRadar をインストール",

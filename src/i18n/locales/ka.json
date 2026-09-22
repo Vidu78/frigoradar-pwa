@@ -263,7 +263,9 @@
     "connection_error_msg": "შეამოწმეთ კავშირი და სცადეთ თავიდან.",
     "premium_feature": "პრემიუმ ფუნქცია",
     "discover_pro": "გაიცანით FrigoRadar PRO",
-    "coming_soon": "მალე"
+    "coming_soon": "მალე",
+    "ai_busy": "AI სერვისი დატვირთულია",
+    "ai_busy_msg": "AI ასისტენტი ძალიან ბევრ მოთხოვნას იღებს. სცადეთ რამდენიმე წუთში: თქვენი კრედიტი არ დაკარგულა."
   },
   "app": {
     "install_title": "დააინსტალირეთ FrigoRadar",

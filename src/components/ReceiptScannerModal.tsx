@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authHeaders, limiteRaggiunto } from '../lib/api';
+import { authHeaders, limiteRaggiunto, aiOccupata } from '../lib/api';
 import { X, Camera, Loader2, Check, Receipt, AlertTriangle } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
 import { addDays } from 'date-fns';
@@ -81,6 +81,7 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
       });
 
       if (await limiteRaggiunto(res)) return;
+      if (await aiOccupata(res)) return;
 
       if (res.ok) {
         const data = await res.json();

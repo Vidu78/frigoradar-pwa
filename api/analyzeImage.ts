@@ -96,6 +96,10 @@ ${istruzioneLingua(language)}
   } catch (error: any) {
     await rimborsaCredito(req, 'scan');
     console.error('Gemini Image Error:', error);
+    // 503 = Google occupato, riprovabile: il client dice "riprova", non "errore".
+    if (error?.aiOccupata) {
+      return res.status(503).json({ error: 'Servizio AI momentaneamente occupato.', reason: 'ai_busy' });
+    }
     return res.status(500).json({ error: 'Errore durante l\'analisi dell\'immagine', details: error.message });
   }
 }

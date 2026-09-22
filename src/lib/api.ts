@@ -29,3 +29,20 @@ export async function limiteRaggiunto(res: Response): Promise<boolean> {
   if (vuolePro) window.location.assign('/pro');
   return true;
 }
+
+// Quando Google non ha capacita' la function risponde 503: non e' colpa
+// dell'utente ne' un bug, passa da solo. Merita "riprova tra poco", non un
+// errore del server con dentro i nomi dei modelli.
+export async function aiOccupata(res: Response): Promise<boolean> {
+  if (res.status !== 503) return false;
+
+  const { useDialogStore } = await import('../store/dialogStore');
+  await useDialogStore.getState().showDialog({
+    title: i18n.t('common.ai_busy'),
+    message: i18n.t('common.ai_busy_msg'),
+    type: 'info',
+    isAlert: true,
+    confirmText: 'Ok',
+  });
+  return true;
+}

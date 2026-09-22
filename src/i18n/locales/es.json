@@ -263,7 +263,9 @@
     "connection_error_msg": "Comprueba la conexión y vuelve a intentarlo.",
     "premium_feature": "Función Premium",
     "discover_pro": "Descubre FrigoRadar PRO",
-    "coming_soon": "PRÓXIMAMENTE"
+    "coming_soon": "PRÓXIMAMENTE",
+    "ai_busy": "Servicio de IA ocupado",
+    "ai_busy_msg": "El asistente de IA está recibiendo demasiadas solicitudes. Inténtalo de nuevo en unos minutos: no has perdido tu crédito."
   },
   "app": {
     "install_title": "Instalar FrigoRadar",

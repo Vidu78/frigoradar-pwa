@@ -76,6 +76,10 @@ ${istruzioneLingua(language)}
   } catch (error: any) {
     await rimborsaCredito(req, 'recipe');
     console.error('Gemini Recipe Error:', error);
+    // 503 = Google occupato, riprovabile: il client dice "riprova", non "errore".
+    if (error?.aiOccupata) {
+      return res.status(503).json({ error: 'Servizio AI momentaneamente occupato.', reason: 'ai_busy' });
+    }
     return res.status(500).json({ error: 'Errore durante la generazione della ricetta', details: error.message });
   }
 }

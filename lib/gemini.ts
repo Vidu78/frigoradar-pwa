@@ -11,7 +11,6 @@ const MODELLI = (process.env.GEMINI_MODELLI || [
   'gemini-3.5-flash-lite',
   'gemini-3.6-flash',
   'gemini-3.5-flash',
-  'gemini-3-flash',
 ].join(',')).split(',').map(m => m.trim()).filter(Boolean);
 
 // Errori che passano da soli: il primo modello riprova una volta, poi si cambia.
@@ -51,7 +50,11 @@ export async function generaTesto(
       }
     }
   }
-  // Il riassunto finisce nel log e nel campo details: dice quale modello ha
-  // fatto cosa, senza dover indovinare dal solo ultimo errore.
-  throw new Error(`Gemini non disponibile (${esiti.join(', ')})`);
+  // Il riassunto finisce nel log: dice quale modello ha fatto cosa, senza
+  // dover indovinare dal solo ultimo errore. Il flag dice al chiamante che
+  // e' un guasto passeggero di Google, non una richiesta sbagliata: merita
+  // "riprova tra poco", non "errore del server".
+  const e = new Error(`Gemini non disponibile (${esiti.join(', ')})`) as Error & { aiOccupata?: boolean };
+  e.aiOccupata = true;
+  throw e;
 }

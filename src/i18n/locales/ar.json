@@ -263,7 +263,9 @@
     "connection_error_msg": "تحقق من الاتصال وأعد المحاولة.",
     "premium_feature": "ميزة مميزة",
     "discover_pro": "اكتشف FrigoRadar PRO",
-    "coming_soon": "قريبًا"
+    "coming_soon": "قريبًا",
+    "ai_busy": "خدمة الذكاء الاصطناعي مشغولة",
+    "ai_busy_msg": "يتلقى مساعد الذكاء الاصطناعي عددًا كبيرًا من الطلبات. حاول مرة أخرى بعد بضع دقائق: لم تفقد رصيدك."
   },
   "app": {
     "install_title": "ثبّت FrigoRadar",

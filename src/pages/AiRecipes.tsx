@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authHeaders, limiteRaggiunto } from '../lib/api';
+import { authHeaders, limiteRaggiunto, aiOccupata } from '../lib/api';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useAuthStore } from '../store/authStore';
 import { useDialogStore } from '../store/dialogStore';
@@ -41,6 +41,7 @@ export default function AiRecipes() {
       });
 
       if (await limiteRaggiunto(res)) return;
+      if (await aiOccupata(res)) return;
 
       if (res.ok) {
         const data = await res.json();
