@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { guard, consumaCredito } from '../lib/guard.js';
+import { guard, consumaCredito, rimborsaCredito } from '../lib/guard.js';
+import { generaTesto } from '../lib/gemini.js';
 import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -23,9 +23,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error("API Key mancante su Vercel!");
       return res.status(500).json({ error: "Configurazione server mancante." });
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     const diffLabel = difficulty === 'STELLATO' ? 'Stellato (Alta cucina gourmet da chef Michelin)' : (difficulty === 'MEDIO' ? 'Medio (Cucina tradizionale elaborata)' : 'Facile (Cucina semplice e veloce)');
     const priorityLabel = priority === 'IN_SCADENZA' ? 'Dai assoluta priorità e usa per primi gli ingredienti con scadenza più imminente.' : 'Usa qualsiasi combinazione ideale degli ingredienti forniti.';
@@ -63,15 +60,12 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 ${istruzioneLingua(language)}
 `;
 
-    const result = await model.generateContent({
+    let text = await generaTesto(apiKey, {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json"
       }
     });
-    
-    const response = await result.response;
-    let text = response.text().trim();
     
     // Pulisce eventuale markdown residuo
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
@@ -80,6 +74,7 @@ ${istruzioneLingua(language)}
     return res.status(200).json(parsedData);
 
   } catch (error: any) {
+    await rimborsaCredito(req, 'recipe');
     console.error('Gemini Recipe Error:', error);
     return res.status(500).json({ error: 'Errore durante la generazione della ricetta', details: error.message });
   }

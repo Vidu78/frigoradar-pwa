@@ -92,3 +92,15 @@ export async function consumaCredito(
 
   return true;
 }
+
+// Da chiamare quando Gemini fallisce DOPO il consumo: il credito non deve
+// bruciarsi per un 503 di Google. Se la RPC manca o fallisce, lo si logga e
+// basta: meglio un credito perso che un 500 in piu'.
+export async function rimborsaCredito(req: VercelRequest, credito: Exclude<Credito, 'nessuno'>) {
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+  const { error } = await supabase.rpc('refund_ai_credit', { kind: credito });
+  if (error) console.error('refund_ai_credit:', error);
+}

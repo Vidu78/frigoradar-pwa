@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { guard, consumaCredito } from '../lib/guard.js';
+import { guard, consumaCredito, rimborsaCredito } from '../lib/guard.js';
+import { generaTesto } from '../lib/gemini.js';
 import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -20,9 +20,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error("API Key mancante su Vercel!");
       return res.status(500).json({ error: "Configurazione server mancante (API Key non trovata)." });
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     // Rimuove l'eventuale intestazione data:image/jpeg;base64,
     const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
@@ -83,15 +80,12 @@ SCHEMA DI OUTPUT JSON: { "weight_kg": 0.548, "produce_name": "Pomodori" }
 ${istruzioneLingua(language)}
 `;
 
-    const result = await model.generateContent({
+    let text = await generaTesto(apiKey, {
       contents: [{ role: 'user', parts: [{ text: mode === 'produce_weight' ? promptPeso : prompt }, imagePart] }],
       generationConfig: {
         responseMimeType: "application/json"
       }
     });
-    
-    const response = await result.response;
-    let text = response.text().trim();
     
     // Pulisce eventuale markdown residuo
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
@@ -100,6 +94,7 @@ ${istruzioneLingua(language)}
     return res.status(200).json(parsedData);
 
   } catch (error: any) {
+    await rimborsaCredito(req, 'scan');
     console.error('Gemini Image Error:', error);
     return res.status(500).json({ error: 'Errore durante l\'analisi dell\'immagine', details: error.message });
   }

@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { guard } from '../lib/guard.js';
+import { generaTesto } from '../lib/gemini.js';
 import { istruzioneLingua } from '../lib/lingua.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -18,9 +18,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error("API Key mancante su Vercel!");
       return res.status(500).json({ error: "Configurazione server mancante (API Key non trovata)." });
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     const prompt = `
 AGISCI COME: Database Architect e Data Normalization Master specializzato in nutrizione, GDO e Retail Alimentare.
@@ -50,9 +47,7 @@ SCHEMA DI OUTPUT JSON OBBLIGATORIO:
 ${istruzioneLingua(language)}
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text().trim();
+    let text = await generaTesto(apiKey, prompt);
     
     text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
 
