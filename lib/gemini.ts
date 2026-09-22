@@ -1,18 +1,18 @@
 import { GoogleGenerativeAI, type GenerateContentRequest } from '@google/generative-ai';
 
-// Ordine di preferenza: vince il primo che risponde. Google manda 503
-// "high demand" sul flash piu' nuovo quando satura la capacita': con un solo
-// modello fisso le ricette restano morte per ore. Un nome inesistente (404)
-// costa una chiamata a vuoto e si passa al successivo.
-// Verificato il 22/09/2026: 3.6-flash e 3.5-flash rispondevano 503 in serie,
-// 3.5-flash-lite rispondeva; gemini-3.6-flash-lite non esiste (404).
-const MODELLI = [
+// Ordine di preferenza: vince il primo che risponde, gli altri sono la rete.
+// Verificato il 22/09/2026: sul piano gratuito gemini-3.6-flash ha una manciata
+// di richieste al giorno e poi risponde 503 "high demand" a raffica, mentre
+// 3.5-flash-lite continua a rispondere. Finche' la chiave non ha la fatturazione
+// attiva conviene partire dal lite: e' anche il piu' economico a token.
+// Con il billing attivo rimetti 'gemini-3.6-flash' in testa via env, senza deploy.
+// gemini-3.6-flash-lite NON esiste: risponde 404.
+const MODELLI = (process.env.GEMINI_MODELLI || [
+  'gemini-3.5-flash-lite',
   'gemini-3.6-flash',
   'gemini-3.5-flash',
-  'gemini-3.5-flash-lite',
   'gemini-3-flash',
-  'gemini-3.6-pro',
-];
+].join(',')).split(',').map(m => m.trim()).filter(Boolean);
 
 // Errori che passano da soli: il primo modello riprova una volta, poi si cambia.
 const TRANSITORI = new Set([429, 500, 502, 503, 504]);
