@@ -79,8 +79,13 @@ serve(async (_req) => {
       const userItems = itemsByUser[sub.user_id];
       const itemCount = userItems.length;
       
-      const title = "FrigoRadar: Scadenze in arrivo! 🚨";
-      const body = `Hai ${itemCount} prodott${itemCount > 1 ? 'i' : 'o'} in scadenza, tra cui: ${userItems[0].custom_name}. Controlla subito per evitare sprechi!`;
+      // La notifica non si limita ad avvisare: propone di cucinare cio' che
+      // sta scadendo e atterra direttamente sullo Chef AI, che e' il motivo
+      // per cui la app esiste.
+      const title = "Sta scadendo: cuciniamolo 👨‍🍳";
+      const body = itemCount > 1
+        ? `${userItems[0].custom_name} e altri ${itemCount - 1} prodotti stanno per scadere. Tocca per farti dare una ricetta.`
+        : `${userItems[0].custom_name} sta per scadere. Tocca per farti dare una ricetta.`;
 
       const pushSubscription = {
         endpoint: sub.endpoint,
@@ -93,7 +98,7 @@ serve(async (_req) => {
       const payload = JSON.stringify({
         title,
         body,
-        url: '/'
+        url: '/?tab=recipes'
       });
 
       try {

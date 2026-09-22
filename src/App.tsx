@@ -27,7 +27,14 @@ import OfflineBanner from './components/OfflineBanner';
 
 const AppContainer = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<TabType>('fridge');
+  // La notifica di scadenza apre direttamente la scheda giusta: senza questo
+  // l'utente atterrava sul frigo e doveva ritrovare da solo cosa stava scadendo.
+  const TAB_VALIDE: TabType[] = ['fridge', 'shopping', 'recipes', 'profile', 'family', 'loyalty'];
+  const tabIniziale = () => {
+    const chiesta = new URLSearchParams(window.location.search).get('tab') as TabType | null;
+    return chiesta && TAB_VALIDE.includes(chiesta) ? chiesta : 'fridge';
+  };
+  const [activeTab, setActiveTab] = useState<TabType>(tabIniziale);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showReceiptScanner, setShowReceiptScanner] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -43,6 +50,12 @@ const AppContainer = () => {
     
     document.addEventListener('changeTab', handleTabChange);
     document.addEventListener('openReceiptScanner', handleOpenReceipt);
+
+    // Il ?tab= ha gia' fatto il suo lavoro: via dall'indirizzo, altrimenti
+    // resta appiccicato e un ricaricamento riporta sempre alla stessa scheda.
+    if (new URLSearchParams(window.location.search).has('tab')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
     return () => {
       document.removeEventListener('changeTab', handleTabChange);
       document.removeEventListener('openReceiptScanner', handleOpenReceipt);
