@@ -1,0 +1,11 @@
+# app.frigoradar.it e' la applicazione, non il sito: dietro login non c'e'
+# nulla da indicizzare. La vetrina pubblica sta sul dominio principale.
+User-agent: *
+Allow: /$
+Disallow: /auth
+Disallow: /profile
+Disallow: /pro
+Disallow: /loyalty
+Disallow: /onboarding
+
+Sitemap: https://app.frigoradar.it/sitemap.xml

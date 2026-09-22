@@ -20,11 +20,13 @@ export default function AiRecipes() {
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<any>(null);
   const [cooked, setCooked] = useState(false);
+  const [fotoPiatto, setFotoPiatto] = useState<'carico' | 'pronta' | 'assente'>('carico');
 
   const generateRecipe = async () => {
     setLoading(true);
     setRecipe(null);
     setCooked(false);
+    setFotoPiatto('carico');
 
     try {
       const payload = items.map(i => ({
@@ -228,19 +230,27 @@ export default function AiRecipes() {
         <div style={{ animation: 'slideUp 0.4s ease' }}>
           <div style={{ background: 'var(--bg-panel)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '24px' }}>
             
-            {/* Immagine Generata del Piatto */}
-            <div style={{ width: '100%', height: '220px', position: 'relative', background: '#111' }}>
-              {/* Fallback animato durante il caricamento dell'immagine */}
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                 <Sparkles size={24} className="animate-spin" />
+            {/* Foto del piatto. Prima lo spinner stava sotto l'immagine e non
+                spariva mai: se la foto non arrivava (la CSP bloccava l'host)
+                restava a girare per sempre sotto ogni ricetta. Ora i tre stati
+                - carico, riuscita, fallita - sono uno solo e si escludono. */}
+            {fotoPiatto !== 'assente' && (
+              <div style={{ width: '100%', height: '220px', position: 'relative', background: '#111' }}>
+                {fotoPiatto === 'carico' && (
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                    <Sparkles size={24} className="animate-spin" />
+                  </div>
+                )}
+                <img
+                  src={`https://image.pollinations.ai/prompt/${encodeURIComponent(recipe.title + " professional food photography hyperrealistic restaurant plating 8k")}?width=800&height=500&nologo=true`}
+                  alt={recipe.title}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 2, opacity: fotoPiatto === 'pronta' ? 1 : 0, transition: 'opacity 0.4s' }}
+                  onLoad={() => setFotoPiatto('pronta')}
+                  onError={() => setFotoPiatto('assente')}
+                />
               </div>
-              <img 
-                src={`https://image.pollinations.ai/prompt/${encodeURIComponent(recipe.title + " professional food photography hyperrealistic restaurant plating 8k")}?width=800&height=500&nologo=true`} 
-                alt={recipe.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 2 }}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
-            </div>
+            )}
 
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', background: 'rgba(255, 215, 0, 0.05)' }}>
               <h2 style={{ margin: '0 0 16px 0', fontSize: '1.6rem', color: '#FFD700' }}>{recipe.title}</h2>

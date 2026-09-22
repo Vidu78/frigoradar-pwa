@@ -18,7 +18,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest}'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
       },
-      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'icons.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'robots.txt', 'sitemap.xml', 'icons.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'FrigoRadar',
         short_name: 'FrigoRadar',
