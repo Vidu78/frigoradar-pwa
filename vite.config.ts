@@ -2,7 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+import { readFileSync } from 'node:fs';
+
+// La versione la sa solo package.json: iniettarla evita di aggiornarla a mano
+// in due posti e di ritrovarsi segnalazioni con una versione sbagliata.
+const versione = JSON.parse(readFileSync('./package.json', 'utf-8')).version;
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(versione) },
   plugins: [
     react(),
     VitePWA({

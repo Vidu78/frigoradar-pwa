@@ -41,6 +41,10 @@ export default function FeedbackPage() {
       confusione: risposte.confusione || null,
       desideri: risposte.desideri || null,
       contatto: risposte.contatto?.slice(0, 200) || null,
+      // Senza versione e modello una segnalazione non e' riproducibile, e il
+      // tester non li sa dire: li prende la pagina.
+      versione: __APP_VERSION__,
+      device: navigator.userAgent.slice(0, 300),
     });
     setLoading(false);
     if (error) {
