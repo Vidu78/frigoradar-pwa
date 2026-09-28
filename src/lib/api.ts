@@ -18,6 +18,18 @@ export async function limiteRaggiunto(res: Response): Promise<boolean> {
   const dati = await res.json().catch(() => ({} as any));
   const { useDialogStore } = await import('../store/dialogStore');
 
+  // App iOS: il PRO li' non si vende, quindi solo l'avviso, senza invito all'acquisto
+  if (navigator.userAgent.includes('FrigoRadarApp')) {
+    await useDialogStore.getState().showDialog({
+      title: i18n.t('credits.title'),
+      message: `${dati.error ?? i18n.t('credits.exhausted')} ${i18n.t('credits.body_free', 'Puoi continuare ad aggiungere prodotti col barcode o a mano: quelli non hanno limiti. I crediti si ricaricano ogni settimana.')}`,
+      type: 'info',
+      isAlert: true,
+      confirmText: i18n.t('credits.continue_free'),
+    });
+    return true;
+  }
+
   const vuolePro = await useDialogStore.getState().showDialog({
     title: i18n.t('credits.title'),
     message: `${dati.error ?? i18n.t('credits.exhausted')} ${i18n.t('credits.body')}`,

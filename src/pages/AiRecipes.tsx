@@ -6,6 +6,7 @@ import { useDialogStore } from '../store/dialogStore';
 import { Sparkles, Users, Clock, Flame, CheckCircle2, ChevronRight, Utensils, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { inNativeApp } from '../lib/nativeApp';
 
 export default function AiRecipes() {
   const { t, i18n } = useTranslation();
@@ -102,12 +103,12 @@ export default function AiRecipes() {
           </div>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#FFD700' }}>{t('common.premium_feature')}</h2>
           <p style={{ color: 'white', fontSize: '1.1rem', marginBottom: '32px', maxWidth: '300px', lineHeight: '1.5' }}>{t('recipes.premium_sub')}</p>
-          <button 
+          {!inNativeApp() && <button 
             onClick={() => navigate('/pro')}
             style={{ padding: '16px 32px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', color: 'black', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 20px rgba(255, 215, 0, 0.4)' }}
           >
             {t('common.discover_pro')}
-          </button>
+          </button>}
         </div>
       )}
 

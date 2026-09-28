@@ -2,6 +2,7 @@ import { useAuthStore } from '../store/authStore';
 import { PiggyBank, Leaf, TrendingUp, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { nascondiPro } from '../lib/nativeApp';
 
 export default function SavingsStats() {
   const { t } = useTranslation();
@@ -33,6 +34,9 @@ export default function SavingsStats() {
   // Calcolo KPI Avanzati (Marketing & Executive Level)
   const co2SavedKg = (stats.saved * 0.45).toFixed(1); // 1€ di cibo equivale a ~0.45kg CO2 medi salvati
   const estimatedAnnualSavings = (stats.saved * 12 + 140).toFixed(0);
+
+  // nell'app iOS niente invito al PRO: non si puo' comprare li'
+  if (nascondiPro(isPro)) return null;
 
   if (!isPro) {
     return (

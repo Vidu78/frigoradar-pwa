@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../store/authStore';
+import { nascondiPro } from '../lib/nativeApp';
 
 interface GuidedTourProps {
   onComplete: () => void;
@@ -70,7 +72,10 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
   const [animating, setAnimating] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  const current = TOUR_STEPS[step];
+  const { isPro } = useAuthStore();
+  // nell'app iOS senza PRO quelle schede non ci sono: niente passi del tour a vuoto
+  const steps = nascondiPro(isPro) ? TOUR_STEPS.filter((s) => s.id !== 'add_product' && s.id !== 'recipes') : TOUR_STEPS;
+  const current = steps[step];
 
   // Trova il rect dell'elemento target
   useEffect(() => {
@@ -100,7 +105,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
     if (animating) return;
     setAnimating(true);
     setTimeout(() => {
-      if (step < TOUR_STEPS.length - 1) {
+      if (step < steps.length - 1) {
         setStep(s => s + 1);
       } else {
         onComplete();
@@ -109,7 +114,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
     }, 200);
   };
 
-  const isLast = step === TOUR_STEPS.length - 1;
+  const isLast = step === steps.length - 1;
 
   // Calcola posizione tooltip
   const getTooltipStyle = (): React.CSSProperties => {
@@ -288,7 +293,7 @@ export default function WelcomeTutorialModal({ onComplete }: GuidedTourProps) {
 
         {/* Step dots */}
         <div style={{ display: 'flex', gap: '5px', marginBottom: '12px' }}>
-          {TOUR_STEPS.map((_, i) => (
+          {steps.map((_, i) => (
             <div key={i} style={{
               height: '4px',
               width: i === step ? '20px' : '6px',

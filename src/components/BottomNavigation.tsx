@@ -1,5 +1,7 @@
 import { Refrigerator, User, ChefHat, ShoppingCart, CreditCard, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../store/authStore';
+import { nascondiPro, TAB_SOLO_PRO } from '../lib/nativeApp';
 
 export type TabType = 'fridge' | 'shopping' | 'recipes' | 'profile' | 'family' | 'loyalty';
 
@@ -23,10 +25,13 @@ const VOCI: { tab: TabType; icona: typeof Refrigerator; etichetta: string; color
   { tab: 'profile',  icona: User,         etichetta: 'nav.profile',  colore: '#00FFAA' },
 ];
 
-const META = VOCI.length / 2;
 
 export default function BottomNavigation({ activeTab, onTabChange, onAddClick }: BottomNavigationProps) {
   const { t } = useTranslation();
+  const { isPro } = useAuthStore();
+  // tolte una per lato (spesa a sinistra, ricette a destra): la barra resta simmetrica
+  const voci = nascondiPro(isPro) ? VOCI.filter((v) => !TAB_SOLO_PRO.includes(v.tab)) : VOCI;
+  const META = voci.length / 2;
 
   const voce = ({ tab, icona: Icona, etichetta, colore, tour }: typeof VOCI[number]) => {
     const attiva = activeTab === tab;
@@ -86,7 +91,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
         border: '1px solid rgba(255,255,255,0.05)',
       }}
     >
-      {VOCI.slice(0, META).map(voce)}
+      {voci.slice(0, META).map(voce)}
 
       {/* Il piu' sta al centro e non entra nel conto delle voci: larghezza fissa,
           cosi' i due lati restano identici qualunque sia la lingua. */}
@@ -108,7 +113,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onAddClick }:
         </button>
       </div>
 
-      {VOCI.slice(META).map(voce)}
+      {voci.slice(META).map(voce)}
     </nav>
   );
 }
