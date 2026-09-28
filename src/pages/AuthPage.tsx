@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useDialogStore } from '../store/dialogStore';
 import { useTranslation } from 'react-i18next';
+import { inNativeApp, askNativeApp } from '../lib/nativeApp';
 
 export default function AuthPage() {
   const { t } = useTranslation();
@@ -191,7 +192,26 @@ export default function AuthPage() {
             {t('auth.google')}
           </button>
 
-          {isLogin && (
+          {/* Apple: solo nell'app iOS, il login lo fa il guscio nativo */}
+          {inNativeApp() && (
+            <button
+              type="button"
+              onClick={() => askNativeApp({ type: 'apple-login' })}
+              disabled={loading}
+              style={{
+                width: '100%', background: 'black', color: 'white', border: '1px solid rgba(255,255,255,0.25)', padding: '12px', borderRadius: '12px',
+                fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px',
+                marginBottom: '12px'
+              }}>
+              <svg width="16" height="19" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true">
+                <path d="M788 340c-6 4-106 60-106 185 0 144 127 195 131 196-1 3-20 70-67 138-42 60-86 120-152 120s-83-38-159-38c-75 0-101 39-162 39s-103-56-152-124C64 777 16 646 16 521c0-199 130-305 257-305 68 0 124 44 167 44 41 0 104-47 181-47 30 0 134 3 167 127zM554 157c32-38 54-90 54-142 0-7-1-15-2-21-52 2-113 35-150 77-29 33-56 85-56 138 0 8 1 16 2 19 3 1 9 1 14 1 46 0 104-31 138-72z"/>
+              </svg>
+              {t('auth.apple', 'Accedi con Apple')}
+            </button>
+          )}
+
+          {/* WebAuthn nella WebView iOS non funziona senza associated domains */}
+          {isLogin && !inNativeApp() && (
             <button type="button" onClick={handlePasskey} className="btn-secondary" disabled={loading} style={{ width: '100%', padding: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
               <Fingerprint size={24} style={{ color: ledColor, filter: `drop-shadow(0 0 6px ${ledColor}60)` }} />
               <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>{t('auth.passkey')}</span>

@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 // si tiene in sessionStorage: sopravvive al giro OAuth, non a Chrome.
 if (document.referrer.startsWith('android-app://')) sessionStorage.setItem('twa', '1');
 const inAppAndroid = sessionStorage.getItem('twa') === '1';
+// stessa regola nell'app iOS: niente acquisti fuori dal sistema di Apple
+const niente_acquisto = inAppAndroid || navigator.userAgent.includes('FrigoRadarApp');
 
 export default function ProUpgradePage() {
   const { t } = useTranslation();
@@ -204,7 +206,7 @@ export default function ProUpgradePage() {
             <Home size={20} /> {t('pro.back_to_fridge')}
           </button>
         </div>
-      ) : inAppAndroid ? (
+      ) : niente_acquisto ? (
         <div style={{ padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
           <p style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.5' }}>
             {t('pro.unavailable')}

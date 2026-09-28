@@ -10,3 +10,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
   }
 });
+
+// App iOS: dopo "Accedi con Apple" il guscio nativo consegna qui la sessione
+window.addEventListener('native-session', (e) => {
+  const { access_token, refresh_token } = (e as CustomEvent).detail ?? {};
+  if (access_token) void supabase.auth.setSession({ access_token, refresh_token });
+});

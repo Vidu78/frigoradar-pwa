@@ -10,6 +10,7 @@ import { useToastStore } from '../store/toastStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { authHeaders } from '../lib/api';
 import { categoryLabel } from '../utils/labels';
+import { inNativeApp } from '../lib/nativeApp';
 
 export default function Profile() {
   const { session, signOut } = useAuthStore();
@@ -349,7 +350,8 @@ export default function Profile() {
         </button>
       </div>
 
-      <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px' }}>
+      {/* passkey: nella WebView dell'app iOS non funziona */}
+      <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px', display: inNativeApp() ? 'none' : undefined }}>
         <h3 style={{ margin: '0 0 16px 0', fontSize: '1.2rem' }}>{t('profile.biometric')}</h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px', lineHeight: '1.4' }}>
           {t('profile.biometric_desc')}
