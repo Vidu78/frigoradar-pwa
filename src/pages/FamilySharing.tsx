@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventoryStore } from '../store/inventoryStore';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
-import { Users, Copy, Check, ArrowRight, Unlink, ShieldCheck, UserCheck, Power } from 'lucide-react';
+import { Users, Copy, Check, ArrowRight, Unlink, ShieldCheck, UserCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function FamilySharing() {
@@ -25,6 +25,17 @@ export default function FamilySharing() {
 
   // È in condivisione se ha un family_id diverso dal suo user_id
   const isSharing = Boolean(currentFamilyId && currentFamilyId !== userId);
+
+  // Il proprietario e' "in condivisione" quando qualcuno e' entrato col suo codice
+  const [memberCount, setMemberCount] = useState(1);
+  useEffect(() => {
+    if (!userId || isSharing) return;
+    supabase.from('household_members')
+      .select('user_id', { count: 'exact', head: true })
+      .eq('household_id', currentFamilyId || userId)
+      .then(({ count }) => setMemberCount(count ?? 1));
+  }, [userId, currentFamilyId, isSharing]);
+  const sharedOn = isSharing || memberCount > 1;
 
   // Dissocia il frigorifero (abbandona o disattiva la condivisione)
   const leaveFamily = async () => {
@@ -59,19 +70,6 @@ export default function FamilySharing() {
       showToast(t('family.leave_error'), 'error');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Toggle abilitazione/disabilitazione condivisione
-  const toggleSharing = async () => {
-    if (isSharing) {
-      await leaveFamily();
-    } else if (previousFamilyId && previousFamilyId !== userId) {
-      // Uscire da una famiglia ora revoca davvero l'accesso: per rientrare
-      // serve un codice nuovo, non basta riscrivere il metadata.
-      showToast(t('family.rejoin_hint'), 'info');
-    } else {
-      showToast(t('family.enable_hint'), 'info');
     }
   };
 
@@ -154,17 +152,16 @@ export default function FamilySharing() {
         </div>
       </div>
 
-      {/* TOGGLE SWITCH DI STATO CONDIVISIONE */}
+      {/* STATO CONDIVISIONE (solo indicatore: si accende quando qualcuno entra col codice) */}
       <div style={{
         background: 'linear-gradient(145deg, rgba(30, 32, 36, 0.8) 0%, rgba(18, 20, 24, 0.9) 100%)',
-        border: isSharing ? '1px solid rgba(0, 255, 170, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
+        border: sharedOn ? '1px solid rgba(0, 255, 170, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '24px',
         padding: '20px 24px',
         marginBottom: '24px',
-        boxShadow: isSharing ? '0 10px 30px rgba(0, 255, 170, 0.1)' : '0 10px 30px rgba(0,0,0,0.3)',
+        boxShadow: sharedOn ? '0 10px 30px rgba(0, 255, 170, 0.1)' : '0 10px 30px rgba(0,0,0,0.3)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         transition: 'all 0.3s ease'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -172,54 +169,23 @@ export default function FamilySharing() {
             width: '42px',
             height: '42px',
             borderRadius: '14px',
-            background: isSharing ? 'rgba(0, 255, 170, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+            background: sharedOn ? 'rgba(0, 255, 170, 0.15)' : 'rgba(255, 255, 255, 0.05)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: isSharing ? '#00FFAA' : 'rgba(255, 255, 255, 0.4)'
+            color: sharedOn ? '#00FFAA' : 'rgba(255, 255, 255, 0.4)'
           }}>
-            {isSharing ? <UserCheck size={22} /> : <Power size={22} />}
+            {sharedOn ? <UserCheck size={22} /> : <Users size={22} />}
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: '16px', color: '#fff' }}>
-              {isSharing ? t('family.sharing_on') : t('family.sharing_off')}
+              {sharedOn ? t('family.sharing_on') : t('family.sharing_off')}
             </div>
             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>
-              {isSharing ? t('family.sharing_on_sub') : t('family.sharing_off_sub')}
+              {sharedOn ? t('family.sharing_on_sub') : t('family.sharing_off_sub')}
             </div>
           </div>
         </div>
-
-        {/* SWIPE / TOGGLE SWITCH */}
-        <button
-          onClick={toggleSharing}
-          disabled={loading}
-          role="switch"
-          aria-checked={isSharing}
-          title={isSharing ? t('family.disable') : t('family.enable')}
-          style={{
-            width: '56px',
-            height: '32px',
-            borderRadius: '16px',
-            background: isSharing ? 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)' : 'rgba(255,255,255,0.15)',
-            border: 'none',
-            padding: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: isSharing ? 'flex-end' : 'flex-start',
-            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
-          }}
-        >
-          <div style={{
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            background: isSharing ? '#000' : '#fff',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s'
-          }} />
-        </button>
       </div>
 
       {/* SE L'UTENTE È ATTUALMENTE IN UN FRIGO CONDIVISO */}
