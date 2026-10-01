@@ -30,10 +30,14 @@ export default function FamilySharing() {
   const [memberCount, setMemberCount] = useState(1);
   useEffect(() => {
     if (!userId || isSharing) return;
-    supabase.from('household_members')
+    const load = () => supabase.from('household_members')
       .select('user_id', { count: 'exact', head: true })
       .eq('household_id', currentFamilyId || userId)
       .then(({ count }) => setMemberCount(count ?? 1));
+    load();
+    // il codice si manda da WhatsApp: al ritorno nell'app lo stato va riletto
+    window.addEventListener('focus', load);
+    return () => window.removeEventListener('focus', load);
   }, [userId, currentFamilyId, isSharing]);
   const sharedOn = isSharing || memberCount > 1;
 
