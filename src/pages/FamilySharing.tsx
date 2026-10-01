@@ -193,7 +193,9 @@ export default function FamilySharing() {
         {/* SWIPE / TOGGLE SWITCH */}
         <button
           onClick={toggleSharing}
-          disabled={loading || (!isSharing && !previousFamilyId)}
+          disabled={loading}
+          role="switch"
+          aria-checked={isSharing}
           title={isSharing ? t('family.disable') : t('family.enable')}
           style={{
             width: '56px',
@@ -202,12 +204,11 @@ export default function FamilySharing() {
             background: isSharing ? 'linear-gradient(135deg, #00FFAA 0%, #00CC88 100%)' : 'rgba(255,255,255,0.15)',
             border: 'none',
             padding: '4px',
-            cursor: (loading || (!isSharing && !previousFamilyId)) ? 'not-allowed' : 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: isSharing ? 'flex-end' : 'flex-start',
-            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            opacity: (!isSharing && !previousFamilyId) ? 0.5 : 1
+            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
           }}
         >
           <div style={{
