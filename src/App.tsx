@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Loader2 } from 'lucide-react';
+import { supabase } from './lib/supabase';
+import { inNativeApp } from './lib/nativeApp';
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AiRecipes = lazy(() => import('./pages/AiRecipes'));
@@ -193,11 +195,23 @@ const AppContainer = () => {
 };
 
 // Protected Route Component
+let guestTried = false;
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading, hasCompletedOnboarding } = useAuthStore();
   const location = useLocation();
+  const [guestPending, setGuestPending] = useState(false);
 
-  if (loading) {
+  // Apple 5.1.1(v): nell'app iOS si entra senza account (utente anonimo
+  // Supabase); il login resta facoltativo dal Profilo. Una volta per avvio:
+  // dopo un logout si torna alla pagina di accesso.
+  useEffect(() => {
+    if (loading || session || !inNativeApp() || guestTried) return;
+    guestTried = true;
+    setGuestPending(true);
+    void supabase.auth.signInAnonymously().finally(() => setGuestPending(false));
+  }, [loading, session]);
+
+  if (loading || guestPending || (!session && inNativeApp() && !guestTried)) {
     return (
       <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Loader2 className="animate-spin" size={40} color="#00FFAA" />

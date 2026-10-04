@@ -299,7 +299,11 @@
     "error": "Fehler bei der Anmeldung",
     "led": "LED-Beleuchtung",
     "led_color": "Farbe",
-    "led_intensity": "Intensität"
+    "led_intensity": "Intensität",
+    "guest": "Ohne Konto fortfahren",
+    "guest_name": "Gast",
+    "guest_signin": "Anmelden oder Konto erstellen",
+    "guest_hint": "Du nutzt FrigoRadar ohne Konto. Erstelle eines, um deine Daten zu behalten und auf anderen Geräten zu nutzen."
   },
   "onboarding": {
     "future_title": "Die Zukunft des Kühlschranks",

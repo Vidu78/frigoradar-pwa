@@ -24,11 +24,14 @@ export default function AuthPage() {
   const [ledColor, setLedColor] = useState('#00FFAA');
   const [ledIntensity, setLedIntensity] = useState(100);
 
+  // Un ospite (utente anonimo) arriva qui dal Profilo: resta sulla pagina
+  const isGuest = !!session?.user?.is_anonymous;
+
   useEffect(() => {
-    if (session) {
+    if (session && !isGuest) {
       navigate('/', { replace: true });
     }
-  }, [session, navigate]);
+  }, [session, isGuest, navigate]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +40,10 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } else if (isGuest) {
+        // L'ospite diventa account vero tenendo i suoi dati (stesso user id)
+        const { error } = await supabase.auth.updateUser({ email, password });
         if (error) throw error;
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
@@ -54,6 +61,15 @@ export default function AuthPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuest = async () => {
+    if (isGuest) return navigate('/', { replace: true });
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) setError(error.message);
+    setLoading(false);
   };
 
   const handlePasskey = async () => {
@@ -217,6 +233,10 @@ export default function AuthPage() {
               <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>{t('auth.passkey')}</span>
             </button>
           )}
+
+          <button type="button" onClick={handleGuest} className="btn-secondary" disabled={loading} style={{ width: '100%', padding: '12px', marginTop: '12px', fontWeight: 500, fontSize: '0.95rem' }}>
+            {t('auth.guest')}
+          </button>
 
           <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
             <button type="button" onClick={() => setIsLogin(!isLogin)} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}>

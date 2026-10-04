@@ -299,7 +299,11 @@
     "error": "Errore durante l'autenticazione",
     "led": "Illuminazione LED",
     "led_color": "Colore",
-    "led_intensity": "Intensità"
+    "led_intensity": "Intensità",
+    "guest": "Continua senza account",
+    "guest_name": "Ospite",
+    "guest_signin": "Accedi o crea account",
+    "guest_hint": "Stai usando FrigoRadar senza account. Creane uno per non perdere i dati e usarli su altri dispositivi."
   },
   "onboarding": {
     "future_title": "Il futuro del frigo",

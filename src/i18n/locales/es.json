@@ -299,7 +299,11 @@
     "error": "Error de autenticación",
     "led": "Iluminación LED",
     "led_color": "Color",
-    "led_intensity": "Intensidad"
+    "led_intensity": "Intensidad",
+    "guest": "Continuar sin cuenta",
+    "guest_name": "Invitado",
+    "guest_signin": "Inicia sesión o crea una cuenta",
+    "guest_hint": "Estás usando FrigoRadar sin cuenta. Crea una para no perder tus datos y usarlos en otros dispositivos."
   },
   "onboarding": {
     "future_title": "El futuro de la nevera",

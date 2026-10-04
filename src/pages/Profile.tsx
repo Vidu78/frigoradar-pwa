@@ -11,9 +11,11 @@ import { useInventoryStore } from '../store/inventoryStore';
 import { authHeaders } from '../lib/api';
 import { categoryLabel } from '../utils/labels';
 import { inNativeApp } from '../lib/nativeApp';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const { session, signOut } = useAuthStore();
+  const navigate = useNavigate();
   const { showToast } = useToastStore();
   const [loading, setLoading] = useState(false);
   const { t, i18n } = useTranslation();
@@ -273,10 +275,20 @@ export default function Profile() {
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>{t('profile.title')}</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-            {session?.user?.email}
+            {session?.user?.is_anonymous ? t('auth.guest_name') : session?.user?.email}
           </p>
         </div>
       </div>
+
+      {/* Ospite (utente anonimo): l'account e' facoltativo, qui lo si crea */}
+      {session?.user?.is_anonymous && (
+        <div className="glass-panel" style={{ padding: '16px', borderRadius: '20px', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: '0 0 12px' }}>{t('auth.guest_hint')}</p>
+          <button onClick={() => navigate('/auth')} className="btn-primary" style={{ width: '100%', padding: '12px' }}>
+            {t('auth.guest_signin')}
+          </button>
+        </div>
+      )}
 
       <SavingsStats />
 
