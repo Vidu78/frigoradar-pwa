@@ -303,7 +303,9 @@
     "guest": "Ohne Konto fortfahren",
     "guest_name": "Gast",
     "guest_signin": "Anmelden oder Konto erstellen",
-    "guest_hint": "Du nutzt FrigoRadar ohne Konto. Erstelle eines, um deine Daten zu behalten und auf anderen Geräten zu nutzen."
+    "guest_hint": "Du nutzt FrigoRadar ohne Konto. Erstelle eines, um deine Daten zu behalten und auf anderen Geräten zu nutzen.",
+    "account_needed": "Ein kostenloses Konto ist nötig",
+    "account_needed_msg": "KI-Funktionen und der geteilte Kühlschrank sind an dein Konto gebunden. Erstelle es in wenigen Sekunden kostenlos: bereits hinzugefügte Produkte bleiben erhalten."
   },
   "onboarding": {
     "future_title": "Die Zukunft des Kühlschranks",

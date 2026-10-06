@@ -5,6 +5,7 @@ import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
 import { Users, Copy, Check, ArrowRight, Unlink, ShieldCheck, UserCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export default function FamilySharing() {
   const { t } = useTranslation();
@@ -140,6 +141,20 @@ export default function FamilySharing() {
       setLoading(false);
     }
   };
+
+  // Il frigo condiviso e' legato all'account: l'ospite vede solo l'invito a crearne uno
+  if (session?.user?.is_anonymous) {
+    return (
+      <div style={{ padding: '20px', paddingBottom: '120px', color: '#fff', maxWidth: '600px', margin: '0 auto' }}>
+        <div className="glass-panel" style={{ padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
+          <Users color="#00FFAA" size={32} />
+          <h2 style={{ margin: '12px 0 8px' }}>{t('auth.account_needed')}</h2>
+          <p style={{ color: 'var(--text-muted)', margin: '0 0 16px' }}>{t('auth.account_needed_msg')}</p>
+          <Link to="/auth" className="btn-primary" style={{ display: 'block', padding: '12px', textDecoration: 'none' }}>{t('auth.guest_signin')}</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px', paddingBottom: '120px', color: '#fff', maxWidth: '600px', margin: '0 auto' }}>

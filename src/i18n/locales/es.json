@@ -303,7 +303,9 @@
     "guest": "Continuar sin cuenta",
     "guest_name": "Invitado",
     "guest_signin": "Inicia sesión o crea una cuenta",
-    "guest_hint": "Estás usando FrigoRadar sin cuenta. Crea una para no perder tus datos y usarlos en otros dispositivos."
+    "guest_hint": "Estás usando FrigoRadar sin cuenta. Crea una para no perder tus datos y usarlos en otros dispositivos.",
+    "account_needed": "Necesitas una cuenta gratuita",
+    "account_needed_msg": "Las funciones de IA y la nevera compartida están vinculadas a tu cuenta. Créala gratis en unos segundos: los productos que ya añadiste se conservan."
   },
   "onboarding": {
     "future_title": "El futuro de la nevera",

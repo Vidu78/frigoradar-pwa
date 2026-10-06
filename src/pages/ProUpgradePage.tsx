@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { authHeaders } from '../lib/api';
+import { authHeaders, limiteRaggiunto } from '../lib/api';
 import { Sparkles, ShoppingCart, Users, CheckCircle2, ChevronLeft, Loader2, Star, Home, Settings } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDialogStore } from '../store/dialogStore';
@@ -72,6 +72,7 @@ export default function ProUpgradePage() {
         headers: await authHeaders(),
         body: JSON.stringify({ piano })
       });
+      if (await limiteRaggiunto(res)) return;
 
       const dati = await res.json().catch(() => ({}));
 

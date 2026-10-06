@@ -18,6 +18,19 @@ export async function limiteRaggiunto(res: Response): Promise<boolean> {
   const dati = await res.json().catch(() => ({} as any));
   const { useDialogStore } = await import('../store/dialogStore');
 
+  // Ospite: la funzione e' legata all'account, si invita a crearne uno gratuito
+  if (dati.reason === 'account') {
+    const vuoleAccount = await useDialogStore.getState().showDialog({
+      title: i18n.t('auth.account_needed'),
+      message: i18n.t('auth.account_needed_msg'),
+      type: 'info',
+      confirmText: i18n.t('auth.guest_signin'),
+      cancelText: i18n.t('common.cancel'),
+    });
+    if (vuoleAccount) window.location.assign('/auth');
+    return true;
+  }
+
   // App iOS: il PRO li' non si vende, quindi solo l'avviso, senza invito all'acquisto
   if (navigator.userAgent.includes('FrigoRadarApp')) {
     await useDialogStore.getState().showDialog({

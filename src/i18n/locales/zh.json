@@ -303,7 +303,9 @@
     "guest": "不登录继续",
     "guest_name": "访客",
     "guest_signin": "登录或创建账户",
-    "guest_hint": "您正在以访客身份使用 FrigoRadar。创建账户即可保留数据并在其他设备上使用。"
+    "guest_hint": "您正在以访客身份使用 FrigoRadar。创建账户即可保留数据并在其他设备上使用。",
+    "account_needed": "需要免费账户",
+    "account_needed_msg": "AI 功能和共享冰箱与您的账户绑定。几秒钟即可免费创建，已添加的食品会保留。"
   },
   "onboarding": {
     "future_title": "冰箱的未来",

@@ -15,7 +15,7 @@ const TABELLE_UTENTE = [
 const BUCKET = ['product_images', 'receipts'];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const user = await guard(req, res);
+  const user = await guard(req, res, true);
   if (!user) return;
 
   if (!SERVICE_KEY) {

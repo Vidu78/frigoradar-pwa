@@ -303,7 +303,9 @@
     "guest": "Continua senza account",
     "guest_name": "Ospite",
     "guest_signin": "Accedi o crea account",
-    "guest_hint": "Stai usando FrigoRadar senza account. Creane uno per non perdere i dati e usarli su altri dispositivi."
+    "guest_hint": "Stai usando FrigoRadar senza account. Creane uno per non perdere i dati e usarli su altri dispositivi.",
+    "account_needed": "Serve un account gratuito",
+    "account_needed_msg": "Le funzioni AI e il frigo condiviso sono legati al tuo account. Crealo gratis in pochi secondi: i prodotti che hai già inserito restano."
   },
   "onboarding": {
     "future_title": "Il futuro del frigo",

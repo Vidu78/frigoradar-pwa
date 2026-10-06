@@ -15,7 +15,9 @@ const MAX_BODY_BYTES = 4_000_000;
 
 type Credito = 'scan' | 'recipe' | 'nessuno';
 
-export async function guard(req: VercelRequest, res: VercelResponse) {
+// Gli ospiti (utenti anonimi) usano l'app ma non cio' che costa o identifica:
+// AI e acquisto PRO chiedono un account gratuito. Solo deleteAccount li ammette.
+export async function guard(req: VercelRequest, res: VercelResponse, ospiteAmmesso = false) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return null;
@@ -47,6 +49,12 @@ export async function guard(req: VercelRequest, res: VercelResponse) {
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data?.user) {
     res.status(401).json({ error: 'Sessione non valida.' });
+    return null;
+  }
+
+  if (data.user.is_anonymous && !ospiteAmmesso) {
+    // 402 come i crediti finiti: il client lo gestisce in limiteRaggiunto()
+    res.status(402).json({ error: 'Serve un account gratuito.', reason: 'account' });
     return null;
   }
 
