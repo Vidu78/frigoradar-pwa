@@ -27,7 +27,8 @@
     "consumed": "Produkt verbraucht und entfernt",
     "linked": "Produkt verknüpft!",
     "link_error": "Fehler beim Verknüpfen.",
-    "expiry_alert_sub": "{{count}} Produkte laufen bald ab oder sind abgelaufen."
+    "expiry_alert_sub": "{{count}} Produkte laufen bald ab oder sind abgelaufen.",
+    "wasted": "Als weggeworfen markiert: zählt als Verschwendung"
   },
   "profile": {
     "title": "Profil",
@@ -419,7 +420,23 @@
     "updated": "Produktdaten aktualisiert!",
     "no_nutrition": "Produkt gefunden, aber ohne brauchbare Nährwertdaten.",
     "not_found": "Produkt nicht in der weltweiten Datenbank gefunden.",
-    "scan_error": "Fehler beim Scannen des Codes."
+    "scan_error": "Fehler beim Scannen des Codes.",
+    "opened": "Heute geöffnet",
+    "opened_done": "Ablauf aktualisiert: innerhalb von {{count}} Tagen verbrauchen",
+    "opened_done_one": "Ablauf aktualisiert: bis morgen verbrauchen",
+    "freeze": "Einfrieren",
+    "freeze_done": "In den Gefrierschrank: hält etwa {{count}} Monate",
+    "freeze_done_one": "In den Gefrierschrank: hält etwa einen Monat",
+    "freeze_no": "Besser nicht einfrieren",
+    "restock": "Leer, nachkaufen",
+    "restock_done": "Zur Einkaufsliste hinzugefügt",
+    "consumed": "Verbraucht",
+    "tip_opened": "Geöffnet hält es etwa {{count}} Tage im Kühlschrank.",
+    "tip_opened_one": "Geöffnet innerhalb eines Tages verbrauchen.",
+    "tip_freezer": "Im Gefrierschrank bis zu {{count}} Monate.",
+    "tip_freezer_one": "Im Gefrierschrank etwa einen Monat.",
+    "tip_no_freeze": "Einfrieren nicht empfohlen.",
+    "wasted": "Weggeworfen"
   },
   "barcode_assoc": {
     "title": "Produkt gefunden",

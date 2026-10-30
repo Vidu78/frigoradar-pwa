@@ -4,6 +4,21 @@ Release Android (Google Play, test chiuso) e web app `app.frigoradar.it`.
 La TWA carica sempre la web app live: le modifiche web arrivano ai tester al primo
 riavvio, la release Play serve a Google per vedere il ciclo feedback → aggiornamento.
 
+## 1.3.0 (web) — 31/10/2026
+
+Confronto con le app concorrenti (NoWaste, FridgeBuddy, CozZo, FridgeClock): mancavano i
+gesti quotidiani anti-spreco. Tutto lato web, arriva da solo a iOS, Android e PWA.
+
+| Problema | Modifica |
+|---|---|
+| Ogni prodotto tolto contava come "risparmiato": la statistica dello spreco era sempre 0 | Nella scheda prodotto due pulsanti, **Consumato** e **Buttato**; il valore usa il prezzo del prodotto se c'e' |
+| Aperta la mozzarella, l'app continuava a mostrare la scadenza stampata | **Aperto oggi**: la scadenza scende alla durata dopo l'apertura per categoria (mai oltre quella stampata) |
+| Per salvare un prodotto in scadenza bisognava cancellarlo e reinserirlo | **Congela**: lo sposta in freezer con la nuova durata (bevande escluse) |
+| Prodotto finito = riscriverlo a mano nella lista della spesa | **Finito, ricompra**: esce dal frigo e va nella lista con un tocco |
+| Nessun consiglio su quanto dura un alimento | Riquadro di conservazione per categoria (dopo apertura / in freezer) |
+| Nella scheda la posizione compariva come `FRIDGE` | Etichetta tradotta |
+| Prodotti inseriti fra mezzanotte e le 2 scadevano un giorno prima | Date calcolate in ora locale (`format` di date-fns) invece che in UTC |
+
 ## 1.2.0 (versionCode 3) — 22/09/2026
 
 Le notifiche di scadenza non erano mai partite per nessun utente, da sempre. Due cause

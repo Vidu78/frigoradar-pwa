@@ -79,12 +79,12 @@ export default function Dashboard() {
     setShowWelcomeTutorial(false);
   };
 
-  const handleDeleteWithStats = async (id: string) => {
-    // L'utente non vuole visualizzare nessun popup.
-    // Assumiamo come consumato (SAVED) di default
-    updateStats('SAVED', 2.5);
+  // Consumato o buttato si sceglie nella scheda (niente popup): le statistiche di spreco ora sono vere
+  const handleDeleteWithStats = async (id: string, wasted = false) => {
+    const price = items.find((i) => i.id === id)?.price;
+    updateStats(wasted ? 'WASTED' : 'SAVED', price || 2.5);
     await deleteItem(id);
-    showToast(t('dashboard.consumed'), 'success');
+    showToast(t(wasted ? 'dashboard.wasted' : 'dashboard.consumed'), wasted ? 'info' : 'success');
   };
 
   const handleScan = async (decodedText: string) => {
@@ -597,8 +597,8 @@ export default function Dashboard() {
             setSelectedProduct({ ...selectedProduct, quantity: qty });
           }}
           onUpdateProduct={(updatedItem) => setSelectedProduct(updatedItem)}
-          onDelete={(id) => {
-            handleDeleteWithStats(id);
+          onDelete={(id, _name, wasted) => {
+            handleDeleteWithStats(id, wasted);
           }}
           onRefreshItem={fetchItems}
         />

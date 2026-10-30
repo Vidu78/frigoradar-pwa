@@ -27,7 +27,8 @@
     "consumed": "商品を消費して削除しました",
     "linked": "商品を関連付けました！",
     "link_error": "関連付け中にエラーが発生しました。",
-    "expiry_alert_sub": "期限間近または期限切れの商品が {{count}} 件あります。"
+    "expiry_alert_sub": "期限間近または期限切れの商品が {{count}} 件あります。",
+    "wasted": "廃棄として記録：フードロスに加算"
   },
   "profile": {
     "title": "プロフィール",
@@ -419,7 +420,19 @@
     "updated": "商品データを更新しました！",
     "no_nutrition": "商品は見つかりましたが、有用な栄養データがありません。",
     "not_found": "世界データベースに商品が見つかりません。",
-    "scan_error": "コードのスキャン中にエラーが発生しました。"
+    "scan_error": "コードのスキャン中にエラーが発生しました。",
+    "opened": "今日開封",
+    "opened_done": "期限を更新：{{count}}日以内に食べてください",
+    "freeze": "冷凍する",
+    "freeze_done": "冷凍庫へ移動：約{{count}}か月もちます",
+    "freeze_no": "冷凍はおすすめしません",
+    "restock": "使い切り・買い足す",
+    "restock_done": "買い物リストに追加しました",
+    "consumed": "食べた",
+    "tip_opened": "開封後は冷蔵庫で約{{count}}日もちます。",
+    "tip_freezer": "冷凍庫なら最大{{count}}か月。",
+    "tip_no_freeze": "冷凍には向きません。",
+    "wasted": "捨てた"
   },
   "barcode_assoc": {
     "title": "商品が見つかりました",

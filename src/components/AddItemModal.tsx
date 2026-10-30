@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authHeaders, limiteRaggiunto, aiOccupata } from '../lib/api';
 import { X, Calendar, Refrigerator, Box, Camera, Loader2, Weight, Search, AlertTriangle } from 'lucide-react';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { useToastStore } from '../store/toastStore';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -86,7 +86,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
   const [category, setCategory] = useState(initialData?.category || 'Altro');
   const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   
-  const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
+  const [purchaseDate, setPurchaseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [unit, setUnit] = useState(initialData?.unit || 'pz');
   const [isExpiryEdited, setIsExpiryEdited] = useState(false);
   // L'AI inventa una data quando non riesce a leggerla: va detto all'utente
@@ -95,7 +95,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
   // Se l'AI ha rilevato una data esatta, usa quella. Altrimenti calcola oggi + days.
   const defaultExp = initialData?.expiration_date 
     ? initialData.expiration_date 
-    : addDays(new Date(), initialData?.days || 7).toISOString().split('T')[0];
+    : format(addDays(new Date(), initialData?.days || 7), 'yyyy-MM-dd');
     
   const [expiry, setExpiry] = useState(defaultExp);
   
@@ -126,7 +126,7 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
     if (category === 'Verdure e Frutta' && name.trim().length > 2 && !isExpiryEdited) {
       const days = getVegetableShelfLife(name);
       const baseDate = purchaseDate ? new Date(purchaseDate) : new Date();
-      const presumedExpiry = addDays(baseDate, days).toISOString().split('T')[0];
+      const presumedExpiry = format(addDays(baseDate, days), 'yyyy-MM-dd');
       // eslint-disable-next-line react-hooks/exhaustive-deps, react/set-state-in-effect
       setExpiry(presumedExpiry);
     }
@@ -267,12 +267,12 @@ export default function AddItemModal({ initialData, initialInputMode, onSave, on
     if (!produceItem) { showToast(t('add_item.produce_select'), 'error'); return; }
     const wkg = parseFloat(produceWeight);
     if (!wkg || wkg <= 0) { showToast(t('add_item.produce_enter_weight'), 'error'); return; }
-    const expiryDate = addDays(new Date(), produceItem.days).toISOString().split('T')[0];
+    const expiryDate = format(addDays(new Date(), produceItem.days), 'yyyy-MM-dd');
     onSave({
       custom_name: `${produceItem.emoji} ${t(`produce.${produceItem.id}`)}`,
       barcode: null,
       expiration_date: expiryDate,
-      purchase_date: new Date().toISOString().split('T')[0],
+      purchase_date: format(new Date(), 'yyyy-MM-dd'),
       location: 'FRIDGE',
       quantity: wkg,
       unit: 'kg',

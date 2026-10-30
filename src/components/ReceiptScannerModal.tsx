@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { authHeaders, limiteRaggiunto, aiOccupata } from '../lib/api';
 import { X, Camera, Loader2, Check, Receipt, AlertTriangle } from 'lucide-react';
 import { useToastStore } from '../store/toastStore';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import AddItemModal from './AddItemModal';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
@@ -156,13 +156,13 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
 
   const handleQuickSave = async (index: number) => {
     const item = items[index];
-    const presumedExpiry = addDays(new Date(), item.estimated_shelf_life_days || 7).toISOString().split('T')[0];
+    const presumedExpiry = format(addDays(new Date(), item.estimated_shelf_life_days || 7), 'yyyy-MM-dd');
     
     try {
       await onSaveItem({
         custom_name: item.name || item.raw_name,
         expiration_date: presumedExpiry,
-        purchase_date: new Date().toISOString().split('T')[0],
+        purchase_date: format(new Date(), 'yyyy-MM-dd'),
         quantity: item.quantity || 1,
         unit: item.unit || 'pz',
         location: item.storage_type || 'PANTRY',
@@ -218,8 +218,8 @@ export default function ReceiptScannerModal({ onClose, onSaveItem }: ReceiptScan
             unit: item.unit || 'pz',
             category: item.category || 'Altro',
             location: item.storage_type || 'FRIDGE',
-            expiration_date: addDays(new Date(), item.default_shelf_life_days || 7).toISOString().split('T')[0],
-            purchase_date: new Date().toISOString().split('T')[0],
+            expiration_date: format(addDays(new Date(), item.default_shelf_life_days || 7), 'yyyy-MM-dd'),
+            purchase_date: format(new Date(), 'yyyy-MM-dd'),
           };
           await onSaveItem(productData);
           setItems(prev => {

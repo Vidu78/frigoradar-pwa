@@ -27,7 +27,8 @@
     "consumed": "Prodotto consumato e rimosso",
     "linked": "Prodotto associato con successo!",
     "link_error": "Errore durante l'associazione.",
-    "expiry_alert_sub": "Hai {{count}} prodotti in scadenza o scaduti."
+    "expiry_alert_sub": "Hai {{count}} prodotti in scadenza o scaduti.",
+    "wasted": "Segnato come buttato: conta nello spreco"
   },
   "profile": {
     "title": "Profilo",
@@ -419,7 +420,23 @@
     "updated": "Dati prodotto aggiornati!",
     "no_nutrition": "Prodotto trovato, ma senza dati nutrizionali utili.",
     "not_found": "Prodotto non trovato nel database mondiale.",
-    "scan_error": "Errore durante la scansione del codice."
+    "scan_error": "Errore durante la scansione del codice.",
+    "opened": "Aperto oggi",
+    "opened_done": "Scadenza aggiornata: consumalo entro {{count}} giorni",
+    "opened_done_one": "Scadenza aggiornata: consumalo entro domani",
+    "freeze": "Congela",
+    "freeze_done": "Spostato in freezer: dura circa {{count}} mesi",
+    "freeze_done_one": "Spostato in freezer: dura circa un mese",
+    "freeze_no": "Meglio non congelarlo",
+    "restock": "Finito, ricompra",
+    "restock_done": "Aggiunto alla lista della spesa",
+    "consumed": "Consumato",
+    "tip_opened": "Una volta aperto si conserva circa {{count}} giorni in frigo.",
+    "tip_opened_one": "Una volta aperto va consumato entro un giorno.",
+    "tip_freezer": "In freezer dura fino a {{count}} mesi.",
+    "tip_freezer_one": "In freezer dura circa un mese.",
+    "tip_no_freeze": "Sconsigliato congelarlo.",
+    "wasted": "Buttato"
   },
   "barcode_assoc": {
     "title": "Prodotto trovato",

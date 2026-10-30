@@ -27,7 +27,8 @@
     "consumed": "Produit consommé et retiré",
     "linked": "Produit associé !",
     "link_error": "Erreur lors de l'association.",
-    "expiry_alert_sub": "Vous avez {{count}} produits qui périment ou sont périmés."
+    "expiry_alert_sub": "Vous avez {{count}} produits qui périment ou sont périmés.",
+    "wasted": "Marqué comme jeté : compte dans le gaspillage"
   },
   "profile": {
     "title": "Profil",
@@ -419,7 +420,23 @@
     "updated": "Données du produit mises à jour !",
     "no_nutrition": "Produit trouvé, mais sans données nutritionnelles utiles.",
     "not_found": "Produit introuvable dans la base mondiale.",
-    "scan_error": "Erreur lors du scan du code."
+    "scan_error": "Erreur lors du scan du code.",
+    "opened": "Ouvert aujourd'hui",
+    "opened_done": "Date mise à jour : à consommer sous {{count}} jours",
+    "opened_done_one": "Date mise à jour : à consommer d'ici demain",
+    "freeze": "Congeler",
+    "freeze_done": "Mis au congélateur : environ {{count}} mois",
+    "freeze_done_one": "Mis au congélateur : environ un mois",
+    "freeze_no": "Mieux vaut ne pas le congeler",
+    "restock": "Fini, racheter",
+    "restock_done": "Ajouté à la liste de courses",
+    "consumed": "Consommé",
+    "tip_opened": "Une fois ouvert, il se garde environ {{count}} jours au frigo.",
+    "tip_opened_one": "Une fois ouvert, à consommer dans la journée.",
+    "tip_freezer": "Au congélateur, jusqu'à {{count}} mois.",
+    "tip_freezer_one": "Au congélateur, environ un mois.",
+    "tip_no_freeze": "Congélation déconseillée.",
+    "wasted": "Jeté"
   },
   "barcode_assoc": {
     "title": "Produit trouvé",

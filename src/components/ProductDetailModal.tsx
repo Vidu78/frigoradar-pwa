@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus, Minus, Flame, Box, ShieldCheck, Heart, AlertTriangle, ScanBarcode } from 'lucide-react';
+import { X, Plus, Minus, Flame, Box, ShieldCheck, Heart, AlertTriangle, ScanBarcode, Snowflake, PackageOpen, ShoppingCart, Check, Trash2, Lightbulb } from 'lucide-react';
 import { getExpirationStatus } from '../utils/expirationEngine';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import { supabase } from '../lib/supabase';
@@ -7,12 +7,14 @@ import { useToastStore } from '../store/toastStore';
 import { useStorageUrl } from './StorageImage';
 import { useTranslation } from 'react-i18next';
 import { healthLabel } from '../utils/labels';
+import { durate, scadenzaDopoApertura, scadenzaInFreezer } from '../utils/conservazione';
+import { useShoppingStore } from '../store/shoppingStore';
 
 interface ProductDetailModalProps {
   item: any;
   onClose: () => void;
   onUpdateQuantity: (id: string, newQuantity: number) => void;
-  onDelete: (id: string, name: string) => void;
+  onDelete: (id: string, name: string, wasted?: boolean) => void;
   onRefreshItem: () => void;
   onUpdateProduct: (item: any) => void;
 }
@@ -23,6 +25,37 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
   const imageUrl = useStorageUrl(item.image_url, 'product_images');
   const [showScanner, setShowScanner] = useState(false);
   const expInfo = getExpirationStatus(item.expiration_date);
+  const conserva = durate(item.category);
+  const addToShopping = useShoppingStore((s) => s.addItem);
+  const locationLabel: Record<string, string> = { FRIDGE: t('dashboard.fridge'), FREEZER: t('dashboard.freezer'), PANTRY: t('dashboard.pantry') };
+
+  const aggiorna = async (updates: Record<string, unknown>, msg: string) => {
+    const { error } = await supabase.from('inventory_items').update(updates).eq('id', item.id);
+    if (error) return showToast(t('common.save_error'), 'error');
+    onUpdateProduct({ ...item, ...updates });
+    onRefreshItem();
+    showToast(msg, 'success');
+  };
+
+  // Aperto oggi: la scadenza scende alla durata dopo l'apertura per categoria
+  const handleOpened = () => {
+    const nuova = scadenzaDopoApertura(item.category, item.expiration_date);
+    void aggiorna({ expiration_date: nuova }, t('product.opened_done', { count: conserva.apertoGiorni }));
+  };
+
+  const handleFreeze = () => {
+    const nuova = scadenzaInFreezer(item.category);
+    if (!nuova) return showToast(t('product.freeze_no'), 'info');
+    void aggiorna({ location: 'FREEZER', is_frozen: true, expiration_date: nuova }, t('product.freeze_done', { count: conserva.freezerMesi ?? 0 }));
+  };
+
+  // Finito: esce dal frigo come consumato e finisce nella lista della spesa
+  const handleFinished = async () => {
+    await addToShopping(item.custom_name || t('product.restock'), 1, item.unit || null);
+    onClose();
+    onDelete(item.id, item.custom_name);
+    showToast(t('product.restock_done'), 'success');
+  };
 
   const handleIncrement = () => {
     const step = item.unit === 'kg' || item.unit === 'l' ? 0.1 : 1;
@@ -128,7 +161,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
                 {expInfo.text}
               </div>
               <div style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', padding: '6px 12px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600 }}>
-                {item.location}
+                {locationLabel[item.location] || item.location}
               </div>
             </div>
           </div>
@@ -148,6 +181,28 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
                 <Plus size={20} />
               </button>
             </div>
+          </div>
+
+          {/* Azioni anti-spreco */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '8px' }}>
+            {[
+              { icon: <PackageOpen size={20} />, label: t('product.opened'), onClick: handleOpened, color: '#FF9F0A', hide: item.location === 'FREEZER' },
+              { icon: <Snowflake size={20} />, label: t('product.freeze'), onClick: handleFreeze, color: '#64C8FF', hide: item.location === 'FREEZER' },
+              { icon: <ShoppingCart size={20} />, label: t('product.restock'), onClick: handleFinished, color: 'var(--primary)', hide: false },
+            ].filter((a) => !a.hide).map((a) => (
+              <button key={a.label} onClick={a.onClick} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', color: a.color, padding: '12px 6px', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', lineHeight: 1.2 }}>
+                {a.icon}{a.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Consigli di conservazione */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(0,255,170,0.05)', border: '1px solid rgba(0,255,170,0.15)', borderRadius: '16px', padding: '12px 14px' }}>
+            <Lightbulb size={18} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.45 }}>
+              {t('product.tip_opened', { count: conserva.apertoGiorni })}{' '}
+              {conserva.freezerMesi === null ? t('product.tip_no_freeze') : t('product.tip_freezer', { count: conserva.freezerMesi })}
+            </p>
           </div>
 
           {/* Scheda Nutrizionale */}
@@ -204,15 +259,18 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             )}
           </div>
           
-          <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-            <button 
-              onClick={() => {
-                onClose();
-                onDelete(item.id, item.custom_name);
-              }}
-              style={{ width: '100%', background: 'rgba(255, 69, 58, 0.1)', border: '1px solid rgba(255, 69, 58, 0.2)', color: '#FF453A', padding: '16px', borderRadius: '20px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
+          <div style={{ marginTop: 'auto', paddingTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <button
+              onClick={() => { onClose(); onDelete(item.id, item.custom_name); }}
+              style={{ background: 'rgba(50, 215, 75, 0.12)', border: '1px solid rgba(50, 215, 75, 0.3)', color: '#32D74B', padding: '16px', borderRadius: '20px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
             >
-              {t('product.delete')}
+              <Check size={18} /> {t('product.consumed')}
+            </button>
+            <button
+              onClick={() => { onClose(); onDelete(item.id, item.custom_name, true); }}
+              style={{ background: 'rgba(255, 69, 58, 0.1)', border: '1px solid rgba(255, 69, 58, 0.2)', color: '#FF453A', padding: '16px', borderRadius: '20px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+            >
+              <Trash2 size={18} /> {t('product.wasted')}
             </button>
           </div>
 

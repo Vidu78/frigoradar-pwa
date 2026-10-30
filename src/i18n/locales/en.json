@@ -27,7 +27,8 @@
     "consumed": "Product consumed and removed",
     "linked": "Product linked successfully!",
     "link_error": "Error while linking.",
-    "expiry_alert_sub": "You have {{count}} products expiring or expired."
+    "expiry_alert_sub": "You have {{count}} products expiring or expired.",
+    "wasted": "Marked as thrown away: counts as waste"
   },
   "profile": {
     "title": "Profile",
@@ -419,7 +420,23 @@
     "updated": "Product data updated!",
     "no_nutrition": "Product found, but no useful nutrition data.",
     "not_found": "Product not found in the global database.",
-    "scan_error": "Error while scanning the code."
+    "scan_error": "Error while scanning the code.",
+    "opened": "Opened today",
+    "opened_done": "Expiry updated: eat it within {{count}} days",
+    "opened_done_one": "Expiry updated: eat it by tomorrow",
+    "freeze": "Freeze",
+    "freeze_done": "Moved to freezer: keeps about {{count}} months",
+    "freeze_done_one": "Moved to freezer: keeps about a month",
+    "freeze_no": "Better not to freeze it",
+    "restock": "Finished, rebuy",
+    "restock_done": "Added to shopping list",
+    "consumed": "Eaten",
+    "tip_opened": "Once opened it keeps about {{count}} days in the fridge.",
+    "tip_opened_one": "Once opened, eat it within a day.",
+    "tip_freezer": "In the freezer it keeps up to {{count}} months.",
+    "tip_freezer_one": "In the freezer it keeps about a month.",
+    "tip_no_freeze": "Not suitable for freezing.",
+    "wasted": "Thrown away"
   },
   "barcode_assoc": {
     "title": "Product found",

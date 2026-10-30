@@ -27,7 +27,8 @@
     "consumed": "商品已消耗并移除",
     "linked": "商品已关联！",
     "link_error": "关联时出错。",
-    "expiry_alert_sub": "有 {{count}} 件商品即将过期或已过期。"
+    "expiry_alert_sub": "有 {{count}} 件商品即将过期或已过期。",
+    "wasted": "已标记为丢弃：计入浪费"
   },
   "profile": {
     "title": "个人资料",
@@ -419,7 +420,19 @@
     "updated": "商品数据已更新！",
     "no_nutrition": "找到商品，但没有有用的营养数据。",
     "not_found": "在全球数据库中未找到该商品。",
-    "scan_error": "扫描条码时出错。"
+    "scan_error": "扫描条码时出错。",
+    "opened": "今天开封",
+    "opened_done": "保质期已更新：请在{{count}}天内吃完",
+    "freeze": "冷冻",
+    "freeze_done": "已移入冷冻室：约可保存{{count}}个月",
+    "freeze_no": "不建议冷冻",
+    "restock": "吃完了，再买",
+    "restock_done": "已加入购物清单",
+    "consumed": "已吃完",
+    "tip_opened": "开封后冷藏约可保存{{count}}天。",
+    "tip_freezer": "冷冻最多可保存{{count}}个月。",
+    "tip_no_freeze": "不建议冷冻。",
+    "wasted": "已丢弃"
   },
   "barcode_assoc": {
     "title": "找到商品",
