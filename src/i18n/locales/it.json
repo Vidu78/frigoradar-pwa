@@ -28,7 +28,9 @@
     "linked": "Prodotto associato con successo!",
     "link_error": "Errore durante l'associazione.",
     "expiry_alert_sub": "Hai {{count}} prodotti in scadenza o scaduti.",
-    "wasted": "Segnato come buttato: conta nello spreco"
+    "wasted": "Segnato come buttato: conta nello spreco",
+    "show_urgent": "Mostra",
+    "show_all": "Tutti"
   },
   "profile": {
     "title": "Profilo",
@@ -212,7 +214,9 @@
     "items": "prodotti",
     "done": "completati",
     "premium_sub": "Sblocca FrigoRadar PRO per usare la lista della spesa intelligente.",
-    "to_fridge": "In frigo"
+    "to_fridge": "In frigo",
+    "already_have": "Ne hai già {{count}} in casa",
+    "already_have_one": "Ne hai già uno in casa"
   },
   "recipes": {
     "title": "Chef AI",

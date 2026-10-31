@@ -28,7 +28,9 @@
     "linked": "商品已关联！",
     "link_error": "关联时出错。",
     "expiry_alert_sub": "有 {{count}} 件商品即将过期或已过期。",
-    "wasted": "已标记为丢弃：计入浪费"
+    "wasted": "已标记为丢弃：计入浪费",
+    "show_urgent": "查看",
+    "show_all": "全部"
   },
   "profile": {
     "title": "个人资料",
@@ -212,7 +214,8 @@
     "items": "商品",
     "done": "已完成",
     "premium_sub": "解锁 FrigoRadar PRO，使用智能购物清单。",
-    "to_fridge": "放入冰箱"
+    "to_fridge": "放入冰箱",
+    "already_have": "家里已经有{{count}}个"
   },
   "recipes": {
     "title": "AI厨师",

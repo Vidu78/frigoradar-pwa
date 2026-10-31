@@ -18,6 +18,11 @@ gesti quotidiani anti-spreco. Tutto lato web, arriva da solo a iOS, Android e PW
 | Nessun consiglio su quanto dura un alimento | Riquadro di conservazione per categoria (dopo apertura / in freezer) |
 | Nella scheda la posizione compariva come `FRIDGE` | Etichetta tradotta |
 | Prodotti inseriti fra mezzanotte e le 2 scadevano un giorno prima | Date calcolate in ora locale (`format` di date-fns) invece che in UTC |
+| L'avviso "Attenzione scadenze" diceva quanti prodotti, non quali (e solo per la zona aperta) | Toccandolo mostra i prodotti scaduti o in scadenza di frigo, freezer e dispensa insieme |
+| Si ricomprava cio' che c'era gia' | Nella lista della spesa: "Ne hai già N in casa" sotto la voce |
+| "Comprato → In frigo" perdeva unita', categoria e data d'acquisto | Ora le salva |
+| "Finito, ricompra" metteva il prodotto in una lista che l'utente free non vede (su iPhone e' proprio nascosta) | Il pulsante compare solo a chi ha la lista della spesa (PRO) |
+| Contatore della lista della spesa scritto in italiano in tutte le lingue | Tradotto |
 
 ## 1.2.0 (versionCode 3) — 22/09/2026
 

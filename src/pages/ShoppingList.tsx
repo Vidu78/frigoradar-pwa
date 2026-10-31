@@ -15,7 +15,17 @@ export default function ShoppingList() {
   const { t } = useTranslation();
   const { isPro } = useAuthStore();
   const { items, fetchItems, addItem, toggleItemCheck, removeItem } = useShoppingStore();
-  const { addItem: addToInventory } = useInventoryStore();
+  const { items: inventory, fetchItems: fetchInventory, addItem: addToInventory } = useInventoryStore();
+  // Quanti ne hai gia' in casa, per non ricomprare cio' che c'e' (confronto per nome)
+  const giaInCasa = (name: string) => {
+    const n = name.toLowerCase().trim();
+    if (n.length < 3) return 0;
+    // ponytail: confronto per sottostringa, "latte" trova "Latte intero"; sinonimi esclusi
+    return inventory.filter((i) => {
+      const m = (i.custom_name || '').toLowerCase().replace(/^\P{L}+/u, '').trim(); // via emoji iniziale
+      return m.length >= 3 && (m.includes(n) || n.includes(m));
+    }).length;
+  };
   const [newItemName, setNewItemName] = useState('');
   
   // State for magic flow
@@ -27,7 +37,8 @@ export default function ShoppingList() {
 
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+    fetchInventory();
+  }, [fetchItems, fetchInventory]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +54,13 @@ export default function ShoppingList() {
     await addToInventory({
       custom_name: data.custom_name,
       expiration_date: data.expiration_date,
+      purchase_date: data.purchase_date,
       quantity: data.quantity,
+      unit: data.unit,
       location: data.location,
       is_frozen: data.is_frozen,
       health_score: data.health_score,
+      category: data.category,
       image_url: null
     });
 
@@ -64,7 +78,7 @@ export default function ShoppingList() {
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>{t('shopping.title')}</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-            {items.filter(i => !i.checked).length} articoli da comprare
+            {items.filter(i => !i.checked).length} {t('shopping.items')}
           </p>
         </div>
         <button 
@@ -130,6 +144,11 @@ export default function ShoppingList() {
             
             <span style={{ flex: 1, fontSize: '1.1rem', textDecoration: item.checked ? 'line-through' : 'none' }}>
               {item.name}
+              {!item.checked && giaInCasa(item.name) > 0 && (
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#FF9F0A', fontWeight: 600, marginTop: '2px' }}>
+                  {t('shopping.already_have', { count: giaInCasa(item.name) })}
+                </span>
+              )}
             </span>
 
             {item.checked && (

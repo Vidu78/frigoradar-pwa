@@ -49,6 +49,7 @@ export default function Dashboard() {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<'FRIDGE' | 'FREEZER' | 'PANTRY'>('FRIDGE');
+  const [soloUrgenti, setSoloUrgenti] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -242,9 +243,14 @@ export default function Dashboard() {
     setAiProductData(null);
   };
 
+  const isUrgente = (item: { expiration_date: string | null }) => {
+    const status = getExpirationStatus(item.expiration_date).status;
+    return status === 'URGENT' || status === 'EXPIRED';
+  };
+
   const filteredItems = items.filter(item => {
     const matchSearch = (item.custom_name || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchTab = item.location === activeTab;
+    const matchTab = soloUrgenti ? isUrgente(item) : item.location === activeTab;
     return matchSearch && matchTab;
   });
 
@@ -261,10 +267,7 @@ export default function Dashboard() {
     return acc;
   }, {} as Record<string, typeof items>);
 
-  const urgentCount = items.filter(item => {
-    const status = getExpirationStatus(item.expiration_date);
-    return status.status === 'URGENT' || status.status === 'EXPIRED';
-  }).length;
+  const urgentCount = items.filter(isUrgente).length;
   
   const counts = {
     FRIDGE: items.filter(i => i.location === 'FRIDGE').length,
@@ -332,14 +335,15 @@ export default function Dashboard() {
       </div>
 
       {/* Statistiche Urgenti */}
-      {urgentCount > 0 && (
-        <div style={{ background: 'rgba(255, 69, 58, 0.15)', border: '1px solid rgba(255, 69, 58, 0.4)', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {(urgentCount > 0 || soloUrgenti) && (
+        <button onClick={() => setSoloUrgenti(!soloUrgenti)} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', font: 'inherit', background: 'rgba(255, 69, 58, 0.15)', border: '1px solid rgba(255, 69, 58, 0.4)', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Info size={24} color="#FF453A" style={{ flexShrink: 0 }} />
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ color: '#FF453A', fontWeight: 600, fontSize: '0.95rem' }}>{t('dashboard.expiry_alert')}</div>
             <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginTop: '2px' }}>{t('dashboard.expiry_alert_sub', { count: urgentCount })}</div>
           </div>
-        </div>
+          <span style={{ color: '#FF453A', fontWeight: 700, fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{soloUrgenti ? t('dashboard.show_all') : t('dashboard.show_urgent')}</span>
+        </button>
       )}
 
       {/* Search Bar */}
@@ -359,7 +363,7 @@ export default function Dashboard() {
       {/* TABS Frigo / Freezer / Dispensa */}
       <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '4px', borderRadius: '12px', marginBottom: '20px' }}>
         <button 
-          onClick={() => setActiveTab('FRIDGE')}
+          onClick={() => { setActiveTab('FRIDGE'); setSoloUrgenti(false); }}
           style={{
             flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
             background: activeTab === 'FRIDGE' ? 'rgba(255,255,255,0.1)' : 'transparent',
@@ -375,7 +379,7 @@ export default function Dashboard() {
           </span>
         </button>
         <button 
-          onClick={() => setActiveTab('FREEZER')}
+          onClick={() => { setActiveTab('FREEZER'); setSoloUrgenti(false); }}
           style={{
             flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
             background: activeTab === 'FREEZER' ? 'rgba(100, 200, 255, 0.15)' : 'transparent',
@@ -391,7 +395,7 @@ export default function Dashboard() {
           </span>
         </button>
         <button 
-          onClick={() => setActiveTab('PANTRY')}
+          onClick={() => { setActiveTab('PANTRY'); setSoloUrgenti(false); }}
           style={{
             flex: 1, padding: '10px 4px', borderRadius: '8px', border: 'none',
             background: activeTab === 'PANTRY' ? 'rgba(255, 170, 0, 0.15)' : 'transparent',

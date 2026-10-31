@@ -28,7 +28,9 @@
     "linked": "¡Producto asociado!",
     "link_error": "Error al asociar.",
     "expiry_alert_sub": "Tienes {{count}} productos por caducar o caducados.",
-    "wasted": "Marcado como tirado: cuenta como desperdicio"
+    "wasted": "Marcado como tirado: cuenta como desperdicio",
+    "show_urgent": "Ver",
+    "show_all": "Todos"
   },
   "profile": {
     "title": "Perfil",
@@ -212,7 +214,9 @@
     "items": "artículos",
     "done": "completados",
     "premium_sub": "Desbloquea FrigoRadar PRO para usar la lista de la compra inteligente.",
-    "to_fridge": "A la nevera"
+    "to_fridge": "A la nevera",
+    "already_have": "Ya tienes {{count}} en casa",
+    "already_have_one": "Ya tienes uno en casa"
   },
   "recipes": {
     "title": "Chef IA",

@@ -28,7 +28,9 @@
     "linked": "Product linked successfully!",
     "link_error": "Error while linking.",
     "expiry_alert_sub": "You have {{count}} products expiring or expired.",
-    "wasted": "Marked as thrown away: counts as waste"
+    "wasted": "Marked as thrown away: counts as waste",
+    "show_urgent": "Show",
+    "show_all": "All"
   },
   "profile": {
     "title": "Profile",
@@ -212,7 +214,9 @@
     "items": "items",
     "done": "completed",
     "premium_sub": "Unlock FrigoRadar PRO to use the smart shopping list.",
-    "to_fridge": "To fridge"
+    "to_fridge": "To fridge",
+    "already_have": "You already have {{count}} at home",
+    "already_have_one": "You already have one at home"
   },
   "recipes": {
     "title": "Chef AI",

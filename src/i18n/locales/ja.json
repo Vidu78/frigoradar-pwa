@@ -28,7 +28,9 @@
     "linked": "商品を関連付けました！",
     "link_error": "関連付け中にエラーが発生しました。",
     "expiry_alert_sub": "期限間近または期限切れの商品が {{count}} 件あります。",
-    "wasted": "廃棄として記録：フードロスに加算"
+    "wasted": "廃棄として記録：フードロスに加算",
+    "show_urgent": "表示",
+    "show_all": "すべて"
   },
   "profile": {
     "title": "プロフィール",
@@ -212,7 +214,8 @@
     "items": "アイテム",
     "done": "完了",
     "premium_sub": "FrigoRadar PRO でスマート買い物リストを使いましょう。",
-    "to_fridge": "冷蔵庫へ"
+    "to_fridge": "冷蔵庫へ",
+    "already_have": "家にすでに{{count}}個あります"
   },
   "recipes": {
     "title": "AIシェフ",

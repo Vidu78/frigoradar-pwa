@@ -28,7 +28,9 @@
     "linked": "Produit associé !",
     "link_error": "Erreur lors de l'association.",
     "expiry_alert_sub": "Vous avez {{count}} produits qui périment ou sont périmés.",
-    "wasted": "Marqué comme jeté : compte dans le gaspillage"
+    "wasted": "Marqué comme jeté : compte dans le gaspillage",
+    "show_urgent": "Voir",
+    "show_all": "Tous"
   },
   "profile": {
     "title": "Profil",
@@ -212,7 +214,9 @@
     "items": "articles",
     "done": "complétés",
     "premium_sub": "Débloquez FrigoRadar PRO pour utiliser la liste de courses intelligente.",
-    "to_fridge": "Au frigo"
+    "to_fridge": "Au frigo",
+    "already_have": "Tu en as déjà {{count}} à la maison",
+    "already_have_one": "Tu en as déjà un à la maison"
   },
   "recipes": {
     "title": "Chef IA",

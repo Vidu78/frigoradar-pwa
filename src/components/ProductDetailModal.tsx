@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { healthLabel } from '../utils/labels';
 import { durate, scadenzaDopoApertura, scadenzaInFreezer } from '../utils/conservazione';
 import { useShoppingStore } from '../store/shoppingStore';
+import { useAuthStore } from '../store/authStore';
 
 interface ProductDetailModalProps {
   item: any;
@@ -27,6 +28,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
   const expInfo = getExpirationStatus(item.expiration_date);
   const conserva = durate(item.category);
   const addToShopping = useShoppingStore((s) => s.addItem);
+  const isPro = useAuthStore((s) => s.isPro);
   const locationLabel: Record<string, string> = { FRIDGE: t('dashboard.fridge'), FREEZER: t('dashboard.freezer'), PANTRY: t('dashboard.pantry') };
 
   const aggiorna = async (updates: Record<string, unknown>, msg: string) => {
@@ -188,7 +190,7 @@ export default function ProductDetailModal({ item, onClose, onUpdateQuantity, on
             {[
               { icon: <PackageOpen size={20} />, label: t('product.opened'), onClick: handleOpened, color: '#FF9F0A', hide: item.location === 'FREEZER' },
               { icon: <Snowflake size={20} />, label: t('product.freeze'), onClick: handleFreeze, color: '#64C8FF', hide: item.location === 'FREEZER' },
-              { icon: <ShoppingCart size={20} />, label: t('product.restock'), onClick: handleFinished, color: 'var(--primary)', hide: false },
+              { icon: <ShoppingCart size={20} />, label: t('product.restock'), onClick: handleFinished, color: 'var(--primary)', hide: !isPro },
             ].filter((a) => !a.hide).map((a) => (
               <button key={a.label} onClick={a.onClick} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', color: a.color, padding: '12px 6px', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', lineHeight: 1.2 }}>
                 {a.icon}{a.label}

@@ -28,7 +28,9 @@
     "linked": "Produkt verknüpft!",
     "link_error": "Fehler beim Verknüpfen.",
     "expiry_alert_sub": "{{count}} Produkte laufen bald ab oder sind abgelaufen.",
-    "wasted": "Als weggeworfen markiert: zählt als Verschwendung"
+    "wasted": "Als weggeworfen markiert: zählt als Verschwendung",
+    "show_urgent": "Zeigen",
+    "show_all": "Alle"
   },
   "profile": {
     "title": "Profil",
@@ -212,7 +214,9 @@
     "items": "Artikel",
     "done": "erledigt",
     "premium_sub": "Schalte FrigoRadar PRO frei, um die intelligente Einkaufsliste zu nutzen.",
-    "to_fridge": "In den Kühlschrank"
+    "to_fridge": "In den Kühlschrank",
+    "already_have": "Du hast schon {{count}} zu Hause",
+    "already_have_one": "Du hast schon eins zu Hause"
   },
   "recipes": {
     "title": "Chef KI",
